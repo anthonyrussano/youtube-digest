@@ -8,3 +8,4 @@ exclude: [README.md, STYLE.md, articles, scripts, digest.py, run.sh, data, state
 defaults:
   - scope: {path: "reports"}
     values: {layout: report}
+header_pages: []
