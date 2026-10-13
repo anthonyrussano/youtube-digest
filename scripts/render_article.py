@@ -34,7 +34,7 @@ radar = [v for v in rel if v["id"] not in cited]
 if radar and "Also on the radar" not in body:
     def esc(t): return t.replace("[", "(").replace("]", ")").replace("|", "–")
     links = "; ".join(f"[{esc(v['title'])}]({v['url']}) ({v['channel']})" for v in radar)
-    body += ("\n\n## Also on the radar\n\nThese also appeared this cycle, but there was no transcript to report from yet "
+    body += ("\n\n*Also on the radar:* these also appeared this cycle, but there was no transcript to report from yet "
              "(captions rate-limited by YouTube, no English captions, or no speech), so they aren't summarized here: " + links + ".")
 def q(s): return '"' + s.replace('\\', '\\\\').replace('"', '\\"') + '"'
 out = f"---\nlayout: report\ntitle: {q(fm['title'])}\ndek: {q(fm['dek'])}\ndate: {date}\n---\n\n{body}\n"

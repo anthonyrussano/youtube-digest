@@ -1,29 +1,27 @@
-# Article style guide
+# Article style guide: "Mind Blow" format
 
-Every daily report is a **longform news article**: a roundup of the latest AI and DevOps news, reported from the day's videos. The writer (the scheduled Grok Bot routine) writes `articles/YYYY-MM-DD.md`, and `./run.sh render` turns it into `reports/YYYY-MM-DD.md`.
+Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of short, self-contained items, each a small jolt of wonder. The writer (the scheduled Grok Bot routine) writes `articles/YYYY-MM-DD.md` from the day's transcripts (`data/relevant.json`, `data/transcripts/`) and the qualifying X posts (`data/x_selected.json`). `./run.sh render` turns it into `reports/YYYY-MM-DD.md`.
 
 ## Shape
-- **Front matter:** `title:` is the headline (specific and newsy, built around the day's biggest story) and `dek:` is a one-sentence subheadline. Both go in double quotes.
-- **Lede:** the first paragraph has no subhead. It names the biggest development and why it matters, then sets up the second story.
-- **Body:** organize by story or theme, not one video at a time. Merge related videos into a single narrative (for example, Google's and OpenAI's always-on agents in one section). Use 3–7 `##` section subheads. Put the most newsworthy items first and ideas and curiosities last.
-- **No metadata:** no channel/date/length lines, no bullet lists, no tables, no "Key moments:" rows. Write flowing paragraphs only. Mention the channel or speaker in prose where it helps ("Jeff Geerling says…").
-- **Also on the radar:** the renderer appends this automatically, as one paragraph linking the titles of relevant videos that have no usable transcript. Don't summarize them.
+- **Front matter:** `title:` is a short, punchy headline that teases two or three of the best items. `dek:` is one line. Both go in double quotes.
+- **Cold open:** one or two quick, striking hits (a sentence each, linked) before any setup.
+- **One-line intro,** for example "Here is what happened in AI and DevOps this cycle."
+- **Items:** about 12–25 of them, one paragraph each, 2–4 sentences. Every item:
+  1. names who did it (team, company or person),
+  2. says plainly what they made, found or announced,
+  3. gives one concrete jaw-dropping detail (a number, price, spec or result),
+  4. ends with why it matters or what comes next.
+  Related videos and posts on the same story merge into one item. Order items by how mind-blowing and important they are, not by source or theme.
+- **Sign-off:** a brief, playful closing line.
+- **Forbidden:** `##` headers, theme sections, bullet lists, tables, metadata lines (channel, date, length) and a separate X section. The renderer adds "*Also on the radar:*" itself as a plain final paragraph.
 
-## Citations
-- Link the claim text itself: `[found a latency regression](https://www.youtube.com/watch?v=ID&t=60s)`. Don't add footnotes or "(source)" tails.
-- Use a timestamped link `&t=<seconds>s` for every key moment you have, at the sentence that describes it. Use the plain video URL when introducing a video.
-- Every video with a transcript must be cited at least once. `render_article.py` fails if one is missing.
+## Sources and citations
+- **YouTube:** link the video when introducing it, and give the key moment a timestamped link (`https://www.youtube.com/watch?v=ID&t=<seconds>s`) on the sentence that describes it. Every video with a transcript must be cited at least once; `render_article.py` fails otherwise. Keep the substance: an item may hold 2–4 timestamped links.
+- **X:** only posts from `data/x_selected.json` (last 24 h, bookmarks > likes, at least 10 bookmarks). Link the quoted or paraphrased text to the post URL and name the author. Mention saves versus likes in passing where it adds punch ("bookmarked 1,411 times but liked only 821"). X items mix into the run alongside the videos, ordered by story. Several small posts may share one item.
+- Link the claim text itself. No footnotes or "(source)" tails.
 
-## Accuracy
-- Report only what the transcript says. Don't add outside facts, prices, dates or specs, and don't fill gaps from memory.
-- Attribute claims and vendor numbers to the speaker ("GitHub claims up to 67% lower cost"). Keep the original numbers and their units.
-- Neutral news voice: short declarative sentences, no hype words, no second-person marketing.
-- Length should follow the material, typically 1,500–3,000 words.
-
-## X posts (what people are saving)
-- The input is `data/x_selected.json`: posts from the last 24 hours with more bookmarks than likes (at least 10 bookmarks), ranked by bookmarks.
-- Work these posts into the narrative. Put a post beside the video story it relates to, or collect them in their own `##` prose section, for example "What people are saving on X". Never use a bullet list, even when a post is itself a list.
-- Quote or paraphrase each post and link the quoted or paraphrased text to the post URL: `Suraj Sharma laid out [a six-month plan to become an AI engineer](https://x.com/.../status/ID)`. Name the author in prose and give the counts in a natural phrase ("saved 1,411 times and liked 821 times", "349 bookmarks to 181 likes").
-- Report only what the post says and attribute its claims. Flag claims that are dubious or promotional rather than repeating them as fact. Leave out spam, crypto promotion and engagement bait even if the filter let them through. If no post qualifies, leave the section out.
+## Accuracy and tone
+- Report only what the transcript or post says. Don't add outside facts, and attribute vendor numbers and claims ("GitHub claims up to 67%"). Flag promotional or dubious X claims in a short clause, and leave out spam and crypto promotion.
+- Write punchy, plain and wonder-driven. Use short sentences and concrete numbers, with no hype words such as "revolutionary" and no second-person marketing. A light "and here's the wild part" energy is fine, but the facts carry the wonder.
 
 Reference example: `articles/2026-10-12.md`.

@@ -14,7 +14,7 @@ This pipeline turns Anthony's YouTube subscriptions (`subscriptions.csv`, 144 ch
 | `data/selected.json` | (optional) The judged relevant list `{video_id: "AI" or "DevOps"}`. If present, it replaces the keyword candidates |
 | `data/relevant.json` | Relevant videos with `transcript_status`, duration, and transcript path |
 | `data/transcripts/<id>.txt` | `[seconds] text` lines parsed from English captions |
-| `articles/YYYY-MM-DD.md` | The LLM-written longform article (front matter `title`, `dek`, plus body), following `STYLE.md` |
+| `articles/YYYY-MM-DD.md` | The LLM-written "Mind Blow" article (front matter `title`, `dek`, plus body), following `STYLE.md` |
 | `scripts/render_article.py` | Checks citations, appends "Also on the radar", and writes `reports/YYYY-MM-DD.md` |
 | `reports/YYYY-MM-DD.md` | The published article (a Jekyll page) |
 | `index.md`, `_config.yml`, `_layouts/`, `assets/` | GitHub Pages site (Jekyll, minima theme) |
@@ -46,19 +46,19 @@ cd /home/box/youtube-digest
 #  2. JUDGE: read data/videos.json (non-Shorts, not already seen) and write
 #     data/selected.json = {"<video_id>": "AI" | "DevOps", ...}  (only genuinely AI/DevOps videos)
 ./run.sh transcripts             # 3. captions -> data/transcripts/; also retries earlier 429 videos
-#  4. WRITE: read data/relevant.json + data/transcripts/<id>.txt for every status "ok" video and write
-#     articles/$(date +%F).md following STYLE.md (headline, dek, lede, themed sections, inline
-#     timestamped links, every transcribed video cited, nothing beyond the transcripts)
-#  4b. X: ./run.sh x-reset; then for EVERY non-# line of config/x_queries.txt call MCP x.search_posts_all with
+#  4. X: ./run.sh x-reset; then for EVERY non-# line of config/x_queries.txt call MCP x.search_posts_all with
 #     query="<line> -is:retweet -is:reply lang:en", max_results=25, sort_order=relevancy,
 #     start_time=<now-24h ISO UTC>, post.fields=public_metrics,created_at,author_id,
 #     expansions=author_id, user.fields=username,name (write_to_file) and copy each result to data/x_raw/qNN.json
 ./run.sh x                       #     -> data/x_selected.json (bookmarks > likes, >=10 bookmarks, ranked)
-#     Weave the selected posts into articles/<date>.md per STYLE.md ("What people are saving on X"; prose, links, counts)
-./run.sh render                  # 5. -> reports/<date>.md (fails if a transcribed video isn't cited)
-./run.sh publish                 # 6. commit reports/ + articles/ and push; Pages rebuilds in ~1 min
+#  5. WRITE articles/$(date +%F).md per STYLE.md ("Mind Blow" format): cold open, one-line intro,
+#     12-25 short items from transcripts (data/relevant.json + data/transcripts/) AND data/x_selected.json,
+#     mixed and ordered by how mind-blowing they are, with no headers or bullets, a playful sign-off,
+#     every transcribed video cited with timestamped links, and X posts linked with their saves vs likes
+./run.sh render                  # 6. -> reports/<date>.md (fails if a transcribed video isn't cited)
+./run.sh publish                 # 7. commit reports/ + articles/ and push; Pages rebuilds in ~1 min
 ```
-The X step uses about 24 calls per run (limits: 30 per minute, 1000 per day). `min_faves:` is ignored by this search, so the engagement floor is applied in `x_filter.py`. If no relevant video has a transcript but X posts qualified, the article can still be built from X alone, but `render` requires `data/relevant.json`. If neither has content, skip steps 4–6 and publish nothing. `publish` stages only site, report and article files, and it refuses to commit anything under data/, state/ or .venv/, or any CSV or cookie file. `./run.sh` with no stage still runs rss and transcripts using keyword candidates. To reprocess everything, delete `state/seen.json`. Caption rate limits (429) are the main bottleneck. If they keep happening, slow down further (`--sleep-subtitles` in `digest.py`) or pass browser cookies to yt-dlp, which needs Anthony's approval. Never commit cookies.
+The X step uses about 24 calls per run (limits: 30 per minute, 1000 per day). `min_faves:` is ignored by this search, so the engagement floor is applied in `x_filter.py`. If no relevant video has a transcript but X posts qualified, the article can still be built from X alone, but `render` requires `data/relevant.json`. If neither has content, skip steps 5–7 and publish nothing. `publish` stages only site, report and article files, and it refuses to commit anything under data/, state/ or .venv/, or any CSV or cookie file. `./run.sh` with no stage still runs rss and transcripts using keyword candidates. To reprocess everything, delete `state/seen.json`. Caption rate limits (429) are the main bottleneck. If they keep happening, slow down further (`--sleep-subtitles` in `digest.py`) or pass browser cookies to yt-dlp, which needs Anthony's approval. Never commit cookies.
 
 ## Adding Whisper later
 This box has 8 CPUs, about 3 GB of free RAM, and no GPU. That's too small for Whisper turbo, so it isn't run here. Videos marked `needs Whisper` can go to Anthony's repo **wikip-co/whisper-youtube-transcriber** (yt-dlp audio download, then openai-whisper `turbo`, built for AMD ROCm GPUs, writing `transcript.txt` / `transcript.json`). It would run on the GPU server on his LAN, which this box reaches over the WireGuard tunnel. A possible setup:

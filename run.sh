@@ -21,7 +21,7 @@ case "${1:-all}" in
   x-reset) rm -rf data/x_raw && mkdir -p data/x_raw && echo "cleared data/x_raw" ;;
   publish)
     D=${2:-$TODAY}
-    git add -- reports/ articles/ config/x_queries.txt scripts/x_filter.py run.sh index.md _config.yml _layouts assets STYLE.md README.md .gitignore 2>/dev/null || true
+    git add -- reports/ articles/ config/x_queries.txt scripts/x_filter.py scripts/render_article.py run.sh index.md _config.yml _layouts assets STYLE.md README.md .gitignore 2>/dev/null || true
     if git diff --cached --quiet; then echo "Nothing to publish"; exit 0; fi
     # safety net: refuse to publish private files even if .gitignore was edited
     if git diff --cached --name-only | grep -Eq '(^|/)(data|state|\.venv)/|subscriptions|\.csv$|cookie'; then
