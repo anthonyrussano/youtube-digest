@@ -1,0 +1,28 @@
+# X search queries for the daily "What people are saving on X" section.
+# Derived from the AI/DevOps topics of Anthony's YouTube subscriptions (topics only, no channel list).
+# One query per line; the routine appends the BASE suffix below to each. Lines starting with # are ignored.
+# BASE: -is:retweet -is:reply lang:en
+(AI agents OR agentic) (coding OR workflow OR production)
+("Claude Code" OR Codex OR Cursor) (tips OR workflow OR prompt)
+(LLM OR "language model") (paper OR benchmark OR evals)
+("context engineering" OR "prompt engineering" OR RAG)
+(MCP OR "model context protocol") (server OR tools)
+(Anthropic OR Claude) (release OR launch OR new)
+(OpenAI OR ChatGPT OR GPT) (release OR launch OR new)
+(Gemini OR DeepMind) (release OR launch OR model)
+("local LLM" OR ollama OR llama.cpp OR "run locally")
+("open source" OR "open weights") (model OR LLM)
+(fine-tuning OR "reinforcement learning" OR RLHF OR distillation)
+(transformer OR "neural network" OR "machine learning") (explained OR tutorial OR guide)
+(homelab OR "self-hosted" OR selfhosted)
+(kubernetes OR k8s OR docker) (tips OR guide OR production)
+(devops OR "platform engineering" OR SRE) (lessons OR guide OR incident)
+(terraform OR ansible OR "infrastructure as code" OR CI/CD OR "GitHub Actions")
+(postgres OR postgresql OR database) (performance OR migration OR scaling)
+(cybersecurity OR "prompt injection" OR vulnerability) (AI OR LLM)
+(GPU OR "AI hardware" OR inference) (cost OR cluster OR benchmark)
+("Raspberry Pi" OR "mini PC" OR NAS) (server OR AI OR build)
+(Python OR Rust OR "Rails") (developer OR programming) (tip OR guide)
+(web scraping OR "AI search" OR crawler) (agent OR LLM)
+("AI startup" OR "Y Combinator" OR founders) (AI OR agents)
+(AGI OR "AI safety" OR alignment OR "scaling laws")

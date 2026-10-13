@@ -20,4 +20,10 @@ Every daily report is a **longform news article**: a roundup of the latest AI an
 - Neutral news voice: short declarative sentences, no hype words, no second-person marketing.
 - Length should follow the material, typically 1,500–3,000 words.
 
+## X posts (what people are saving)
+- The input is `data/x_selected.json`: posts from the last 24 hours with more bookmarks than likes (at least 10 bookmarks), ranked by bookmarks.
+- Work these posts into the narrative. Put a post beside the video story it relates to, or collect them in their own `##` prose section, for example "What people are saving on X". Never use a bullet list, even when a post is itself a list.
+- Quote or paraphrase each post and link the quoted or paraphrased text to the post URL: `Suraj Sharma laid out [a six-month plan to become an AI engineer](https://x.com/.../status/ID)`. Name the author in prose and give the counts in a natural phrase ("saved 1,411 times and liked 821 times", "349 bookmarks to 181 likes").
+- Report only what the post says and attribute its claims. Flag claims that are dubious or promotional rather than repeating them as fact. Leave out spam, crypto promotion and engagement bait even if the filter let them through. If no post qualifies, leave the section out.
+
 Reference example: `articles/2026-10-12.md`.
