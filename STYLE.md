@@ -17,7 +17,7 @@ Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of
 
 ## Sources and citations
 - **YouTube:** link the video when introducing it, and give the key moment a timestamped link (`https://www.youtube.com/watch?v=ID&t=<seconds>s`) on the sentence that describes it. Every video with a transcript must be cited at least once; `render_article.py` fails otherwise. Keep the substance: an item may hold 2–4 timestamped links.
-- **X:** only posts from `data/x_selected.json` (last 24 h, bookmarks > likes, at least 10 bookmarks). Link the quoted or paraphrased text to the post URL and name the author. Mention saves versus likes in passing where it adds punch ("bookmarked 1,411 times but liked only 821"). X items mix into the run alongside the videos, ordered by story. Several small posts may share one item.
+- **X:** only posts from `data/x_selected.json` (last 24 h, bookmarks > likes, at least 10 bookmarks; that filter is for selection only). Write X-sourced items exactly like video items: who did, built or said what, the striking detail, and why it matters, with the post URL linked inline on the natural phrase. Never use platform framing: no "on X", no "posted", no "people saved", and no bookmark, like or save counts. X items mix into the run alongside the videos, ordered by story, and several small ones may share one item.
 - Link the claim text itself. No footnotes or "(source)" tails.
 
 ## Accuracy and tone
