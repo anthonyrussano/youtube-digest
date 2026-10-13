@@ -15,6 +15,12 @@ Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of
 - **Sign-off:** a brief, playful closing line.
 - **Forbidden:** `##` headers, theme sections, bullet lists, tables, metadata lines (channel, date, length) and a separate X section. The renderer adds "*Also on the radar:*" itself as a plain final paragraph.
 
+## Editions
+- There are several editions a day (see README "Editions"). Each covers only what is new since the previous edition. Never repeat a story that is already published; `render` blocks reused video and post IDs.
+- A later edition is shorter when the material is thin. Fewer items (as few as 5) are fine, and so is a one-hit cold open. Don't pad.
+- **X-only edition:** with no new transcribed videos, an edition may be built entirely from X items, but only if at least 5 good ones qualify. Use the same format and voice, with no mention of the platform.
+- The `title:` should still tease the edition's best items. The page shows the date and edition time automatically, so don't put "noon edition" in the text.
+
 ## Sources and citations
 - **YouTube:** link the video when introducing it, and give the key moment a timestamped link (`https://www.youtube.com/watch?v=ID&t=<seconds>s`) on the sentence that describes it. Every video with a transcript must be cited at least once; `render_article.py` fails otherwise. Keep the substance: an item may hold 2–4 timestamped links.
 - **X:** only posts from `data/x_selected.json` (last 24 h, bookmarks > likes, at least 10 bookmarks; that filter is for selection only). Write X-sourced items exactly like video items: who did, built or said what, the striking detail, and why it matters, with the post URL linked inline on the natural phrase. Never use platform framing: no "on X", no "posted", no "people saved", and no bookmark, like or save counts. X items mix into the run alongside the videos, ordered by story, and several small ones may share one item.
@@ -49,8 +55,8 @@ Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of
 1. The front matter has a quoted `title:` (short, teasing two or three items) and a quoted `dek:`.
 2. The article has a cold open of one or two linked hits, then a one-line intro, then items, then a sign-off. Nothing else.
 3. There are no `#` headers, bullets, tables or metadata lines (`grep -nE '^(#|[-*] |\|)' articles/<date>.md` prints nothing).
-4. There are about 12–25 items of 2–4 sentences, each with who, what, one concrete number and why it matters, ordered by wow and importance.
-5. Every transcribed video is linked, with key moments as `&t=<s>s` links (`./run.sh render` enforces this).
+4. There are about 12–25 items (fewer in a thin later edition, at least 5 for X-only) of 2–4 sentences, each with who, what, one concrete number and why it matters, ordered by wow and importance.
+5. Nothing from an earlier edition is repeated. Every new transcribed video is linked, with key moments as `&t=<s>s` links (`./run.sh render` enforces this).
 6. Every X item is drawn from `data/x_selected.json` and written like a video item. `grep -niE 'on x\b|bookmark|saves?\b|saved|likes?\b|posted' articles/<date>.md` prints nothing (check any hit by hand).
 7. Every number and claim appears in a transcript or post and is attributed. Dubious claims are flagged, and there is no spam or crypto.
 8. After `./run.sh publish`, the report URL returns HTTP 200 (allow about 1–2 minutes for Pages).

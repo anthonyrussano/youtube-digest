@@ -16,7 +16,9 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 | `STYLE.md` | The Mind Blow format: rules, annotated example and pre-publish checklist |
 | `docs/ROUTINE_PROMPT.md` | Paste-ready prompt for the scheduled daily routine |
 | `index.md`, `_config.yml`, `_layouts/`, `assets/` | Jekyll site (minima theme) for GitHub Pages |
-| `state/seen.json` | **Private.** Video IDs already processed |
+| `state/seen.json` | **Private.** Video IDs already fetched |
+| `state/published.json`, `state/last_edition.json`, `state/current_edition.json` | **Private.** IDs already published, the last publish time (next window start) and the open edition |
+| `scripts/edition.py` | Edition bookkeeping (`./run.sh edition-start`, `./run.sh edition`) |
 | `data/` | **Private.** `videos.json`, `selected.json`, `relevant.json`, `transcripts/`, `x_raw/` and `x_selected.json` |
 | `scripts/render_report_legacy.py`, `scripts/summaries_2026-10-12.py` | Old bullet format, kept for reference only |
 
@@ -28,23 +30,34 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 5. **Pages:** in repo Settings, open Pages, choose "Deploy from a branch" and set it to `main` and `/ (root)`. Jekyll builds with the minima theme from `_config.yml`, which excludes the scripts, docs and private paths. Each push rebuilds the site in about 1–2 minutes.
 6. **X search:** this needs the MCP namespace `x` (tool `search_posts_all`) connected for the agent. There is no API key in this repo.
 
-## Daily flow (for the scheduled routine)
+## Editions (several per day)
+The routine runs at about 6:04 AM, noon and 5 PM PT on weekdays, plus on demand. Each run is one **edition**:
+- **Id and page:** the first edition of a PT day is `YYYY-MM-DD` (`articles/2026-10-13.md` becomes `reports/2026-10-13.html`). Later editions add the PT start time, `YYYY-MM-DD-HHMM` (`articles/2026-10-13-1158.md` becomes `reports/2026-10-13-1158.html`), so they never overwrite the morning page. The index lists every edition newest first, labeled with its date and "h:mm AM/PM PT edition".
+- **Window:** `./run.sh edition-start` sets the window start to the previous edition's publish time (`state/last_edition.json`). With no state it falls back to now-24h, and it never goes back more than 72 h. `--hours H` forces a window. The result goes to `state/current_edition.json`, which `rss`, `x`, `render` and `publish` all read by default.
+- **No repeats:** `state/seen.json` holds every video already fetched. `state/published.json` holds every video and X post ID cited in a published edition, recorded by `publish`. `rss` and `transcripts` skip published videos, and `x` drops published posts. `render` refuses a new edition that cites anything already published. The yt-dlp RSS fallback has only day-level dates, so it always looks back 24 h, and seen-tracking removes the overlap.
+- **Publish:** `./run.sh publish` pushes, then records the cited IDs and the publish time, which is the next edition's window start, and closes the edition. If the push fails, the state isn't advanced.
+- **Skip rule:** an edition needs new transcribed videos, **or** at least 5 good X items for an X-only edition. Otherwise `render` exits with `SKIP:` and nothing is published. Leave the edition open; the next `edition-start` reopens with the same window start.
+
+## Daily flow (one edition; for the scheduled routine)
 ```bash
 cd /home/box/youtube-digest
-./run.sh rss --hours 24          # 1. new videos from the last 24 h -> data/videos.json
-#  2. JUDGE: read data/videos.json (non-Shorts, not already seen) and write
-#     data/selected.json = {"<video_id>": "AI" | "DevOps", ...}  (see Relevance criteria)
+./run.sh edition-start           # 0. prints EDITION=<id>, START=<ISO UTC window start>, HOURS
+./run.sh rss                     # 1. videos published since START -> data/videos.json (seen/published skipped)
+#  2. JUDGE: read data/videos.json (non-Shorts, "seen": false) and write
+#     data/selected.json = {"<video_id>": "AI" | "DevOps", ...}  (see Relevance criteria; may be {})
 ./run.sh transcripts             # 3. captions -> data/transcripts/; also retries earlier 429 videos
 ./run.sh x-reset                 # 4. X: clear data/x_raw/, then for EVERY non-# line Q of config/x_queries.txt call
 #     MCP x.search_posts_all {"query":"Q -is:retweet -is:reply lang:en","max_results":25,
-#       "sort_order":"relevancy","start_time":"<now-24h, ISO UTC, e.g. date -u -d '24 hours ago' +%FT%TZ>",
+#       "sort_order":"relevancy","start_time":"<START from step 0>",
 #       "post.fields":"public_metrics,created_at,author_id","expansions":"author_id",
 #       "user.fields":"username,name"}  (write_to_file) and copy each result to data/x_raw/qNN.json
-./run.sh x                       #     -> data/x_selected.json
-#  5. WRITE articles/$(date +%F).md per STYLE.md (Mind Blow format) from transcripts + data/x_selected.json
-./run.sh render                  # 6. -> reports/<date>.md (fails if a transcribed video isn't cited)
-./run.sh publish                 # 7. commit site/article/code files and push; check the URL returns HTTP 200
+./run.sh x                       #     -> data/x_selected.json (window START, unpublished posts only)
+#  5. WRITE articles/<EDITION>.md per STYLE.md (Mind Blow format) from the new transcripts + data/x_selected.json.
+#     If there are no new transcribed videos and fewer than 5 good X items, stop here (nothing to publish).
+./run.sh render                  # 6. -> reports/<EDITION>.md (citation check, no-repeat check, X-only minimum)
+./run.sh publish                 # 7. push, record published IDs and publish time; then check the URL returns HTTP 200
 ```
+`render` and `publish` default to the open edition's ID. An explicit ID (`./run.sh render 2026-10-12`) re-renders or republishes an older page without touching edition state. An on-demand edition uses the same sequence. `./run.sh edition-start --hours 6` forces a 6-hour window.
 
 ## Relevance criteria (step 2)
 The keyword regex in `digest.py` (`AI` and `DEVOPS`) only proposes candidates, and it is noisy: it catches podcasts and marketing that merely mention "AI" and misses things like a Postgres migration talk. The judge reads every non-Short video title and channel and selects a video when its main subject is one of these:
@@ -54,9 +67,10 @@ The keyword regex in `digest.py` (`AI` and `DEVOPS`) only proposes candidates, a
 Exclude videos where AI or tech is incidental (general politics, comedy, sermons, finance or health talk), plus music, kids' content, Shorts and pure product ads with no technical content. Label each selected video `"AI"` or `"DevOps"` by its main subject. If `data/selected.json` is absent, the keyword candidates are used.
 
 ## X filter rules (step 4)
+- The window is the open edition's START. Pass `start_time` = START to every call.
 - Queries come from `config/x_queries.txt` (about 24 topics from the subscriptions' AI/DevOps themes), which means about 24 calls a run. Limits are 30 calls a minute and 1000 a day.
 - `-is:retweet -is:reply lang:en` are accepted. **`min_faves:N` is silently ignored**, so engagement filtering happens locally.
-- `scripts/x_filter.py` (via `./run.sh x [--min-bookmarks 10] [--hours 24] [--top 15]`) keeps a post only if `bookmark_count > like_count`, it has at least 10 bookmarks, and it was created in the last 24 hours. It drops crypto and spam patterns, de-duplicates by ID and normalized text, ranks by bookmarks and then the bookmark/like ratio, and keeps the top 15. Expect roughly 5–15 qualifying posts out of about 600 scanned.
+- `scripts/x_filter.py` (via `./run.sh x [--min-bookmarks 10] [--hours 24] [--top 15]`) keeps a post only if `bookmark_count > like_count`, it has at least 10 bookmarks, and it was created since the edition's window START (or the last 24 hours with no open edition), and not already published. It drops crypto and spam patterns, de-duplicates by ID and normalized text, ranks by bookmarks and then the bookmark/like ratio, and keeps the top 15. Expect roughly 5–15 qualifying posts out of about 600 scanned.
 - The writer still applies judgment: drop off-topic or promotional posts, and flag dubious claims. Bookmark and like counts are for selection only and never appear in the article.
 
 ## Failure handling
@@ -64,7 +78,7 @@ Exclude videos where AI or tech is incidental (general politics, comedy, sermons
 - **Caption 429s:** videos get `transcript_status = "rate limited (retry later)"` and are retried automatically on the next `./run.sh transcripts`. Until then they appear in "Also on the radar". If 429s persist, raise `--sleep-subtitles` in `digest.py`. Passing browser cookies to yt-dlp needs Anthony's approval, and cookies are never committed.
 - **No English captions:** the status is `needs Whisper` and the video goes to "Also on the radar" (see Whisper below).
 - **Render citation check:** `./run.sh render` exits 1 and lists any transcribed video not cited. Add it to an item and re-run.
-- **No-transcript day:** if no relevant video has a usable transcript, skip steps 5–7 and publish nothing. X posts alone don't make a report, and `render` requires `data/relevant.json`.
+- **No new transcripts:** an X-only edition is allowed if at least 5 good X items qualify. Otherwise skip steps 5–7 and publish nothing (`render` prints `SKIP:` if you try).
 - **X tool unavailable or rate-limited:** write the article from videos only. That's allowed, but note it in the run report.
 - **Pages:** if the URL isn't 200 after about 3 minutes, check the repo's Actions or Pages build status.
 

@@ -47,15 +47,18 @@ def fallback(ch, cutoff, seen):
             "is_short": False, "seen": e["id"] in seen, "source": "yt-dlp-fallback"})
     return out
 
-def stage_rss(hours, workers):
+def stage_rss(hours, workers, since=None):
     chans = list(csv.DictReader(open(f"{ROOT}/subscriptions.csv")))
     seen = set(load_json(f"{ROOT}/state/seen.json", []))
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+    cutoff = datetime.fromisoformat(since.replace('Z', '+00:00')) if since else datetime.now(timezone.utc) - timedelta(hours=hours)
+    seen |= set(load_json(f"{ROOT}/state/published.json", {}).get("videos", []))
+    # yt-dlp fallback dates are day-level approximations, so give it at least 24 h; seen.json prevents repeats
+    fb_cutoff = min(cutoff, datetime.now(timezone.utc) - timedelta(hours=24))
     vids, errors = [], []
     with ThreadPoolExecutor(workers) as ex:
         for ch, body, err in ex.map(fetch, chans):
             if err:
-                fb = fallback(ch, cutoff, seen)
+                fb = fallback(ch, fb_cutoff, seen)
                 if fb is None: errors.append({"channel": ch["Channel Title"], "error": err + "; yt-dlp fallback failed"})
                 else: errors.append({"channel": ch["Channel Title"], "error": err + "; recovered via yt-dlp fallback (approx dates)", "recovered": True}); vids.extend(fb)
                 continue
@@ -75,7 +78,7 @@ def stage_rss(hours, workers):
         text = f"{v['title']} {v['description'][:400]} {v['channel']}".lower()
         v["kw_ai"], v["kw_devops"] = bool(re.search(AI, text)), bool(re.search(DEVOPS, text))
         v["candidate"] = (v["kw_ai"] or v["kw_devops"]) and not v["is_short"] and not v["seen"]
-    out = {"run_at": datetime.now(PT).isoformat(), "hours": hours, "channels": len(chans),
+    out = {"run_at": datetime.now(PT).isoformat(), "hours": hours, "since_utc": cutoff.isoformat(), "channels": len(chans),
            "videos": vids, "errors": errors}
     json.dump(out, open(f"{ROOT}/data/videos.json", "w"), indent=1)
     print(f"channels={len(chans)} videos={len(vids)} shorts={sum(v['is_short'] for v in vids)} "
@@ -121,6 +124,8 @@ def stage_transcripts(workers):
     ids = {v["id"] for v in todo}
     # carry forward videos whose captions were rate limited on an earlier run
     todo += [v for v in prev.values() if v["id"] not in ids and v.get("transcript_status", "").startswith("rate limited")]
+    published = set(load_json(f"{ROOT}/state/published.json", {}).get("videos", []))
+    todo = [v for v in todo if v["id"] not in published]
     run = [v for v in todo if prev.get(v["id"], {}).get("transcript_status") != "ok"]
     with ThreadPoolExecutor(workers) as ex: got = {v["id"]: v for v in ex.map(get_transcript, run)}
     done = [got.get(v["id"]) or prev[v["id"]] for v in todo]
@@ -133,8 +138,10 @@ def stage_transcripts(workers):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("stage", choices=["rss", "transcripts", "all"], nargs="?", default="all")
-    ap.add_argument("--hours", type=int, default=24)
+    ap.add_argument("--hours", type=float, default=24)
+    ap.add_argument("--since", help="ISO UTC window start; overrides --hours (default: state/current_edition.json start)")
     ap.add_argument("--workers", type=int, default=4)
     a = ap.parse_args()
-    if a.stage in ("rss", "all"): stage_rss(a.hours, a.workers)
+    since = a.since or (None if "--hours" in sys.argv else load_json(f"{ROOT}/state/current_edition.json", {}).get("start_utc"))
+    if a.stage in ("rss", "all"): stage_rss(a.hours, a.workers, since)
     if a.stage in ("transcripts", "all"): stage_transcripts(1)

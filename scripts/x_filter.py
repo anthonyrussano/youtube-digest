@@ -14,10 +14,16 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--min-bookmarks", type=int, default=10)
 ap.add_argument("--hours", type=float, default=24)
 ap.add_argument("--top", type=int, default=15)
+ap.add_argument("--since", help="ISO UTC; default: state/current_edition.json start_utc, else now-hours")
 a = ap.parse_args()
 SPAM = re.compile(r"\$[A-Z]{2,6}\b|\b(crypto|memecoin|airdrop|presale|token launch|web3|defi|nft|solana|bitcoin|btc|eth|"
                   r"giveaway|dm me|link in bio|onlyfans|100x|pump)\b", re.I)
-cutoff = datetime.now(timezone.utc) - timedelta(hours=a.hours)
+try: _cur = json.load(open(f"{ROOT}/state/current_edition.json")).get("start_utc")
+except Exception: _cur = None
+since = a.since or _cur
+cutoff = datetime.fromisoformat(since.replace("Z", "+00:00")) if since else datetime.now(timezone.utc) - timedelta(hours=a.hours)
+try: published_x = set(json.load(open(f"{ROOT}/state/published.json")).get("x", []))
+except Exception: published_x = set()
 posts, users, scanned = {}, {}, 0
 for f in sorted(glob.glob(f"{ROOT}/data/x_raw/*.json")):
     t = open(f, encoding="utf-8").read()
@@ -29,7 +35,7 @@ for f in sorted(glob.glob(f"{ROOT}/data/x_raw/*.json")):
 sel, seen_text = [], set()
 for p in posts.values():
     m = p.get("public_metrics", {}); b, l = m.get("bookmark_count", 0), m.get("like_count", 0)
-    if b < a.min_bookmarks or b <= l: continue
+    if b < a.min_bookmarks or b <= l or p["id"] in published_x: continue
     if datetime.fromisoformat(p["created_at"].replace("Z", "+00:00")) < cutoff: continue
     text = p.get("note_tweet", {}).get("text") or p.get("text", "")
     if SPAM.search(text): continue
@@ -43,5 +49,5 @@ for p in posts.values():
 sel.sort(key=lambda s: (-s["bookmarks"], -s["ratio"]))
 sel = sel[:a.top]
 json.dump(sel, open(f"{ROOT}/data/x_selected.json", "w"), indent=1, ensure_ascii=False)
-print(f"{scanned} posts scanned, {len(posts)} unique, {len(sel)} selected -> data/x_selected.json")
+print(f"window since {cutoff.isoformat()}; {scanned} posts scanned, {len(posts)} unique, {len(sel)} selected -> data/x_selected.json")
 for s in sel: print(f"  {s['bookmarks']:>5}b {s['likes']:>5}l @{s['username']}: {s['text'][:90]!r}")
