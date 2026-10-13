@@ -9,8 +9,9 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 ensure_venv() {
-  [ -x .venv/bin/yt-dlp ] || { uv venv -q .venv && uv pip install -q --python .venv/bin/python yt-dlp; }
-  .venv/bin/pip install -q -U yt-dlp 2>/dev/null || uv pip install -q -U --python .venv/bin/python yt-dlp || true
+  # deps pinned in requirements.txt; YouTube breaks old yt-dlp often, so bump the pin when captions start failing
+  [ -x .venv/bin/python ] || uv venv -q .venv || python3 -m venv .venv
+  [ -x .venv/bin/yt-dlp ] || uv pip install -q --python .venv/bin/python -r requirements.txt || .venv/bin/pip install -q -r requirements.txt
 }
 TODAY=$(TZ=America/Los_Angeles date +%F)
 case "${1:-all}" in
@@ -21,7 +22,7 @@ case "${1:-all}" in
   x-reset) rm -rf data/x_raw && mkdir -p data/x_raw && echo "cleared data/x_raw" ;;
   publish)
     D=${2:-$TODAY}
-    git add -- reports/ articles/ config/x_queries.txt scripts/x_filter.py scripts/render_article.py run.sh index.md _config.yml _layouts assets STYLE.md README.md .gitignore 2>/dev/null || true
+    git add -- reports/ articles/ config/ scripts/ docs/ requirements.txt digest.py run.sh index.md _config.yml _layouts assets STYLE.md README.md .gitignore 2>/dev/null || true
     if git diff --cached --quiet; then echo "Nothing to publish"; exit 0; fi
     # safety net: refuse to publish private files even if .gitignore was edited
     if git diff --cached --name-only | grep -Eq '(^|/)(data|state|\.venv)/|subscriptions|\.csv$|cookie'; then

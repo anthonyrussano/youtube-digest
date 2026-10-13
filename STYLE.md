@@ -24,4 +24,33 @@ Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of
 - Report only what the transcript or post says. Don't add outside facts, and attribute vendor numbers and claims ("GitHub claims up to 67%"). Flag promotional or dubious X claims in a short clause, and leave out spam and crypto promotion.
 - Write punchy, plain and wonder-driven. Use short sentences and concrete numbers, with no hype words such as "revolutionary" and no second-person marketing. A light "and here's the wild part" energy is fine, but the facts carry the wonder.
 
-Reference example: `articles/2026-10-12.md`.
+
+## Annotated example (from `articles/2026-10-12.md`)
+
+**Cold open.** Two quick hits, each linked, with no setup. One comes from an X post and one from a video:
+
+> A tool called REA [claims to let an AI agent reverse engineer any app, down to the binary](https://x.com/0xCodila/status/2109623431763292649). Meanwhile [a robot arm in Texas was driven live from New York](https://www.youtube.com/watch?v=7sKHiuE7J-Y&t=3s) through a web browser.
+>
+> Here is what happened in AI and DevOps this cycle.
+
+**Video item.** It names who (Neki Replicator), says what (moves huge Postgres databases), gives the jaw-dropping numbers (0.5–2 TB/h, five-second cutover), says why it matters (the known 20–40 h snapshot problem is avoided) and ends with what comes next (auto-revert). Each detail is a timestamped link:
+
+> Neki Replicator [moves Postgres databases tens of terabytes in size](https://www.youtube.com/watch?v=Fw2Jy6of7MI) at about 0.5–2 TB per hour per shard. It works around a known problem: [logical replication holds one snapshot for 20–40 hours](https://www.youtube.com/watch?v=Fw2Jy6of7MI&t=124s) and bloats the WAL. Neki instead copies in [batches with snapshots of about 15 minutes](https://www.youtube.com/watch?v=Fw2Jy6of7MI&t=427s). The [cutover usually takes about five seconds](https://www.youtube.com/watch?v=Fw2Jy6of7MI&t=854s), is capped at 30, and reverts automatically if something goes wrong.
+
+**X item, written the same way.** It has the same who/what/detail/why shape. The post is linked on the natural phrase, and there is no "on X", no counts and no "posted":
+
+> A startup is chasing the same idea on the desktop. Aditya Vellanki introduced [Sentient OS](https://x.com/aditya_vellanki/status/2109699200682524921), on-device AI that he says "understands your whole life overnight" and picks up tasks on the computer with its own cursor. He says it is backed by Y Combinator, Afore Capital and Pioneer Fund. If it works as pitched, the always-on agent moves off the cloud and onto your own machine.
+
+**Sign-off.** A brief and playful closing line:
+
+> That's the cycle. Go encrypt a drive, check your cache hit rate, and see you tomorrow.
+
+## Pre-publish checklist
+1. The front matter has a quoted `title:` (short, teasing two or three items) and a quoted `dek:`.
+2. The article has a cold open of one or two linked hits, then a one-line intro, then items, then a sign-off. Nothing else.
+3. There are no `#` headers, bullets, tables or metadata lines (`grep -nE '^(#|[-*] |\|)' articles/<date>.md` prints nothing).
+4. There are about 12–25 items of 2–4 sentences, each with who, what, one concrete number and why it matters, ordered by wow and importance.
+5. Every transcribed video is linked, with key moments as `&t=<s>s` links (`./run.sh render` enforces this).
+6. Every X item is drawn from `data/x_selected.json` and written like a video item. `grep -niE 'on x\b|bookmark|saves?\b|saved|likes?\b|posted' articles/<date>.md` prints nothing (check any hit by hand).
+7. Every number and claim appears in a transcript or post and is attributed. Dubious claims are flagged, and there is no spam or crypto.
+8. After `./run.sh publish`, the report URL returns HTTP 200 (allow about 1–2 minutes for Pages).
