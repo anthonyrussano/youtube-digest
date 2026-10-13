@@ -1,0 +1,13 @@
+---
+---
+@import "minima";
+.wrapper { max-width: 760px; }
+.report-date { color: #777; text-transform: uppercase; letter-spacing: .05em; font-size: .85rem; margin-bottom: .3rem; }
+.report-title { font-size: 2.2rem; line-height: 1.2; margin-bottom: .6rem; }
+.report-dek { font-size: 1.2rem; color: #555; line-height: 1.5; border-bottom: 1px solid #e8e8e8; padding-bottom: 1.2rem; }
+.report-body { font-family: Georgia, "Times New Roman", serif; font-size: 1.12rem; line-height: 1.75; }
+.report-body h2 { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 1.35rem; margin-top: 2rem; }
+.report-body a { text-decoration: underline; text-decoration-color: #b8c7e0; }
+.report-list { list-style: none; margin-left: 0; }
+.report-list li { margin-bottom: 1.4rem; }
+.report-list .d { color: #777; font-size: .85rem; }

@@ -1,0 +1,10 @@
+title: AI & DevOps Daily
+description: A daily longform roundup of the latest AI and DevOps news, reported from YouTube videos and their transcripts.
+theme: minima
+markdown: kramdown
+kramdown:
+  input: GFM
+exclude: [README.md, STYLE.md, articles, scripts, digest.py, run.sh, data, state, .venv, subscriptions.csv, __pycache__, "*.py", "*.csv"]
+defaults:
+  - scope: {path: "reports"}
+    values: {layout: report}

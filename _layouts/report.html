@@ -1,0 +1,12 @@
+---
+layout: default
+---
+<article class="report">
+  <header>
+    <p class="report-date">{{ page.date | date: "%B %-d, %Y" }}</p>
+    <h1 class="report-title">{{ page.title }}</h1>
+    {% if page.dek %}<p class="report-dek">{{ page.dek }}</p>{% endif %}
+  </header>
+  <div class="report-body">{{ content }}</div>
+  <p class="report-back"><a href="{{ '/' | relative_url }}">&larr; All reports</a></p>
+</article>

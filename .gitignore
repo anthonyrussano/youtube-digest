@@ -1,0 +1,16 @@
+# private / generated — never commit
+subscriptions.csv
+*.csv
+state/
+data/
+.venv/
+__pycache__/
+*.pyc
+cookies*
+*.cookies
+.env
+*.secret
+_site/
+.jekyll-cache/
+.sass-cache/
+Gemfile.lock
