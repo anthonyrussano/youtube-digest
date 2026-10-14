@@ -103,7 +103,7 @@ def stage_fetch(hours, workers, since=None, use_rss=False, out_path=None):
         for ch, vids, err in ex.map(one, chans):
             if vids is None: errors.append({"channel": ch["Channel Title"], "error": err}); continue
             listed.extend(vids)
-    # 2. keep new (not seen/published) videos whose approximate date could fall in the window
+    # 2. keep new videos (not in seen.json, which only grows when an edition is published) whose approximate date could fall in the window
     dedup = {}
     for v in listed:
         if v["id"] in seen or v["id"] in dedup: continue
@@ -185,8 +185,7 @@ def stage_transcripts(workers):
     with ThreadPoolExecutor(workers) as ex: got = {v["id"]: v for v in ex.map(get_transcript, run)}
     done = [got.get(v["id"]) or prev[v["id"]] for v in todo]
     json.dump(done, open(f"{ROOT}/data/relevant.json", "w"), indent=1)
-    seen = set(load_json(f"{ROOT}/state/seen.json", [])) | {v["id"] for v in data["videos"]}
-    json.dump(sorted(seen), open(f"{ROOT}/state/seen.json", "w"))
+    # state/seen.json is only written by `edition.py published`, so a skipped edition leaves its videos eligible
     print(f"relevant={len(done)} transcripts={sum(v['transcript_status']=='ok' for v in done)} "
           f"needs_whisper={sum(v['transcript_status']!='ok' for v in done)}")
 

@@ -3,7 +3,8 @@
 
   edition.py start [--hours H]   open an edition: pick its id and time window, write state/current_edition.json
   edition.py show                print the current edition (id, window start)
-  edition.py published           after a successful push: record cited video/X ids and the publish time
+  edition.py published           after a successful push: record cited video/X ids, mark the edition's fetched
+                                 videos (data/videos.json) as seen, and record the publish time
 
 Edition id: the first edition of a PT day is YYYY-MM-DD; later ones are YYYY-MM-DD-HHMM (PT time at start).
 Window start: state/last_edition.json "published_utc" (previous edition's publish time), else now-24h
@@ -14,7 +15,8 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PT = ZoneInfo("America/Los_Angeles"); ST = f"{ROOT}/state"
-CUR, LAST, PUB = f"{ST}/current_edition.json", f"{ST}/last_edition.json", f"{ST}/published.json"
+CUR, LAST, PUB, SEEN = (f"{ST}/current_edition.json", f"{ST}/last_edition.json", f"{ST}/published.json",
+                        f"{ST}/seen.json")
 def load(p, d):
     try: return json.load(open(p))
     except Exception: return d
@@ -45,5 +47,10 @@ else:
     pub["videos"] = sorted(set(pub["videos"]) | set(re.findall(r"youtube\.com/watch\?v=([\w-]{11})", body)))
     pub["x"] = sorted(set(pub["x"]) | set(re.findall(r"x\.com/\w+/status/(\d+)", body)))
     save(PUB, pub)
+    # the only writer of seen.json: everything this edition fetched counts as considered once it is published
+    vids = {v["id"] for v in load(f"{ROOT}/data/videos.json", {}).get("videos", [])}
+    vids |= {v["id"] for v in load(f"{ROOT}/data/relevant.json", []) if v.get("transcript_status") == "ok"}
+    seen = set(load(SEEN, [])); added = len(vids - seen)
+    json.dump(sorted(seen | vids | set(pub["videos"])), open(SEEN, "w"))
     save(LAST, {"id": cur["id"], "published_utc": iso(now), "window_start_utc": cur["start_utc"]})
-    os.remove(CUR); print(f"recorded edition {cur['id']} published at {iso(now)}")
+    os.remove(CUR); print(f"recorded edition {cur['id']} published at {iso(now)}; {added} videos marked seen")

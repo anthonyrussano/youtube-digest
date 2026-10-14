@@ -11,7 +11,8 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
 0. cd /home/box/youtube-digest && ./run.sh edition-start
    Note EDITION (page id) and START (ISO UTC window start = previous edition's publish time, else now-24h).
 1. ./run.sh fetch          (yt-dlp channel listing; only new videos since START; exact dates for keyword matches)
-2. JUDGE: read data/videos.json, skipping Shorts and "seen": true. Write data/selected.json as
+2. JUDGE: read data/videos.json, skipping Shorts. (Seen/published videos are already excluded; a skipped
+   edition marks nothing seen, so its videos come back next time.) Write data/selected.json as
    {"<video_id>": "AI" | "DevOps"} with only videos genuinely about AI/ML or DevOps, infra, homelab,
    networking, security or databases (README "Relevance criteria"). Write {} if none.
 3. ./run.sh transcripts    (429s get status "rate limited (retry later)" and are retried next edition, which is fine)

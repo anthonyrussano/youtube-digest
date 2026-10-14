@@ -16,7 +16,7 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 | `STYLE.md` | The Mind Blow format: rules, annotated example and pre-publish checklist |
 | `docs/ROUTINE_PROMPT.md` | Paste-ready prompt for the scheduled daily routine |
 | `index.md`, `_config.yml`, `_layouts/`, `assets/` | Jekyll site (minima theme) for GitHub Pages |
-| `state/seen.json` | **Private.** Video IDs already fetched |
+| `state/seen.json` | **Private.** Video IDs considered by a published edition (written only by `publish`) |
 | `state/published.json`, `state/last_edition.json`, `state/current_edition.json` | **Private.** IDs already published, the last publish time (next window start) and the open edition |
 | `scripts/edition.py` | Edition bookkeeping (`./run.sh edition-start`, `./run.sh edition`) |
 | `data/` | **Private.** `videos.json`, `selected.json`, `relevant.json`, `transcripts/`, `x_raw/` and `x_selected.json` |
@@ -34,7 +34,7 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 The routine runs at about 6:04 AM, noon and 5 PM PT on weekdays, plus on demand. Each run is one **edition**:
 - **Id and page:** the first edition of a PT day is `YYYY-MM-DD` (`articles/2026-10-13.md` becomes `reports/2026-10-13.html`). Later editions add the PT start time, `YYYY-MM-DD-HHMM` (`articles/2026-10-13-1158.md` becomes `reports/2026-10-13-1158.html`), so they never overwrite the morning page. The index lists every edition newest first, labeled with its date and "h:mm AM/PM PT edition".
 - **Window:** `./run.sh edition-start` sets the window start to the previous edition's publish time (`state/last_edition.json`). With no state it falls back to now-24h, and it never goes back more than 72 h. `--hours H` forces a window. The result goes to `state/current_edition.json`, which `fetch`, `x`, `render` and `publish` all read by default.
-- **No repeats:** `state/seen.json` holds every video already fetched. `state/published.json` holds every video and X post ID cited in a published edition, recorded by `publish`. `fetch` and `transcripts` skip published videos, and `x` drops published posts. `render` refuses a new edition that cites anything already published. Flat yt-dlp listings have only day-level dates, so `fetch` widens its pre-filter by 36 h, then gets exact timestamps for keyword matches; seen-tracking removes any overlap.
+- **No repeats:** `state/seen.json` holds every video fetched for an edition that was actually published; `publish` (via `scripts/edition.py published`) is its only writer, so a skipped edition leaves its in-window videos eligible for the next `fetch` (the window START also stays put, because it comes from the last *published* edition). `state/published.json` holds every video and X post ID cited in a published edition, recorded by `publish`. `fetch` and `transcripts` skip published videos, and `x` drops published posts. `render` refuses a new edition that cites anything already published. Flat yt-dlp listings have only day-level dates, so `fetch` widens its pre-filter by 36 h, then gets exact timestamps for keyword matches; seen/published tracking removes any overlap.
 - **Publish:** `./run.sh publish` pushes, then records the cited IDs and the publish time, which is the next edition's window start, and closes the edition. If the push fails, the state isn't advanced.
 - **Skip rule:** an edition needs new transcribed videos, **or** at least 5 good X items for an X-only edition. Otherwise `render` exits with `SKIP:` and nothing is published. Leave the edition open; the next `edition-start` reopens with the same window start.
 
@@ -100,7 +100,7 @@ Exclude videos where AI or tech is incidental (general politics, comedy, sermons
    - `needs Whisper`: no English captions. Whisper is not run on this box.
    - `rate limited (retry later)`: YouTube returned HTTP 429. These are carried forward and retried on the next run.
 
-   After this stage, every video in the window goes into `state/seen.json`.
+   Rate-limited (429) videos stay in `data/relevant.json` and are retried by the next `transcripts` run. Nothing is marked seen here; that happens at publish.
 4. **Article and report:** see the daily flow above and `STYLE.md`. *(Legacy:* an LLM reads `data/transcripts/*.txt` and writes `scripts/summaries_<date>.py`. Each video gets 3–5 bullets drawn only from the transcript and 1–3 `(seconds, label)` key moments, and there are 3–5 `THEMES` across all videos. Then run `.venv/bin/python scripts/render_report_legacy.py scripts/summaries_<date>.py <date>`. The report groups videos into AI and DevOps, deep-links key moments with `&t=<s>s`, and lists videos without a transcript at the end.*)
 
 **Who summarizes:** on the first run (2026-10-12, 7-day window) Grok Bot wrote the summaries by hand during the run. On later runs, a scheduled Grok Bot routine does steps 2 and 4: it runs `./run.sh` (or `fetch`, then judges, then `transcripts`), reads the transcripts, writes the summaries file, and renders the report. `digest.py` makes no LLM calls itself.
