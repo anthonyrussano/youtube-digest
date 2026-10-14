@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Daily YouTube AI/DevOps digest.
-#   ./run.sh [--hours 24]          rss + transcripts with keyword candidates (no judge)
-#   ./run.sh rss [--hours 24]      stage 1: fetch feeds -> data/videos.json
+#   ./run.sh [--hours 24]          fetch + transcripts with keyword candidates (no judge)
+#   ./run.sh fetch [--hours 24]    stage 1: list channel uploads via yt-dlp -> data/videos.json (alias: rss)
+#                                  extra flags: --out FILE (dry run), --rss (legacy RSS first; 404s globally), --workers N
 #   ./run.sh transcripts           stage 3: captions for data/selected.json (retries earlier 429s)
 #   ./run.sh edition-start [--hours H]  open an edition: id + window (since last publish, else 24 h) -> state/current_edition.json
 #   ./run.sh edition                   show the current edition
@@ -20,7 +21,7 @@ TODAY=$(TZ=America/Los_Angeles date +%F)
 CUR=$(python3 -c 'import json;print(json.load(open("state/current_edition.json"))["id"])' 2>/dev/null || true)
 DEF=${CUR:-$TODAY}
 case "${1:-all}" in
-  rss) shift; ensure_venv; .venv/bin/python digest.py rss "$@" ;;
+  fetch|rss) shift; ensure_venv; .venv/bin/python digest.py fetch "$@" ;;
   transcripts) shift; ensure_venv; .venv/bin/python digest.py transcripts "$@" ;;
   edition-start) shift; python3 scripts/edition.py start "$@" ;;
   edition) python3 scripts/edition.py show ;;
