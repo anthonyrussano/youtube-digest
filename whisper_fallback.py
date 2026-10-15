@@ -2,8 +2,8 @@
 """Whisper fallback for relevant videos without English captions. See README.md "Whisper fallback".
 
 Backends are tried in order; the first that is available and succeeds wins:
-  1. remote  - placeholder for a GPU transcriber on a home server (WHISPER_REMOTE=host[:port]).
-               Skipped when unset or unreachable (one TCP connect, short timeout). Not implemented yet.
+  1. remote  - whisper.cpp (Vulkan GPU) in Docker on a home server over ssh (WHISPER_REMOTE=user@host[:port]).
+               Skipped when unset or unreachable (one TCP connect, short timeout); any failure falls through to local.
   2. local   - faster-whisper on CPU (int8), each video in its own subprocess with a wall-time
                cap and an RSS cap (polled; process group killed). Audio is downloaded with yt-dlp and deleted after.
 Only data/relevant.json and data/transcripts/ are written; state/ (seen/published) is never touched.
@@ -67,19 +67,78 @@ class Backend:
     def available(self): return False, "not implemented"
     def transcribe(self, v, opts): raise NotImplementedError   # -> dict(ok, segs|error, model, peak_rss_mb)
 
+REMOTE_DIR = "grokbot-whisper"   # on the GPU host, relative to the ssh user's home
+REMOTE_IMAGE = "grokbot-whisper:vulkan"
+SSH_OPTS = ["-o", "BatchMode=yes", "-o", "ConnectTimeout=5"]
+
 class RemoteBackend(Backend):
-    """Placeholder for Anthony's GPU transcriber (whisper-youtube-transcriber) reached over WireGuard."""
+    """whisper.cpp (Vulkan) in a Docker image on a GPU host reached over ssh (WHISPER_REMOTE=user@host[:port]).
+    The box downloads audio, converts it to 16 kHz mono WAV, scp's it to ~/grokbot-whisper/in/, runs
+    `docker run --rm` over ssh, pulls the JSON back and deletes the remote audio and transcript."""
     name = "remote"
-    def __init__(self, target, timeout=2.0): self.target, self.timeout = target, timeout
+    def __init__(self, target, timeout=2.0, model="large-v3-turbo"):
+        self.target, self.timeout, self.model = target, timeout, model
+        self.dest, _, port = target.rpartition(":") if target and ":" in target else (target, "", "22")
+        self.port = port or "22"
     def available(self):
         if not self.target: return False, "WHISPER_REMOTE unset"
-        host, _, port = self.target.rpartition(":") if ":" in self.target else (self.target, "", "22")
-        try: socket.create_connection((host, int(port)), self.timeout).close()
+        host = self.dest.rpartition("@")[2]
+        try: socket.create_connection((host, int(self.port)), self.timeout).close()
         except Exception as e: return False, f"unreachable ({e.__class__.__name__})"
         return True, "reachable"
+    def ssh(self, cmd, timeout):
+        return run_capped(["ssh", *SSH_OPTS, "-p", self.port, self.dest, cmd], timeout)
     def transcribe(self, v, opts):
-        # TODO: send v["url"] to the GPU host, fetch transcript.json, map segments (start, text) -> segs.
-        return {"ok": False, "error": "remote backend not implemented yet"}
+        vid = v["id"]; wav = f"{AUDIO}/{vid}.wav"; js = f"{AUDIO}/{vid}.json"; m = opts.remote_model
+        rin, rout = f"{REMOTE_DIR}/in/{vid}.wav", f"{REMOTE_DIR}/out/{vid}"
+        try:
+            audio, err = download_audio(v, opts)
+            if not audio: return {"ok": False, "error": err, "model": m}
+            rc, _, _, err = run_capped(["ffmpeg", "-v", "error", "-y", "-i", audio, "-ac", "1", "-ar", "16000", wav], 600)
+            if rc != 0: return {"ok": False, "error": f"ffmpeg rc={rc}: {err.strip()[-200:]}", "model": m}
+            rc, _, _, err = run_capped(["scp", *SSH_OPTS, "-q", "-P", self.port, wav, f"{self.dest}:{rin}"], 900)
+            if rc != 0: return {"ok": False, "error": f"scp upload rc={rc}: {err.strip()[-200:]}", "model": m}
+            run = (f"cd ~/{REMOTE_DIR} && docker run --rm --name grokbot-whisper-{vid.replace('_','x').lstrip('-')} "
+                   f"--device /dev/dri --group-add $(getent group video | cut -d: -f3) "
+                   f"--group-add $(getent group render | cut -d: -f3) --user $(id -u):$(id -g) "
+                   f"-v $PWD:/w {REMOTE_IMAGE} -m /w/models/ggml-{m}.bin -f /w/in/{vid}.wav -l en -t 8 "
+                   f"-oj -of /w/out/{vid} 2>&1 >/dev/null | grep -E 'ggml_vulkan: 0 =|using Vulkan|error' | head -3")
+            rc, _, out, err = self.ssh(run, opts.timeout)
+            if rc != 0: return {"ok": False, "error": f"remote run rc={rc}: {(err or out).strip()[-200:]}", "model": m}
+            print(f"  remote: {out.strip().splitlines()[0] if out.strip() else 'no vulkan line'}", flush=True)
+            rc, _, _, err = run_capped(["scp", *SSH_OPTS, "-q", "-P", self.port, f"{self.dest}:{rout}.json", js], 300)
+            if rc != 0: return {"ok": False, "error": f"scp download rc={rc}: {err.strip()[-200:]}", "model": m}
+            segs = [(t["offsets"]["from"] / 1000, t["text"]) for t in json.load(open(js, errors="replace"))["transcription"]]
+            er = english_ratio(segs)
+            if er < opts.min_english:
+                return {"ok": False, "error": f"audio not English (function-word ratio {er:.2f})", "model": m}
+            return {"ok": True, "segs": segs, "model": m}
+        except Exception as e:
+            return {"ok": False, "error": f"{e.__class__.__name__}: {e}"[:200], "model": m}
+        finally:
+            try: self.ssh(f"rm -f ~/{rin} ~/{rout}.json", 30)   # never keep audio/transcripts on the host
+            except Exception: pass
+            cleanup(vid)
+
+def cleanup(vid):
+    for f in os.listdir(AUDIO) if os.path.isdir(AUDIO) else []:   # audio, wav, segs json, chunk wav
+        if f.startswith(vid + "."): os.remove(f"{AUDIO}/{f}")   # never keep audio
+
+def download_audio(v, opts):
+    """-> (path, None) or (None, error). Lowest-bitrate audio-only DASH stream of the ORIGINAL track: many
+    videos carry auto-dubbed tracks (ar, de, ...) and plain "worstaudio" can pick one of those or a slow m3u8 variant."""
+    os.makedirs(AUDIO, exist_ok=True); base = f"{AUDIO}/{v['id']}"
+    fmt = "wa[format_note*=original][protocol^=http]/wa[language^=en][protocol^=http]/wa[protocol^=http]/wa"
+    dl = [YTDLP, "-f", fmt, "--no-playlist", "-q", "--no-warnings", "-o", base + ".%(ext)s", v["url"]]
+    for attempt in range(2):   # YouTube's media CDN returns sporadic 403s; one retry usually clears it
+        rc, _, _, err = run_capped(dl, opts.dl_timeout)
+        if rc == 0 or "403" not in err: break
+        time.sleep(10)
+    files = [f for f in os.listdir(AUDIO) if f.startswith(v["id"] + ".") and not f.endswith((".part", ".ytdl", ".wav", ".json"))]
+    if rc != 0 or not files:
+        return None, "audio download " + ("timed out" if rc is None else
+               ("429" if "429" in err else err.strip().splitlines()[-1][-200:] if err.strip() else f"rc={rc}"))
+    return f"{AUDIO}/{files[0]}", None
 
 class LocalCPUBackend(Backend):
     name = "local"
@@ -88,23 +147,11 @@ class LocalCPUBackend(Backend):
         except Exception: return False, "faster-whisper not installed in .venv"
         return True, "ok"
     def transcribe(self, v, opts):
-        os.makedirs(AUDIO, exist_ok=True); base = f"{AUDIO}/{v['id']}"
+        base = f"{AUDIO}/{v['id']}"
         try:
-            # lowest-bitrate audio-only DASH stream of the ORIGINAL track: many videos carry auto-dubbed
-            # tracks (ar, de, ...) and plain "worstaudio" can pick one of those or a slow m3u8 variant
-            fmt = ("wa[format_note*=original][protocol^=http]/wa[language^=en][protocol^=http]"
-                   "/wa[protocol^=http]/wa")
-            dl = [YTDLP, "-f", fmt, "--no-playlist", "-q",
-                  "--no-warnings", "-o", base + ".%(ext)s", v["url"]]
-            for attempt in range(2):   # YouTube's media CDN returns sporadic 403s; one retry usually clears it
-                rc, _, _, err = run_capped(dl, opts.dl_timeout)
-                if rc == 0 or "403" not in err: break
-                time.sleep(10)
-            files = [f for f in os.listdir(AUDIO) if f.startswith(v["id"] + ".") and not f.endswith((".part", ".ytdl"))]
-            if rc != 0 or not files:
-                return {"ok": False, "error": "audio download " + ("timed out" if rc is None else
-                        ("429" if "429" in err else err.strip().splitlines()[-1][-200:] if err.strip() else f"rc={rc}"))}
-            audio = f"{AUDIO}/{files[0]}"; out = f"{base}.segs.json"
+            audio, err = download_audio(v, opts)
+            if not audio: return {"ok": False, "error": err}
+            out = f"{base}.segs.json"
             rc, rss, _, err = run_capped([PY, __file__, "_worker", audio, out, opts.model, str(opts.threads)],
                                          opts.timeout, opts.mem_mb)
             if rc != 0:
@@ -116,8 +163,7 @@ class LocalCPUBackend(Backend):
                 return {"ok": False, "error": f"audio not English (function-word ratio {er:.2f})", "model": opts.model, "peak_rss_mb": rss}
             return {"ok": True, "segs": segs, "model": opts.model, "peak_rss_mb": rss}
         finally:
-            for f in os.listdir(AUDIO) if os.path.isdir(AUDIO) else []:   # audio, segs json, chunk wav
-                if f.startswith(v["id"] + "."): os.remove(f"{AUDIO}/{f}")   # never keep audio
+            cleanup(v["id"])
 
 EN = set("the a an and or but of to in on for with is are was were be it that this you i we they he she not have has do".split())
 def english_ratio(segs):
@@ -159,6 +205,7 @@ def main(a):
     want = {"needs Whisper"} | ({"rate limited (retry later)"} if a.include_rate_limited else set())
     todo = [v for v in load() if v.get("transcript_status") in want and (not a.ids or v["id"] in a.ids)]
     backends = [RemoteBackend(c.get("remote"), a.remote_timeout), LocalCPUBackend()]
+    cap = {"remote": a.remote_max_minutes, "local": a.max_minutes}   # GPU host handles much longer videos
     active = []
     for b in backends:
         ok, why = b.available(); print(f"backend {b.name}: {'use' if ok else 'skip'} ({why})"); active += [b] if ok else []
@@ -166,10 +213,12 @@ def main(a):
     for v in todo:
         d = duration(v); r = {"id": v["id"], "title": v["title"], "duration_s": d, "backend": None, "model": None,
                               "wall_s": None, "peak_rss_mb": None, "ok": False, "error": None}
-        if d is None or d > a.max_minutes * 60:
-            r["error"] = f"skipped: duration {d}s > max {a.max_minutes} min" if d else "skipped: unknown duration"
+        use = [b for b in active if d and d <= cap[b.name] * 60]
+        if not use:
+            r["error"] = (f"skipped: duration {d}s > max {max([cap[b.name] for b in active] or [a.max_minutes])} min"
+                          if d else "skipped: unknown duration")
             update(v["id"], {"whisper_status": r["error"]}); results.append(r); print(json.dumps(r)); continue
-        for b in active:
+        for b in use:
             t0 = time.time(); res = b.transcribe(v, a)
             r.update(backend=b.name, model=res.get("model"), wall_s=round(time.time() - t0, 1),
                      peak_rss_mb=res.get("peak_rss_mb"), ok=res["ok"], error=res.get("error"))
@@ -198,6 +247,8 @@ if __name__ == "__main__":
     ap.add_argument("--threads", type=int, default=c.get("threads", 4))
     ap.add_argument("--min-english", type=float, default=0.12, help="reject transcripts below this English ratio")
     ap.add_argument("--remote-timeout", type=float, default=2.0)
+    ap.add_argument("--remote-model", default=c.get("remote_model", "large-v3-turbo"), help="ggml model on the GPU host")
+    ap.add_argument("--remote-max-minutes", type=float, default=c.get("remote_max_minutes", 180))
     ap.add_argument("--include-rate-limited", action="store_true", help="also do caption-429 videos (default: captionless only)")
     ap.add_argument("--log", default=f"{ROOT}/data/whisper_log.jsonl")
     main(ap.parse_args())

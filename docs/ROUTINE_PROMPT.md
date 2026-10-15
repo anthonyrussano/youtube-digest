@@ -17,8 +17,8 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    networking, security or databases (README "Relevance criteria"). Write {} if none.
 3. ./run.sh transcripts    (429s get status "rate limited (retry later)" and are retried next edition, which is fine)
 3b. ./run.sh whisper       (Whisper fallback for "needs Whisper" videos only. Backend order: remote GPU host if
-   WHISPER_REMOTE is set and reachable (placeholder for now), else local CPU faster-whisper base.en int8. Skips videos
-   over 45 min, caps each at 20 min wall time and 1.5 GB RSS, deletes audio. Transcripts land in data/transcripts/
+   WHISPER_REMOTE is set and reachable (whisper.cpp large-v3-turbo on Vulkan via ssh + docker, videos up to 3 h),
+   else or on any remote failure local CPU faster-whisper base.en int8. Local skips videos over 45 min, caps each at 20 min wall time and 1.5 GB RSS, deletes audio. Transcripts land in data/transcripts/
    with status "ok" like captions. Failures are non-fatal: those videos go to "Also on the radar". Never set
    WHISPER_REMOTE yourself.)
 4. X: ./run.sh x-reset. For EVERY non-comment line Q in config/x_queries.txt, call MCP namespace "x",

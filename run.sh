@@ -38,7 +38,7 @@ case "${1:-all}" in
     git add -- reports/ articles/ config/ scripts/ docs/ requirements.txt digest.py whisper_fallback.py run.sh index.md _config.yml _layouts assets STYLE.md README.md .gitignore 2>/dev/null || true
     if git diff --cached --quiet; then echo "Nothing to publish"; exit 0; fi
     # safety net: refuse to publish private files even if .gitignore was edited
-    if git diff --cached --name-only | grep -Eq '(^|/)(data|state|\.venv)/|subscriptions|\.csv$|cookie'; then
+    if git diff --cached --name-only | grep -Eq '(^|/)(data|state|\.venv)/|subscriptions|\.csv$|cookie|config/whisper\.json'; then
       echo "Refusing to publish: private file staged"; git diff --cached --name-only; exit 1; fi
     git commit -q -m "Report $D" && git push -q origin HEAD:main
     # record published stories + publish time (window start for the next edition), only for the open edition
