@@ -23,6 +23,7 @@ src = sys.argv[1] if len(sys.argv) > 1 else f"{ROOT}/articles/{date}.md"
 em = re.match(r"^(\d{4}-\d{2}-\d{2})(?:-(\d{2})(\d{2}))?$", date)
 if not em: sys.exit(f"bad edition id {date}")
 MIN_X_ONLY = 5
+MIN_ARTICLES_ONLY = 2  # strong (tier 1-2) selected feed articles cited in the body
 text = open(src).read()
 m = re.match(r"^---\n(.*?)\n---\n(.*)$", text, re.S)
 if not m: sys.exit("article needs front matter with title: and dek:")
@@ -50,8 +51,20 @@ def has_speech(v):
 missing = [v for v in rel if has_speech(v) and v["id"] not in cited]
 if missing:
     sys.exit("Not cited in article (every transcribed video must be cited):\n" + "\n".join(f"  {v['id']} {v['title']}" for v in missing))
+def strong_articles():
+    """Cited article URLs that the judge selected (data/feeds_selected.json) and that come from a tier 1-2 feed."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from feeds_canon import canon
+    try: sel = set(json.load(open(f"{ROOT}/data/feeds_selected.json")))
+    except Exception: sel = set()
+    try: items = json.load(open(f"{ROOT}/data/feeds.json")).get("items_list", [])
+    except Exception: items = []
+    urls = {canon(u) for u in re.findall(r"\]\((https?://[^)\s]+)\)", body)}
+    return {i["url"] for i in items if i["id"] in sel and i.get("tier", 3) <= 2 and canon(i["url"]) in urls}
 if not any(has_speech(v) for v in rel) and len(cited_x) < MIN_X_ONLY:
-    sys.exit(f"SKIP: no new transcribed videos and only {len(cited_x)} X items (need {MIN_X_ONLY}); do not publish this edition")
+    n_art = len(strong_articles())
+    if n_art < MIN_ARTICLES_ONLY:
+        sys.exit(f"SKIP: no new transcribed videos, only {len(cited_x)} X items (need {MIN_X_ONLY}) and {n_art} strong "
+                 f"tier 1-2 articles (need {MIN_ARTICLES_ONLY}); do not publish this edition")
 radar = [v for v in rel if v["id"] not in cited]
 if radar and "Also on the radar" not in body:
     def esc(t): return t.replace("[", "(").replace("]", ")").replace("|", "–")

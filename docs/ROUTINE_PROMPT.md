@@ -45,7 +45,7 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    Then: ./run.sh x   -> data/x_selected.json (posts matching a top trend carry "trends" and rank 1.5x higher)
    Budget: <= ~55 search reads per edition plus <= 30 trend reads once a day (limits 30/min, 1000/day).
 5. DECIDE: if no new video has transcript_status "ok" in data/relevant.json AND fewer than 5 good X items
-   qualify, stop and publish nothing (report "skipped: nothing new"). Otherwise write articles/<EDITION>.md
+   qualify AND fewer than 2 strong articles (tier 1-2, in data/feeds_selected.json) qualify, stop and publish nothing (report "skipped: nothing new"). Otherwise write articles/<EDITION>.md
    exactly per STYLE.md (Mind Blow format), using only the new transcripts (data/transcripts/<id>.txt),
    data/x_selected.json and the articles in data/feeds_selected.json (link the article URL on the claim;
    write article items exactly like video items, no "according to a blog post" framing). Write X items exactly like video items, with no platform framing or counts.
