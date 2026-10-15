@@ -38,7 +38,10 @@ if NEW: rel = [v for v in rel if v["id"] not in set(published.get("videos", []))
 cited = set(re.findall(r"youtube\.com/watch\?v=([\w-]{11})", body))
 cited_x = set(re.findall(r"x\.com/\w+/status/(\d+)", body))
 if NEW:  # re-rendering an already published edition is allowed
-    reused = (cited & set(published.get("videos", []))) | (cited_x & set(published.get("x", [])))
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from feeds_canon import canon
+    cited_a = {canon(u) for u in re.findall(r"\]\((https?://[^)\s]+)\)", body)}
+    reused = (cited & set(published.get("videos", []))) | (cited_x & set(published.get("x", []))) | \
+        (cited_a & set(published.get("articles", [])))
     if reused: sys.exit("Article reuses stories from an earlier edition: " + ", ".join(sorted(reused)))
 def has_speech(v):
     p = v.get("transcript_file")

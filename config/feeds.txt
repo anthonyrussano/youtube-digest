@@ -1,0 +1,52 @@
+# RSS/Atom feeds for ./run.sh feeds (scripts/feeds.py).   url | name | tier | optional filter
+# tier 1 = primary source (official blog / release notes), 2 = strong eng blog or curated news, 3 = useful, lower signal.
+# filter: "kw:<regex>" keeps entries whose title+summary match (case-insensitive). HN uses hnrss with points>=200.
+# Seeded from the 2026-10-14 devops-newsfeeds audit (33 relevant+active) plus verified AI-lab feeds.
+# --- audit: relevance 5 ---
+https://aws.amazon.com/about-aws/whats-new/recent/feed/ | AWS What's New | 1 | kw:\b(bedrock|sagemaker|q developer|kiro|lambda|eks|ecs|fargate|kubernetes|container|cloudformation|cdk|codebuild|codepipeline|aurora|rds|dynamodb|s3|graviton|ec2 instance|nova|agent|mcp|llm|generative|inference|gpu|trainium|inferentia|observability|cloudwatch|iam|security)\b
+https://blog.cloudflare.com/rss/ | Cloudflare Blog | 1
+https://github.blog/feed/ | GitHub Blog | 1
+https://about.gitlab.com/atom.xml | GitLab Blog | 1
+https://www.cncf.io/blog/feed/ | CNCF Blog | 1
+https://cloudblog.withgoogle.com/products/devops-sre/rss | Google Cloud DevOps & SRE | 1
+https://kubernetes.io/feed.xml | Kubernetes Blog | 1
+https://aws.amazon.com/blogs/devops/feed/ | AWS DevOps Blog | 1
+# --- audit: relevance 4 ---
+https://www.theregister.com/devops/headlines.atom | The Register DevOps | 2
+https://hnrss.org/newest?points=200 | Hacker News (200+ points) | 2
+https://devblogs.microsoft.com/landingpage/ | Microsoft for Developers | 2
+https://databricks.com/feed | Databricks Blog | 2
+https://stackoverflow.blog/feed | Stack Overflow Blog | 2
+https://feeds.feedburner.com/oreilly/radar/atom | O'Reilly Radar | 2
+https://grafana.com/blog/index.xml | Grafana Labs Blog | 2
+https://www.pulumi.com/blog/rss.xml | Pulumi Blog | 2
+https://www.lastweekinaws.com/feed/ | Last Week in AWS | 2
+https://www.datadoghq.com/blog/engineering/index.xml | Datadog Engineering | 2
+# --- audit: relevance 3 ---
+https://realpython.com/atom.xml?format=xml | Real Python | 3
+https://www.redhat.com/en/rss/blog/channel/red-hat-news | Red Hat News | 3
+https://aws.amazon.com/blogs/database/feed/ | AWS Database Blog | 3
+https://www.cisa.gov/uscert/ncas/all.xml | CISA Advisories | 3
+https://aws.amazon.com/blogs/big-data/feed/ | AWS Big Data Blog | 3
+https://www.cisa.gov/uscert/ncas/current-activity.xml | CISA Alerts | 3
+https://softwareengineeringdaily.com/feed/podcast/ | Software Engineering Daily | 3
+https://www.jeffgeerling.com/blog.xml | Jeff Geerling | 3
+https://www.datadoghq.com/blog/index.xml | Datadog Blog | 3
+https://ubuntu.com/blog/feed | Ubuntu Blog | 3
+https://redis.com/feed/ | Redis Blog | 3
+https://blog.jetbrains.com/pycharm/feed/ | PyCharm Blog | 3
+https://www.redhat.com/en/rss/blog/channel/devops-and-devsecops | Red Hat DevOps | 3
+https://www.redhat.com/en/rss/blog/channel/management-and-automation | Red Hat Automation | 3
+https://feeds.feedburner.com/prometheus/blog | Prometheus Blog | 3
+# --- AI labs / AI tooling (verified live 2026-10-14; Anthropic publishes no RSS feed) ---
+https://openai.com/news/rss.xml | OpenAI News | 1
+https://blog.google/technology/ai/rss/ | Google AI Blog | 1
+https://deepmind.google/blog/rss.xml | Google DeepMind Blog | 1
+https://huggingface.co/blog/feed.xml | Hugging Face Blog | 1
+https://aws.amazon.com/blogs/machine-learning/feed/ | AWS Machine Learning Blog | 2
+https://www.langchain.com/blog/rss.xml | LangChain Blog | 1
+https://www.docker.com/blog/feed/ | Docker Blog | 1
+https://vercel.com/atom | Vercel Blog | 1
+https://simonwillison.net/atom/everything/ | Simon Willison | 2
+https://www.latent.space/feed | Latent Space | 2
+https://changelog.com/feed | Changelog | 3

@@ -3,8 +3,8 @@
 
   edition.py start [--hours H]   open an edition: pick its id and time window, write state/current_edition.json
   edition.py show                print the current edition (id, window start)
-  edition.py published           after a successful push: record cited video/X ids, mark the edition's fetched
-                                 videos (data/videos.json) as seen, and record the publish time
+  edition.py published           after a successful push: record cited video/X ids and feed article URLs, mark the edition's
+                                 fetched videos (data/videos.json) and feed items (data/feeds.json) as seen, and record the publish time
 
 Edition id: the first edition of a PT day is YYYY-MM-DD; later ones are YYYY-MM-DD-HHMM (PT time at start).
 Window start: state/last_edition.json "published_utc" (previous edition's publish time), else now-24h
@@ -52,5 +52,14 @@ else:
     vids |= {v["id"] for v in load(f"{ROOT}/data/relevant.json", []) if v.get("transcript_status") == "ok"}
     seen = set(load(SEEN, [])); added = len(vids - seen)
     json.dump(sorted(seen | vids | set(pub["videos"])), open(SEEN, "w"))
+    # feeds: the only writer of feeds_seen.json; every item this edition fetched (data/feeds.json) counts as
+    # considered, cited article URLs go to published.json "articles" (canonical: utm_* and fragment stripped)
+    sys.path.insert(0, f"{ROOT}/scripts"); from feeds_canon import canon
+    fitems = load(f"{ROOT}/data/feeds.json", {}).get("items_list", [])
+    furls = {canon(i["url"]) for i in fitems}
+    cited_urls = {canon(u) for u in re.findall(r"\]\((https?://[^)\s]+)\)", body)}
+    pub["articles"] = sorted(set(pub.get("articles", [])) | (cited_urls & furls)); save(PUB, pub)
+    fseen = set(load(f"{ST}/feeds_seen.json", [])); fadded = len(furls - fseen)
+    json.dump(sorted(fseen | furls), open(f"{ST}/feeds_seen.json", "w"))
     save(LAST, {"id": cur["id"], "published_utc": iso(now), "window_start_utc": cur["start_utc"]})
-    os.remove(CUR); print(f"recorded edition {cur['id']} published at {iso(now)}; {added} videos marked seen")
+    os.remove(CUR); print(f"recorded edition {cur['id']} published at {iso(now)}; {added} videos and {fadded} feed items marked seen")

@@ -17,6 +17,14 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    networking, security or databases (README "Relevance criteria"). Write {} if none. Relevance first;
    when trimming borderline picks, keep those matching a top trend category from yesterday's/today's
    data/x_trends.json (if present).
+2b. ./run.sh feeds        (RSS/Atom feeds in config/feeds.txt since START -> data/feeds.json; seen/published
+   articles already excluded; shortlisted items carry full text, capped ~6k chars, else the RSS summary)
+   FEEDS JUDGE: read the shortlisted items in data/feeds.json ("items_list", "shortlisted": true; others only by
+   title) and pick 3-6 articles that are genuinely about AI/ML or DevOps (same criteria as videos), using only
+   their "text". Prefer tier-1 primary sources (official blogs, release notes, advisories) over news and
+   aggregators. A story also covered by a video and/or an X post appears ONCE as one merged item, cited to the
+   primary blog/article URL (the video/X links may support details in the same item). Write the picks to
+   data/feeds_selected.json as {"<item id>": "AI" | "DevOps"} ({} if none).
 3. ./run.sh transcripts    (429s get status "rate limited (retry later)" and are retried next edition, which is fine)
 3b. ./run.sh whisper       (Whisper fallback for "needs Whisper" videos only. Backend order: remote GPU host if
    WHISPER_REMOTE is set and reachable (whisper.cpp large-v3-turbo on Vulkan via ssh + docker, videos up to 3 h),
@@ -38,8 +46,9 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    Budget: <= ~55 search reads per edition plus <= 30 trend reads once a day (limits 30/min, 1000/day).
 5. DECIDE: if no new video has transcript_status "ok" in data/relevant.json AND fewer than 5 good X items
    qualify, stop and publish nothing (report "skipped: nothing new"). Otherwise write articles/<EDITION>.md
-   exactly per STYLE.md (Mind Blow format), using only the new transcripts (data/transcripts/<id>.txt)
-   and data/x_selected.json. Write X items exactly like video items, with no platform framing or counts.
+   exactly per STYLE.md (Mind Blow format), using only the new transcripts (data/transcripts/<id>.txt),
+   data/x_selected.json and the articles in data/feeds_selected.json (link the article URL on the claim;
+   write article items exactly like video items, no "according to a blog post" framing). Write X items exactly like video items, with no platform framing or counts.
    TRENDS: favor stories in data/x_trends.json "top" categories (videos in step 2 and X posts alike, given
    equal quality): lead the cold open with the strongest trending story, and when writing the share caption
    for X, open with that trending topic as the hook. Never mention trends or volumes in the article.
@@ -48,6 +57,6 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    reuse error and re-run. If it prints SKIP:, publish nothing.
 7. ./run.sh publish. Wait about 90 s, then confirm
    https://anthonyrussano.github.io/youtube-digest/reports/<EDITION>.html returns HTTP 200 and the index lists it.
-Report: EDITION, the window, videos found/selected/transcribed (captions vs Whisper)/rate limited, X calls (search + trend reads) and posts qualified (saves vs shares route), top trends,
+Report: EDITION, the window, feeds ok/items/shortlisted/articles cited, videos found/selected/transcribed (captions vs Whisper)/rate limited, X calls (search + trend reads) and posts qualified (saves vs shares route), top trends,
 the live URL (or why it was skipped), and any errors.
 ```

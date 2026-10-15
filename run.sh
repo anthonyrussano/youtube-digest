@@ -3,6 +3,7 @@
 #   ./run.sh [--hours 24]          fetch + transcripts with keyword candidates (no judge)
 #   ./run.sh fetch [--hours 24]    stage 1: list channel uploads via yt-dlp -> data/videos.json (alias: rss)
 #                                  extra flags: --out FILE (dry run), --rss (legacy RSS first; 404s globally), --workers N
+#   ./run.sh feeds [--hours H]     RSS/Atom feeds (config/feeds.txt) since the edition window -> data/feeds.json
 #   ./run.sh transcripts           stage 3: captions for data/selected.json (retries earlier 429s)
 #   ./run.sh whisper [IDS] [--include-rate-limited] [--model tiny.en|base.en] [--max-minutes 45]
 #                                  stage 3b: Whisper fallback for "needs Whisper" videos (remote backend if
@@ -27,6 +28,7 @@ CUR=$(python3 -c 'import json;print(json.load(open("state/current_edition.json")
 DEF=${CUR:-$TODAY}
 case "${1:-all}" in
   fetch|rss) shift; ensure_venv; .venv/bin/python digest.py fetch "$@" ;;
+  feeds) shift; ensure_venv; .venv/bin/python scripts/feeds.py "$@" ;;
   transcripts) shift; ensure_venv; .venv/bin/python digest.py transcripts "$@" ;;
   whisper) shift; ensure_venv; .venv/bin/python whisper_fallback.py "$@" ;;
   edition-start) shift; python3 scripts/edition.py start "$@" ;;

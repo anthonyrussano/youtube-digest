@@ -10,6 +10,7 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 | `whisper_fallback.py` | Whisper fallback stage (`./run.sh whisper`): pluggable backends, remote GPU host (whisper.cpp/Vulkan over ssh) then local CPU faster-whisper |
 | `digest.py` | Stages `fetch` (alias `rss`), `transcripts` and `all` (yt-dlp channel listing, keyword prefilter, exact dates, captions) |
 | `requirements.txt` | Pinned Python deps (yt-dlp). Installed into `.venv/` |
+| `config/feeds.txt`, `scripts/feeds.py` | RSS/Atom feeds (`./run.sh feeds`): `url \| name \| tier \| filter`, fetched since the edition window -> `data/feeds.json` (see "Feeds") |
 | `config/x_queries.txt` | Topic queries for the daily X search (topics only, no channel list) |
 | `scripts/x_filter.py` | Applies the X rules to `data/x_raw/*.json` and writes `data/x_selected.json` |
 | `config/x_trends.txt`, `scripts/x_trends.py` | Daily keyword trends (`./run.sh trends`): category post counts today vs 7-day average -> `data/x_trends.json` |
@@ -36,7 +37,7 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 The routine runs at about 6:04 AM, noon and 5 PM PT on weekdays, plus on demand. Each run is one **edition**:
 - **Id and page:** the first edition of a PT day is `YYYY-MM-DD` (`articles/2026-10-13.md` becomes `reports/2026-10-13.html`). Later editions add the PT start time, `YYYY-MM-DD-HHMM` (`articles/2026-10-13-1158.md` becomes `reports/2026-10-13-1158.html`), so they never overwrite the morning page. The index lists every edition newest first, labeled with its date and "h:mm AM/PM PT edition".
 - **Window:** `./run.sh edition-start` sets the window start to the previous edition's publish time (`state/last_edition.json`). With no state it falls back to now-24h, and it never goes back more than 72 h. `--hours H` forces a window. The result goes to `state/current_edition.json`, which `fetch`, `x`, `render` and `publish` all read by default.
-- **No repeats:** `state/seen.json` holds every video fetched for an edition that was actually published; `publish` (via `scripts/edition.py published`) is its only writer, so a skipped edition leaves its in-window videos eligible for the next `fetch` (the window START also stays put, because it comes from the last *published* edition). `state/published.json` holds every video and X post ID cited in a published edition, recorded by `publish`. `fetch` and `transcripts` skip published videos, and `x` drops published posts. `render` refuses a new edition that cites anything already published. Flat yt-dlp listings have only day-level dates, so `fetch` widens its pre-filter by 36 h, then gets exact timestamps for keyword matches; seen/published tracking removes any overlap.
+- **No repeats:** `state/seen.json` holds every video fetched for an edition that was actually published; `publish` (via `scripts/edition.py published`) is its only writer, so a skipped edition leaves its in-window videos eligible for the next `fetch` (the window START also stays put, because it comes from the last *published* edition). `state/published.json` holds every video and X post ID (and feed article URL) cited in a published edition, recorded by `publish`. `fetch` and `transcripts` skip published videos, and `x` drops published posts. `render` refuses a new edition that cites anything already published. Flat yt-dlp listings have only day-level dates, so `fetch` widens its pre-filter by 36 h, then gets exact timestamps for keyword matches; seen/published tracking removes any overlap.
 - **Publish:** `./run.sh publish` pushes, then records the cited IDs and the publish time, which is the next edition's window start, and closes the edition. If the push fails, the state isn't advanced.
 - **Skip rule:** an edition needs new transcribed videos, **or** at least 5 good X items for an X-only edition. Otherwise `render` exits with `SKIP:` and nothing is published. Leave the edition open; the next `edition-start` reopens with the same window start.
 
@@ -47,6 +48,8 @@ cd /home/box/youtube-digest
 ./run.sh fetch                   # 1. videos published since START -> data/videos.json (seen/published skipped)
 #  2. JUDGE: read data/videos.json (non-Shorts, "seen": false) and write
 #     data/selected.json = {"<video_id>": "AI" | "DevOps", ...}  (see Relevance criteria; may be {})
+./run.sh feeds                   # 2b. RSS/Atom feeds since START -> data/feeds.json; judge picks 3-6 articles
+#     -> data/feeds_selected.json = {"<item id>": "AI" | "DevOps"}
 ./run.sh transcripts             # 3. captions -> data/transcripts/; also retries earlier 429 videos
 ./run.sh whisper                 # 3b. Whisper fallback for captionless (needs Whisper) videos
 ./run.sh trends                  # 4a. once per PT day: prints CACHED, or the get_posts_counts_recent calls to save as
@@ -70,6 +73,13 @@ The keyword regex in `digest.py` (`AI` and `DEVOPS`) only proposes candidates, a
 - **DevOps:** CI/CD, IaC, Kubernetes and containers, cloud services, databases and migrations, observability and incidents, networking, VPN and routers, homelabs, self-hosting, SBCs and servers, security, encryption and backups.
 
 Exclude videos where AI or tech is incidental (general politics, comedy, sermons, finance or health talk), plus music, kids' content, Shorts and pure product ads with no technical content. Label each selected video `"AI"` or `"DevOps"` by its main subject. If `data/selected.json` is absent, the keyword candidates are used.
+
+## Feeds (step 2b)
+`config/feeds.txt` lists 44 feeds as `url | name | tier | optional filter`: the 33 relevant, active feeds from the 2026-10-14 devops-newsfeeds audit plus verified AI-lab and tooling feeds (OpenAI, Google AI, DeepMind, Hugging Face, LangChain, Docker, Vercel, AWS ML, Simon Willison, Latent Space, Changelog). Anthropic has no RSS feed, so it is covered by X and video only. Tier 1 means a primary source (official blog, release notes), tier 2 a strong engineering blog or curated news, and tier 3 is useful but lower signal. `kw:<regex>` keeps only matching entries (AWS What's New uses it). Hacker News comes from `hnrss.org/newest?points=200`.
+
+`./run.sh feeds` (`scripts/feeds.py`) fetches every feed concurrently (10 workers, 15 s timeout, one retry). It caches ETag/Last-Modified in `state/feeds_http.json`, with bodies in `data/feeds_cache/`. It keeps entries published since the edition START (the same window as `fetch`; `--hours H` or `--since ISO` override it) and drops URLs already in `state/feeds_seen.json` or `published.json` `"articles"`. URLs are canonicalized: `utm_*` parameters and the fragment are stripped. Items are scored on title and summary: tier (1:3, 2:2, 3:1), plus AI/DevOps keyword hits (the `digest.py` regexes, up to 3 each), times 1.5 when a top trend in `data/x_trends.json` matches. The top 40 items with a keyword hit (or from tier 1) are shortlisted and get full text via trafilatura, capped at about 6,000 characters and cached in `data/feeds_text/`. When extraction fails they fall back to the RSS summary. A run takes about 10–20 s.
+
+**Selection:** the judge picks 3–6 articles per edition with the video/X rubric and prefers tier-1 primary sources. Stories merge across sources: an announcement covered by a video, an X post and a blog is one item, cited to the blog. **Dedup:** only `edition.py published` (run by `publish`) writes `state/feeds_seen.json`, marking every item in `data/feeds.json` as considered. It also adds cited article URLs to `published.json` `"articles"`, which `render` refuses to reuse. A skipped edition leaves its items eligible.
 
 ## X filter rules (step 4)
 - The window is the open edition's START. Pass `start_time` = START to every call.
