@@ -1,12 +1,16 @@
 # YouTube AI & DevOps daily digest ("Mind Blow" edition)
 
+> **New agent taking this over?** Start with [`docs/HANDOFF.md`](docs/HANDOFF.md): setup from scratch, the three routines (with full prompts and cron times), the X Article publishing playbook, hard rules and engagement lessons.
+
 This repo is Anthony's daily pipeline. It reads new videos from his YouTube subscriptions, filters them to AI and DevOps, pulls transcripts, adds high-signal X posts, and publishes a Vsauce2 *Mind Blow*-style article to GitHub Pages: https://anthonyrussano.github.io/youtube-digest/. A fresh agent should read this README, then `STYLE.md`, then follow `docs/ROUTINE_PROMPT.md`.
 
 ## Layout
 | Path | What it is |
 |---|---|
 | `subscriptions.csv` | **Private, never committed.** The YouTube subscriptions export (see Setup) |
-| `run.sh` | Entry point with subcommands `fetch` (alias `rss`), `transcripts`, `whisper`, `x`, `x-reset`, `render` and `publish` |
+| `subscriptions.example.csv` | Committed, sanitized starter list: the public AI/DevOps/tech channels only, same format. `cp subscriptions.example.csv subscriptions.csv` to bootstrap |
+| `state/x_posts.json`, `state/x_impressions.csv` | **Private.** Every X Article post (ids, caption, NASA header used) and the impressions log (see `docs/HANDOFF.md`) |
+| `run.sh` | Entry point with subcommands `edition-start`, `edition`, `fetch` (alias `rss`), `feeds`, `transcripts`, `whisper`, `trends`, `x-reset`, `x-accounts`, `x`, `render`, `publish` and `all` |
 | `whisper_fallback.py` | Whisper fallback stage (`./run.sh whisper`): pluggable backends, remote GPU host (whisper.cpp/Vulkan over ssh) then local CPU faster-whisper |
 | `digest.py` | Stages `fetch` (alias `rss`), `transcripts` and `all` (yt-dlp channel listing, keyword prefilter, exact dates, captions) |
 | `requirements.txt` | Pinned Python deps (yt-dlp). Installed into `.venv/` |
@@ -29,7 +33,7 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 ## Setup from scratch
 1. **Clone:** `git clone https://github.com/anthonyrussano/youtube-digest /home/box/youtube-digest`
 2. **Python deps:** you need Python 3.10+ and [uv](https://github.com/astral-sh/uv) (or plain venv). `./run.sh fetch` creates `.venv/` and installs `requirements.txt` automatically. To do it by hand, run `uv venv .venv && uv pip install --python .venv/bin/python -r requirements.txt`. Nothing else is needed: `render_article.py` and `x_filter.py` use only the standard library. When caption downloads start failing across the board, bump the yt-dlp pin.
-3. **Subscription list (private):** export your subscriptions from Google Takeout (YouTube and YouTube Music, then `subscriptions/subscriptions.csv`). Place the file at `/home/box/youtube-digest/subscriptions.csv`. It is a CSV with a header row `Channel Id,Channel Url,Channel Title` and one channel per row (Channel Id is the `UC…` ID). It is gitignored, `publish` refuses to stage it, and its contents must never be copied into commits, articles or issues.
+3. **Subscription list (private):** export your subscriptions from Google Takeout (YouTube and YouTube Music, then `subscriptions/subscriptions.csv`). Place the file at `/home/box/youtube-digest/subscriptions.csv`. It is a CSV with a header row `Channel Id,Channel Url,Channel Title` and one channel per row (Channel Id is the `UC…` ID). No Takeout export? `cp subscriptions.example.csv subscriptions.csv` (70 public tech channels) and add/remove channels by their `UC…` id. `subscriptions.csv` is gitignored, `publish` refuses to stage it, and its contents must never be copied into commits, articles or issues.
 4. **GitHub auth:** `gh auth login` (or a `GITHUB_TOKEN` with `repo` scope) so that `git push` to `anthonyrussano/youtube-digest` works. Never commit the token.
 5. **Pages:** in repo Settings, open Pages, choose "Deploy from a branch" and set it to `main` and `/ (root)`. Jekyll builds with the minima theme from `_config.yml`, which excludes the scripts, docs and private paths. Each push rebuilds the site in about 1–2 minutes.
 6. **X search:** this needs the MCP namespace `x` (tool `search_posts_all`) connected for the agent. There is no API key in this repo.
@@ -63,9 +67,11 @@ cd /home/box/youtube-digest
 #     then the same call for EVERY line printed by ./run.sh x-accounts -> data/x_raw/aNN.json (3 calls)
 ./run.sh x                       #     -> data/x_selected.json (window START, unpublished posts only)
 #  5. WRITE articles/<EDITION>.md per STYLE.md (Mind Blow format) from the new transcripts + data/x_selected.json.
-#     If there are no new transcribed videos and fewer than 5 good X items, stop here (nothing to publish).
+#     Skip rule: publish only with >= 1 new transcribed video, OR >= 5 good X items, OR >= 2 strong (tier 1-2)
+#     selected articles; otherwise stop here (nothing to publish, nothing marked seen).
 ./run.sh render                  # 6. -> reports/<EDITION>.md (citation check, no-repeat check, X-only minimum)
 ./run.sh publish                 # 7. push, record published IDs and publish time; then check the URL returns HTTP 200
+#  8. X Article on @russano via the signed-in browser (docs/HANDOFF.md playbook; held until 10:37 for the 6:04 run)
 ```
 `render` and `publish` default to the open edition's ID. An explicit ID (`./run.sh render 2026-10-12`) re-renders or republishes an older page without touching edition state. An on-demand edition uses the same sequence. `./run.sh edition-start --hours 6` forces a 6-hour window.
 
@@ -103,7 +109,7 @@ Exclude videos where AI or tech is incidental (general politics, comedy, sermons
 - **Pages:** if the URL isn't 200 after about 3 minutes, check the repo's Actions or Pages build status.
 
 ## Privacy rules
-`subscriptions.csv` (and any `*.csv`), `data/`, `state/`, `.venv/`, cookies, `.env` and secrets are gitignored. `./run.sh publish` only stages known site, code and doc paths, and it aborts if anything under `data/`, `state/` or `.venv/`, or any CSV or cookie file, is staged. Don't name the subscribed channels list in commits or docs. Channels may be mentioned in articles only as the source of a cited video.
+`subscriptions.csv` (and any `*.csv`), `data/`, `state/`, `.venv/`, cookies, `.env` and secrets are gitignored. `./run.sh publish` only stages known site, code and doc paths, and it aborts if anything under `data/`, `state/` or `.venv/`, or any CSV or cookie file, is staged. Don't commit the real subscriptions list. The only exception is `subscriptions.example.csv`, a hand-sanitized list of public tech channels (no personal, family, church or kids' channels). Channels may be mentioned in articles only as the source of a cited video.
 
 ## How it works
 1. **Fetch** (`digest.py fetch --hours N`, default: the open edition's START, else 24 h; `rss` is an alias):

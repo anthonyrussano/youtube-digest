@@ -17,3 +17,6 @@ Gemfile.lock
 
 # local machine config (holds the GPU host address)
 config/whisper.json
+
+# sanitized public example (tech channels only) is allowed
+!subscriptions.example.csv

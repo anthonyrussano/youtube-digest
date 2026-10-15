@@ -1,6 +1,8 @@
 # Article style guide: "Mind Blow" format
 
-Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of short, self-contained items, each a small jolt of wonder. The writer (the scheduled Grok Bot routine) writes `articles/YYYY-MM-DD.md` from the day's transcripts (`data/relevant.json`, `data/transcripts/`) and the qualifying X posts (`data/x_selected.json`). `./run.sh render` turns it into `reports/YYYY-MM-DD.md`.
+Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of short, self-contained items, each a small jolt of wonder. The writer (the scheduled Grok Bot routine) writes `articles/<EDITION>.md` (`YYYY-MM-DD` or `YYYY-MM-DD-HHMM`) from the edition's new transcripts (`data/relevant.json`, `data/transcripts/`), the qualifying X posts (`data/x_selected.json`) and the selected feed articles (`data/feeds_selected.json`). `./run.sh render` turns it into `reports/YYYY-MM-DD.md`.
+
+"Mind Blow" is only the internal name of this format. **Never write "Mind Blow" in a title, dek, body or X caption.**
 
 ## Shape
 - **Front matter:** `title:` is a short, punchy headline that teases two or three of the best items. `dek:` is one line. Both go in double quotes.
@@ -18,7 +20,7 @@ Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of
 ## Editions
 - There are several editions a day (see README "Editions"). Each covers only what is new since the previous edition. Never repeat a story that is already published; `render` blocks reused video and post IDs.
 - A later edition is shorter when the material is thin. Fewer items (as few as 5) are fine, and so is a one-hit cold open. Don't pad.
-- **X-only edition:** with no new transcribed videos, an edition may be built entirely from X items, but only if at least 5 good ones qualify. Use the same format and voice, with no mention of the platform.
+- **X-only or articles-only edition:** with no new transcribed videos, an edition may be built from X items if at least 5 good ones qualify, or from feed articles if at least 2 strong (tier 1–2, in `data/feeds_selected.json`) qualify. Use the same format and voice, with no mention of the platform. Otherwise `render` prints `SKIP:`.
 - The `title:` should still tease the edition's best items. The page shows the date and edition time automatically, so don't put "noon edition" in the text.
 
 ## Sources and citations

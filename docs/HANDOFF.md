@@ -1,0 +1,94 @@
+# Handoff: running this project as a new Grok Bot
+
+This guide is for a Grok Bot on a different account, with none of the original box, memory or routines. Read it, then `README.md` (pipeline spec), `STYLE.md` (writing spec) and `docs/ROUTINE_PROMPT.md` (per-edition steps).
+
+## 1. What this is and the goal
+A pipeline that turns Anthony Russano's YouTube subscriptions, curated X searches and 44 RSS/Atom feeds into short AI & DevOps "editions" (several per weekday). Each edition is published to GitHub Pages (https://anthonyrussano.github.io/youtube-digest/) **and as an X Article on @russano**. The goal is to **maximize impressions on @russano**: good stories, good timing, a concrete hook caption.
+
+Anthony gave **full authority over project decisions** (sources, filters, format, schedule tweaks). Use it, and tell him what you changed.
+
+## 2. Setup from scratch
+1. `git clone https://github.com/anthonyrussano/youtube-digest /home/box/youtube-digest` and set up push auth (`gh auth login`). Grok Bot also pushes whisper/report commits, so always `git pull --rebase` before pushing.
+2. Python 3.10+, `uv` (or venv), `ffmpeg`. `./run.sh fetch` creates `.venv/` and installs `requirements.txt` (yt-dlp, faster-whisper, trafilatura, ...). Bump the yt-dlp pin when listing or captions break everywhere.
+3. **Subscriptions** (`subscriptions.csv`, private, gitignored): either a Google Takeout export (YouTube and YouTube Music -> `subscriptions/subscriptions.csv`, header `Channel Id,Channel Url,Channel Title`), or `cp subscriptions.example.csv subscriptions.csv` (70 public tech channels, sanitized) and edit.
+4. **Whisper**: optional GPU backend, whisper.cpp (Vulkan, in docker) on a home server reached over ssh. Set `WHISPER_REMOTE=user@host[:port]` in the environment (or `"remote"` in gitignored `config/whisper.json`). Ask Anthony for the host and an ssh key; never commit either, and never set it on your own guesswork. If unset or unreachable (2 s TCP check), `./run.sh whisper` falls back to local CPU faster-whisper `base.en` (45 min cap). Host setup is in README "Whisper fallback".
+5. **Connectors**: MCP namespace `x` (search_posts_all, get_posts_counts_recent, get_users_posts) for search and impressions reads; a browser with **@russano signed in by Anthony himself** (never ask for or type his password); a messaging channel to Anthony.
+6. **Pages**: Settings -> Pages -> deploy from `main` / root.
+7. Smoke test: `bash -n run.sh && ./run.sh feeds --hours 6 && ./run.sh x-accounts`.
+
+## 3. Routines to recreate (timezone America/Los_Angeles)
+### A. Digest edition: `4 6,12,17 * * 1-5`
+Prompt: the full text in `docs/ROUTINE_PROMPT.md`, plus this preface:
+```
+If the current PT time is the 6:04 AM run, do steps 0-7 and 9 but DO NOT post the X Article (step 8);
+the 10:37 routine posts it. On the 12:04 and 17:04 runs, post the X Article right after publish.
+Read docs/HANDOFF.md first (hard rules, X Article playbook). Quiet hours 10 PM-5:30 AM PT: no messages.
+```
+### B. Morning X post: `37 10 * * 1-5`
+```
+Repo /home/box/youtube-digest. Read docs/HANDOFF.md. Find today's first edition (reports/<YYYY-MM-DD>.md,
+PT date). If it exists and has no entry in state/x_posts.json, publish it as an X Article on @russano
+following the "X Article playbook" exactly (fresh NASA header, hook caption ending in "...", read the live
+caption back, record in state/x_posts.json). Then message Anthony: headline, X link, one sentence on the top
+item. If there is no edition today (skipped) or it is already posted, do nothing and send no message.
+```
+### C. Impressions tracker: `13 9 * * *` (daily)
+```
+Repo /home/box/youtube-digest. For every post in state/x_posts.json, read its public_metrics with MCP x
+get_posts_by_ids (post.fields=public_metrics,created_at; batches of up to 100 ids, one read). Upsert one row
+per post_id in state/x_impressions.csv (columns: post_id,title,caption,posted_pt,impressions_24h,likes,
+reposts,bookmarks,replies,quotes,measured_at_pt,age_hours_at_measure,note). Note when the age is not ~24 h.
+Then compare by posting hour and caption type and, if a pattern changed, update the "Engagement lessons" in
+docs/HANDOFF.md and commit it (pull --rebase first). Message Anthony only if something notable changed.
+Respect X limits: 30 reads/min, 1000/day across all routines.
+```
+
+## 4. X Article playbook
+The X API **cannot** create Articles, so this is done in the browser, which Anthony signed into @russano himself.
+1. Render the article to HTML from `articles/<EDITION>.md` (title, dek as first paragraph, body paragraphs with links intact; never the phrase "Mind Blow"). Write it under `/tmp/xart/` and serve it: `python3 -m http.server 8765 --bind 127.0.0.1 -d /tmp/xart` (file:// is blocked in the browser).
+2. Open `http://127.0.0.1:8765/<file>.html`, select the body, and **copy with the right-click context menu -> Copy**. Do not trust the existing clipboard: a stale clipboard once pasted yesterday's article.
+3. Go to **https://x.com/compose/articles**, create a new Article, type the title, click into the body and paste with **real keystrokes** (Ctrl+V), not by injecting DOM text.
+4. **Check the body**: first and last paragraphs match this edition, links survived, nothing from an older edition.
+5. **Header image**: a random high-resolution public-domain NASA image from https://images.nasa.gov (download the original/large, not a thumbnail) whose id is **not** in any `header` field of `state/x_posts.json`. Upload it as the Article header.
+6. Publish, then add the **caption** to the post: a hook naming the biggest, most concrete topic with numbers, ending in `...`. Example: `Meta's 816B Muse Spark Open runs on two Mac Studios as Cloudflare's Void ships vibe-coded apps...`
+7. **Read the live caption back** (profile timeline or `x.get_posts_by_id`). It was once truncated to `Forml`; if it is cut, fix it.
+8. Append to `state/x_posts.json` `posts`: `edition, posted_at_utc, post_id, article_id, url, article_url, title, caption, caption_note, header` (NASA id plus short description).
+9. Message Anthony (outside quiet hours): headline, link, one sentence on the top item.
+
+## 5. Hard rules
+- Never use "Mind Blow" in Article titles, bodies or captions (it is only the internal style name).
+- Quiet hours **10 PM to 5:30 AM PT**: send no messages.
+- After each published edition, message Anthony with the headline, the link and one sentence on the top item.
+- Messaging or emailing anyone other than Anthony needs his explicit confirmation first.
+- Never commit secrets or private data (see section 9). Never commit `subscriptions.csv`.
+- Anthony has full authority delegated to you over project decisions; act, then report.
+
+## 6. Engagement lessons (from `state/x_impressions.csv`, `state/x_posts.json`)
+- **Best:** midday/afternoon posts with specific, number-led teaser captions. Tue Oct 13 2:51 PM PT: 321 impressions. Wed Oct 14 12:29 PM PT: 358+. Thu Oct 15 ~12:30 PM PT: ~280 in 2 hours with a real comment.
+- **Worst:** overnight posts (Oct 13 12:19 AM: 27), and missing or truncated captions (Oct 13 7:43 AM no caption: 101; Oct 14 6:26 AM caption "Forml": 32).
+- Hence the 6:04 AM edition's Article is **held until 10:37 AM**, and every caption is a concrete hook ending in "...". Keep measuring and revise this section with data.
+
+## 7. Quality bar
+`STYLE.md` is the spec. Gold examples in `reports/` (source in `articles/`):
+- `2026-10-14-1211`: dense, number-led items (a million output tokens, Credit Karma's 90% cut); its caption drew the best result so far.
+- `2026-10-15`: leads with the biggest concrete stories (Anthropic $16.8bn quarter, Modal $1B ARR), clean merging of video, X and blog sources.
+- `2026-10-15-1212`: a strong later edition; specific title (Meta 816B open model, Cloudflare Void, OpenAI's billion for defenders), no padding.
+
+## 8. Troubleshooting
+- **YouTube RSS 404s**: the channel RSS feed is dead since Oct 2026; `fetch` uses yt-dlp listings (`--rss` only as a legacy try).
+- **Caption 429s**: status `rate limited (retry later)`; retried next run automatically. Whisper covers "needs Whisper" videos; `--include-rate-limited` forces it.
+- **Feed SSL errors/timeouts**: a few feeds fail occasionally (15 s timeout, one retry); non-fatal, they show in the `feeds` summary.
+- **X limits**: 30 reads/minute, 1000/day. Pace at <= 25/min; one edition is ~36 search reads plus ~27 trend reads once a day.
+- **Render exits** with a missing-citation, reuse or `SKIP:` message: fix the article or skip the edition (nothing gets marked seen).
+
+## 9. State: where it lives, what to carry over
+All of `state/` and `data/` are **gitignored** (private). Files that matter:
+| File | Purpose |
+|---|---|
+| `state/seen.json` | video ids considered by published editions (written only at publish) |
+| `state/published.json` | video, X post and article ids/URLs cited (blocks repeats) |
+| `state/last_edition.json` | last publish time = next window start |
+| `state/feeds_seen.json` | feed URLs considered at publish |
+| `state/x_posts.json` | every X Article post, caption, header (prevents header reuse) |
+| `state/x_impressions.csv` | impressions log |
+Migrate by copying the `state/` folder privately (e.g. `tar czf state.tgz state/` and a direct file transfer Anthony approves), never via git. **A fresh start is OK**: with no state, `edition-start` uses a 24 h window; the only costs are possible repeats of recent stories (check the last few `reports/` by hand) and NASA header reuse (rebuild the used-header list from the posts on @russano). `config/whisper.json` and `subscriptions.csv` are recreated per section 2.

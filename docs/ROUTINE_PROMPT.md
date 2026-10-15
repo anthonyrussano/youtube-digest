@@ -1,9 +1,10 @@
 # Edition routine prompt (paste into the scheduled Grok Bot routine)
 
-Schedule: weekdays at about 6:04 AM, 12:00 PM and 5:00 PM PT, plus on demand. The same prompt works for every edition.
+Schedule: cron `4 6,12,17 * * 1-5` America/Los_Angeles (6:04 AM, 12:04 PM, 5:04 PM PT weekdays), plus on demand. The same prompt works for every edition. The full set of routines (including the 10:37 morning X post and the impressions tracker) is in `docs/HANDOFF.md`.
 
 ```
-Run one edition of Anthony's AI & DevOps "Mind Blow" digest. Repo: /home/box/youtube-digest
+Run one edition of Anthony's AI & DevOps digest (internal format name "Mind Blow"; never write that phrase in titles,
+bodies or captions). Repo: /home/box/youtube-digest
 (GitHub anthonyrussano/youtube-digest, site https://anthonyrussano.github.io/youtube-digest/).
 First read README.md (especially "Editions") and STYLE.md in full. They are the spec. Never commit
 subscriptions.csv, data/, state/, cookies or any secret, and never print the subscription list anywhere public.
@@ -61,6 +62,12 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    reuse error and re-run. If it prints SKIP:, publish nothing.
 7. ./run.sh publish. Wait about 90 s, then confirm
    https://anthonyrussano.github.io/youtube-digest/reports/<EDITION>.html returns HTTP 200 and the index lists it.
+8. X ARTICLE (skip on the 6:04 AM run: the 10:37 routine posts it). Follow docs/HANDOFF.md "X Article
+   playbook" exactly: localhost http server, copy via right-click menu, paste with real keystrokes, verify the
+   body, new NASA header not in state/x_posts.json, hook caption ending in "...", read the live caption back,
+   append the post to state/x_posts.json.
+9. MESSAGE Anthony (not between 10 PM and 5:30 AM PT): headline, link (X post, else the Pages URL) and one
+   sentence on the top item. Never message anyone else without his confirmation.
 Report: EDITION, the window, feeds ok/items/shortlisted/articles cited, videos found/selected/transcribed (captions vs Whisper)/rate limited, X calls (search + trend reads) and posts qualified (saves vs shares route), top trends,
 the live URL (or why it was skipped), and any errors.
 ```
