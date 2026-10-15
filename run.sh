@@ -36,6 +36,7 @@ case "${1:-all}" in
   render) D=${2:-$DEF}; python3 scripts/render_article.py "articles/$D.md" "$D" ;;
   x) shift; python3 scripts/x_filter.py "$@" ;;
   trends) shift; python3 scripts/x_trends.py "${1:-plan}" ;;
+  x-accounts) shift; python3 scripts/x_accounts.py "${1:-queries}" ;;
   x-reset) rm -rf data/x_raw && mkdir -p data/x_raw && echo "cleared data/x_raw" ;;
   publish)
     D=${2:-$DEF}

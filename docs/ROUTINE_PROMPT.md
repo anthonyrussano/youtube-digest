@@ -42,8 +42,12 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
     "start_time": START, "post.fields": "public_metrics,created_at,author_id",
     "expansions": "author_id", "user.fields": "username,name"} and write_to_file=true.
    Copy each result file to data/x_raw/qNN.json (33 calls: topics, launches and curated accounts).
+   Then run ./run.sh x-accounts and make the same call for EVERY line it prints (followed accounts from
+   config/x_accounts.txt, 3 calls), copying each result to data/x_raw/aNN.json. Posts by these authors get a
+   relaxed "followed" route in x_filter.py (>= 5 bookmarks, bookmarks >= 0.1x likes, saves or >= 10 reposts
+   or >= 3 quotes).
    Then: ./run.sh x   -> data/x_selected.json (posts matching a top trend carry "trends" and rank 1.5x higher)
-   Budget: <= ~55 search reads per edition plus <= 30 trend reads once a day (limits 30/min, 1000/day).
+   Budget: <= ~55 search reads per edition (36 today) plus <= 30 trend reads once a day (limits 30/min, 1000/day).
 5. DECIDE: if no new video has transcript_status "ok" in data/relevant.json AND fewer than 5 good X items
    qualify AND fewer than 2 strong articles (tier 1-2, in data/feeds_selected.json) qualify, stop and publish nothing (report "skipped: nothing new"). Otherwise write articles/<EDITION>.md
    exactly per STYLE.md (Mind Blow format), using only the new transcripts (data/transcripts/<id>.txt),

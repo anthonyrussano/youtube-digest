@@ -12,6 +12,7 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 | `requirements.txt` | Pinned Python deps (yt-dlp). Installed into `.venv/` |
 | `config/feeds.txt`, `scripts/feeds.py` | RSS/Atom feeds (`./run.sh feeds`): `url \| name \| tier \| filter`, fetched since the edition window -> `data/feeds.json` (see "Feeds") |
 | `config/x_queries.txt` | Topic queries for the daily X search (topics only, no channel list) |
+| `config/x_accounts.txt`, `scripts/x_accounts.py` | Followed-account sources (32 accounts Anthony follows, audited 2026-10-15); `./run.sh x-accounts` prints the OR'd `from:` queries |
 | `scripts/x_filter.py` | Applies the X rules to `data/x_raw/*.json` and writes `data/x_selected.json` |
 | `config/x_trends.txt`, `scripts/x_trends.py` | Daily keyword trends (`./run.sh trends`): category post counts today vs 7-day average -> `data/x_trends.json` |
 | `scripts/render_article.py` | Checks citations, appends "Also on the radar", and writes `reports/<date>.md` |
@@ -58,7 +59,8 @@ cd /home/box/youtube-digest
 #     MCP x.search_posts_all {"query":"Q -is:retweet -is:reply lang:en","max_results":25,
 #       "sort_order":"relevancy","start_time":"<START from step 0>",
 #       "post.fields":"public_metrics,created_at,author_id","expansions":"author_id",
-#       "user.fields":"username,name"}  (write_to_file) and copy each result to data/x_raw/qNN.json
+#       "user.fields":"username,name"}  (write_to_file) and copy each result to data/x_raw/qNN.json;
+#     then the same call for EVERY line printed by ./run.sh x-accounts -> data/x_raw/aNN.json (3 calls)
 ./run.sh x                       #     -> data/x_selected.json (window START, unpublished posts only)
 #  5. WRITE articles/<EDITION>.md per STYLE.md (Mind Blow format) from the new transcripts + data/x_selected.json.
 #     If there are no new transcribed videos and fewer than 5 good X items, stop here (nothing to publish).
@@ -83,9 +85,9 @@ Exclude videos where AI or tech is incidental (general politics, comedy, sermons
 
 ## X filter rules (step 4)
 - The window is the open edition's START. Pass `start_time` = START to every call.
-- Queries come from `config/x_queries.txt`: 24 topics from the subscriptions' AI/DevOps themes, 5 launch queries (big-company AI, agent launches, knowledge-base tools, dev launches) and 4 curated-account queries (`from:` ~56 AI/DevOps builders). That is 33 calls a run (budget about 55), plus about 27 trend reads once a day. Limits are 30 calls a minute and 1000 a day; pace at 25/minute.
+- Queries come from `config/x_queries.txt`: 24 topics from the subscriptions' AI/DevOps themes, 5 launch queries (big-company AI, agent launches, knowledge-base tools, dev launches) and 4 curated-account queries (`from:` ~56 AI/DevOps builders). Followed accounts: `config/x_accounts.txt` holds 32 accounts Anthony follows on X that passed a 2026-10-15 audit (bio relevance score >= 2 of 5, plus at least 2 sampled posts with 5+ bookmarks or one with 20+). `./run.sh x-accounts` ORs them into 3 `from:` queries of about 11 handles each (small batches, because a call returns at most 25 posts). That is 36 calls a run (budget about 55), plus about 27 trend reads once a day. Limits are 30 calls a minute and 1000 a day; pace at 25/minute.
 - `-is:retweet -is:reply lang:en` are accepted. Tested 2026-10-14: **`min_likes:N` works** (launch queries use `min_likes:5` to drop zero-engagement noise), `min_faves:` is silently ignored, `min_bookmarks:` is rejected, and `has:links` works but surfaces link spam, so it is unused.
-- `scripts/x_filter.py` (via `./run.sh x [--min-bookmarks 10] [--hours 24] [--top 15]`) keeps a post only if it has at least 10 bookmarks and passes a route: **saves** (`bookmark_count > like_count`) or **shares** (at least 30 reposts or 5 quotes, and bookmarks at least 0.2x likes), and it was created since the edition's window START (or the last 24 hours with no open edition), and not already published. It drops crypto and spam patterns, de-duplicates by ID and normalized text, ranks by bookmarks (x1.5 when the post matches a top category in `data/x_trends.json`) and then the bookmark/like ratio, and keeps the top 15. Expect roughly 15–30 qualifying posts before the top-15 cut.
+- `scripts/x_filter.py` (via `./run.sh x [--min-bookmarks 10] [--hours 24] [--top 15]`) keeps a post only if it has at least 10 bookmarks and passes a route: **saves** (`bookmark_count > like_count`) or **shares** (at least 30 reposts or 5 quotes, and bookmarks at least 0.2x likes), Posts by followed accounts (any query) can instead pass the relaxed **followed** route: at least 5 bookmarks, bookmarks at least 0.1x likes (quality floor), and saves, or at least 10 reposts, or at least 3 quotes (flags `--followed-min-bookmarks/-reposts/-quotes/-ratio`). Every post must also have been created since the edition's window START (or the last 24 hours with no open edition), and not already published. It drops crypto and spam patterns, de-duplicates by ID and normalized text, ranks by bookmarks (x1.5 when the post matches a top category in `data/x_trends.json`) and then the bookmark/like ratio, and keeps the top 15. Expect roughly 15–30 qualifying posts before the top-15 cut.
 - **Trends:** `./run.sh trends` caches `data/x_trends.json` once per PT day. Each line of `config/x_trends.txt` is `name | counts query | local regex`; noisy terms are disambiguated (MCP as "model context protocol"/"MCP server", Cursor as "Cursor AI/IDE"). "top" lists up to 5 categories at >= 1.1x their 7-day average with real volume (avg >= 200/day). The judge and writer favor those stories and the share caption leads with one.
 - The writer still applies judgment: drop off-topic or promotional posts, and flag dubious claims. Bookmark and like counts are for selection only and never appear in the article.
 

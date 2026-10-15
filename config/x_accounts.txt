@@ -1,0 +1,37 @@
+# Accounts Anthony follows on X, kept as sources after the 2026-10-15 audit (bio relevance 0-5 plus a
+# 2026-10-10..15 sample of original posts; see /workspace/x_following_audit.csv, not committed).
+# One handle per line (no @); text after # is a note. scripts/x_accounts.py ORs them into from: queries
+# (./run.sh x-accounts); x_filter.py gives these authors a relaxed floor (see README, X section).
+# Handles already in the curated from: lines of config/x_queries.txt are not repeated here.
+poteto           # lauren - max 5003 bookmarks in sample
+DanielLockyer    # Daniel Lockyer - max 1050 bookmarks in sample
+Tiny_Fish        # TinyFish - max 814 bookmarks in sample
+hamiltonulmer    # Hamilton Ulmer - max 596 bookmarks in sample
+Teknium          # Teknium - max 519 bookmarks in sample
+omarchy          # Omarchy - max 402 bookmarks in sample
+LouiseGiam       # Louise Giam - max 331 bookmarks in sample
+JoshuaSWarren    # Joshua Warren - max 298 bookmarks in sample
+alexatallah      # Alex Atallah - max 232 bookmarks in sample
+haoailab         # Hao AI Lab - max 222 bookmarks in sample
+fal              # fal - max 184 bookmarks in sample
+baseten          # Baseten - max 175 bookmarks in sample
+lmstudiodevs     # LM Studio Developers - max 169 bookmarks in sample
+hilbertspaess    # Jacob Coxon - max 110 bookmarks in sample
+orca_build       # Orca ADE - max 101 bookmarks in sample
+eve              # eve - max 98 bookmarks in sample
+pidotdev         # Pi - max 83 bookmarks in sample
+minilek          # Jelani Nelson - max 76 bookmarks in sample
+amorriscode      # Anthony Morris ツ - max 69 bookmarks in sample
+trycua           # Cua - max 52 bookmarks in sample
+steph_palazzolo  # Stephanie Palazzolo - max 52 bookmarks in sample
+ollama           # ollama - max 49 bookmarks in sample
+agupta           # Ankit Gupta - max 49 bookmarks in sample
+dabit3           # nader dabit - max 41 bookmarks in sample
+jdxcode          # jdx - max 30 bookmarks in sample
+marktenenholtz   # Mark Tenenholtz - max 28 bookmarks in sample
+grinich          # Michael Grinich - max 22 bookmarks in sample
+HackingDave      # Dave Kennedy - max 18 bookmarks in sample
+LukeParkerDev    # Luke Parker - max 16 bookmarks in sample
+p0               # Parallel Web Systems - max 13 bookmarks in sample
+lingxi           # Lingxi Li - max 10 bookmarks in sample
+JinjingLiang     # jinjingliang - max 9 bookmarks in sample
