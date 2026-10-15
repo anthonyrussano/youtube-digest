@@ -1,1 +1,3 @@
 yt-dlp==2026.08.19
+faster-whisper==1.2.1
+av==15.1.0  # faster-whisper 1.2.1 breaks with av>=16 (metadata_errors kwarg)

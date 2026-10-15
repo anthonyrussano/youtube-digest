@@ -6,7 +6,8 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 | Path | What it is |
 |---|---|
 | `subscriptions.csv` | **Private, never committed.** The YouTube subscriptions export (see Setup) |
-| `run.sh` | Entry point with subcommands `fetch` (alias `rss`), `transcripts`, `x`, `x-reset`, `render` and `publish` |
+| `run.sh` | Entry point with subcommands `fetch` (alias `rss`), `transcripts`, `whisper`, `x`, `x-reset`, `render` and `publish` |
+| `whisper_fallback.py` | Whisper fallback stage (`./run.sh whisper`): pluggable backends, remote GPU host (placeholder) then local CPU faster-whisper |
 | `digest.py` | Stages `fetch` (alias `rss`), `transcripts` and `all` (yt-dlp channel listing, keyword prefilter, exact dates, captions) |
 | `requirements.txt` | Pinned Python deps (yt-dlp). Installed into `.venv/` |
 | `config/x_queries.txt` | Topic queries for the daily X search (topics only, no channel list) |
@@ -46,6 +47,7 @@ cd /home/box/youtube-digest
 #  2. JUDGE: read data/videos.json (non-Shorts, "seen": false) and write
 #     data/selected.json = {"<video_id>": "AI" | "DevOps", ...}  (see Relevance criteria; may be {})
 ./run.sh transcripts             # 3. captions -> data/transcripts/; also retries earlier 429 videos
+./run.sh whisper                 # 3b. Whisper fallback for captionless (needs Whisper) videos
 ./run.sh x-reset                 # 4. X: clear data/x_raw/, then for EVERY non-# line Q of config/x_queries.txt call
 #     MCP x.search_posts_all {"query":"Q -is:retweet -is:reply lang:en","max_results":25,
 #       "sort_order":"relevancy","start_time":"<START from step 0>",
@@ -78,7 +80,7 @@ Exclude videos where AI or tech is incidental (general politics, comedy, sermons
 - **Channel listing errors:** the run lists them in `errors` in `data/videos.json` (typically terminated/removed channels or channels with no Videos tab). Prune those from the subscriptions export.
 - **Full-lookup errors:** listed in `lookup_errors`; those videos keep their approximate date.
 - **Caption 429s:** videos get `transcript_status = "rate limited (retry later)"` and are retried automatically on the next `./run.sh transcripts`. Until then they appear in "Also on the radar". If 429s persist, raise `--sleep-subtitles` in `digest.py`. Passing browser cookies to yt-dlp needs Anthony's approval, and cookies are never committed.
-- **No English captions:** the status is `needs Whisper` and the video goes to "Also on the radar" (see Whisper below).
+- **No English captions:** the status is `needs Whisper`; `./run.sh whisper` transcribes it (see "Whisper fallback"). If that fails or the video is over the length cap, it goes to "Also on the radar".
 - **Render citation check:** `./run.sh render` exits 1 and lists any transcribed video not cited. Add it to an item and re-run.
 - **No new transcripts:** an X-only edition is allowed if at least 5 good X items qualify. Otherwise skip steps 5–7 and publish nothing (`render` prints `SKIP:` if you try).
 - **X tool unavailable or rate-limited:** write the article from videos only. That's allowed, but note it in the run report.
@@ -97,7 +99,7 @@ Exclude videos where AI or tech is incidental (general politics, comedy, sermons
 2. **Judgment:** a keyword prefilter is noisy. It catches JRE episodes and Oracle healthcare marketing, and it misses things like a Postgres migration talk. A judge (LLM) should read `data/videos.json` and write `data/selected.json`. If that file is missing, the transcripts stage uses the keyword candidates.
 3. **Transcripts** (`digest.py transcripts`): runs serially, calling `yt-dlp --skip-download --write-subs --write-auto-subs --sub-langs en --sub-format vtt` with sleeps between requests. Results:
    - `ok`: the transcript is in `data/transcripts/`.
-   - `needs Whisper`: no English captions. Whisper is not run on this box.
+   - `needs Whisper`: no English captions. Picked up by the Whisper fallback (3b).
    - `rate limited (retry later)`: YouTube returned HTTP 429. These are carried forward and retried on the next run.
 
    Rate-limited (429) videos stay in `data/relevant.json` and are retried by the next `transcripts` run. Nothing is marked seen here; that happens at publish.
@@ -105,8 +107,17 @@ Exclude videos where AI or tech is incidental (general politics, comedy, sermons
 
 **Who summarizes:** on the first run (2026-10-12, 7-day window) Grok Bot wrote the summaries by hand during the run. On later runs, a scheduled Grok Bot routine does steps 2 and 4: it runs `./run.sh` (or `fetch`, then judges, then `transcripts`), reads the transcripts, writes the summaries file, and renders the report. `digest.py` makes no LLM calls itself.
 
-## Adding Whisper later
-This box has 8 CPUs, about 3 GB of free RAM, and no GPU. That's too small for Whisper turbo, so it isn't run here. Videos marked `needs Whisper` can go to Anthony's repo **wikip-co/whisper-youtube-transcriber** (yt-dlp audio download, then openai-whisper `turbo`, built for AMD ROCm GPUs, writing `transcript.txt` / `transcript.json`). It would run on the GPU server on his LAN, which this box reaches over the WireGuard tunnel. A possible setup:
-1. Run the transcriber on the GPU host behind a small HTTP endpoint, or call it over SSH: `ssh gpu-host 'cd whisper-youtube-transcriber && ./transcribe <url>'`.
-2. Add a `whisper` stage to `digest.py` that takes `needs Whisper` entries, sends their URLs to the GPU host on the LAN, pulls back `transcript.json`, converts its segments (`start` and `text`) to the same `[seconds] text` format in `data/transcripts/<id>.txt`, and sets `transcript_status = "ok (whisper)"`.
-3. Everything downstream (summaries and timestamped links) then works unchanged.
+## Whisper fallback
+`./run.sh whisper` (`whisper_fallback.py`) runs after `transcripts` (also at the end of `./run.sh all`). By default it only takes videos with `transcript_status == "needs Whisper"`; caption-429 videos keep retrying captions on the next `transcripts` run. Pass `--include-rate-limited` to also transcribe 429 videos by hand, or list video ids to limit the run.
+
+**Backends, tried in order** (the first that is available and succeeds wins):
+1. **remote**: Anthony's GPU transcriber (wikip-co/whisper-youtube-transcriber, openai-whisper on AMD ROCm) on a home server over WireGuard. Selected by `WHISPER_REMOTE=host[:port]` (env var, or `"remote"` in optional `config/whisper.json`; env wins, and an empty env value disables it). It's skipped when unset, or when one TCP connect to it fails within 2 s (`--remote-timeout`). **It's a placeholder for now:** `RemoteBackend.transcribe` returns "not implemented", so even a reachable host falls through to local. To finish it, send the URL, fetch `transcript.json`, and map `start`/`text` segments to `(seconds, text)`.
+2. **local**: faster-whisper on CPU, `compute_type=int8`, model `base.en` (default) or `tiny.en`, 4 threads, VAD on, beam 1. yt-dlp downloads the lowest-bitrate audio-only format to `data/audio/`, which is deleted after every video, success or failure. Each transcription runs in its own process group, with a wall-time cap (`--timeout`, default 1200 s) and an RSS cap (`--mem-mb`, default 1500 MB; RSS is polled and the group is SIGKILLed past the cap). RLIMIT_AS isn't used because ctranslate2/OpenMP reserve far more virtual memory than they use, and a 2 GB AS limit kills even tiny jobs.
+
+**Guards:** videos longer than `--max-minutes` (default 45) are skipped. The `.en` models turn non-English speech into gibberish, so a transcript whose English function-word ratio is below `--min-english` (0.12) is rejected (real English scores about 0.3–0.4).
+
+**Output:** `data/transcripts/<id>.txt` in the same `[seconds] text` format as captions, plus `transcript_status = "ok"`, `transcript_source = "whisper:<backend>:<model>"` and `whisper_status` in `data/relevant.json`, so judge and render need no changes. Failures leave `transcript_status` as it was and set `whisper_status = "failed: ..."`. Per-video results (id, title, duration, backend, model, wall time, peak RSS, ok/error) are appended to `data/whisper_log.jsonl`. Defaults can go in `config/whisper.json` (`model`, `max_minutes`, `timeout_s`, `mem_mb`, `threads`, `remote`). It never writes `state/`, so seen/published still change only at publish.
+
+**Cost on this box (8 CPU, ~3 GB free, no GPU):** first test (2026-10-14, base.en, 13 videos of 4–42 min): 9–58 s wall time per video (about 40× real time), peak RSS 516–932 MB. The worker transcribes in 10-minute ffmpeg chunks, because a single 36-minute pass reached 1.65 GB.
+
+**Audio track:** many videos carry auto-dubbed tracks (Arabic, German, ...). The format selector picks the lowest-bitrate DASH stream of the *original* track (`wa[format_note*=original][protocol^=http]`, then English, then any). Plain `worstaudio` picked dubs and gave gibberish.

@@ -16,6 +16,11 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    {"<video_id>": "AI" | "DevOps"} with only videos genuinely about AI/ML or DevOps, infra, homelab,
    networking, security or databases (README "Relevance criteria"). Write {} if none.
 3. ./run.sh transcripts    (429s get status "rate limited (retry later)" and are retried next edition, which is fine)
+3b. ./run.sh whisper       (Whisper fallback for "needs Whisper" videos only. Backend order: remote GPU host if
+   WHISPER_REMOTE is set and reachable (placeholder for now), else local CPU faster-whisper base.en int8. Skips videos
+   over 45 min, caps each at 20 min wall time and 1.5 GB RSS, deletes audio. Transcripts land in data/transcripts/
+   with status "ok" like captions. Failures are non-fatal: those videos go to "Also on the radar". Never set
+   WHISPER_REMOTE yourself.)
 4. X: ./run.sh x-reset. For EVERY non-comment line Q in config/x_queries.txt, call MCP namespace "x",
    tool search_posts_all, with
    {"query": "Q -is:retweet -is:reply lang:en", "max_results": 25, "sort_order": "relevancy",
@@ -32,6 +37,6 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    reuse error and re-run. If it prints SKIP:, publish nothing.
 7. ./run.sh publish. Wait about 90 s, then confirm
    https://anthonyrussano.github.io/youtube-digest/reports/<EDITION>.html returns HTTP 200 and the index lists it.
-Report: EDITION, the window, videos found/selected/transcribed/rate limited, X calls and posts qualified,
+Report: EDITION, the window, videos found/selected/transcribed (captions vs Whisper)/rate limited, X calls and posts qualified,
 the live URL (or why it was skipped), and any errors.
 ```

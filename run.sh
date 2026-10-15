@@ -4,6 +4,9 @@
 #   ./run.sh fetch [--hours 24]    stage 1: list channel uploads via yt-dlp -> data/videos.json (alias: rss)
 #                                  extra flags: --out FILE (dry run), --rss (legacy RSS first; 404s globally), --workers N
 #   ./run.sh transcripts           stage 3: captions for data/selected.json (retries earlier 429s)
+#   ./run.sh whisper [IDS] [--include-rate-limited] [--model tiny.en|base.en] [--max-minutes 45]
+#                                  stage 3b: Whisper fallback for "needs Whisper" videos (remote backend if
+#                                  WHISPER_REMOTE is set and reachable, else local CPU faster-whisper)
 #   ./run.sh edition-start [--hours H]  open an edition: id + window (since last publish, else 24 h) -> state/current_edition.json
 #   ./run.sh edition                   show the current edition
 #   ./run.sh render [DATE]         articles/DATE.md -> reports/DATE.md (checks citations)
@@ -23,6 +26,7 @@ DEF=${CUR:-$TODAY}
 case "${1:-all}" in
   fetch|rss) shift; ensure_venv; .venv/bin/python digest.py fetch "$@" ;;
   transcripts) shift; ensure_venv; .venv/bin/python digest.py transcripts "$@" ;;
+  whisper) shift; ensure_venv; .venv/bin/python whisper_fallback.py "$@" ;;
   edition-start) shift; python3 scripts/edition.py start "$@" ;;
   edition) python3 scripts/edition.py show ;;
   render) D=${2:-$DEF}; python3 scripts/render_article.py "articles/$D.md" "$D" ;;
@@ -31,7 +35,7 @@ case "${1:-all}" in
   publish)
     D=${2:-$DEF}
     [ -f "reports/$D.md" ] || { echo "reports/$D.md missing: run ./run.sh render first"; exit 1; }
-    git add -- reports/ articles/ config/ scripts/ docs/ requirements.txt digest.py run.sh index.md _config.yml _layouts assets STYLE.md README.md .gitignore 2>/dev/null || true
+    git add -- reports/ articles/ config/ scripts/ docs/ requirements.txt digest.py whisper_fallback.py run.sh index.md _config.yml _layouts assets STYLE.md README.md .gitignore 2>/dev/null || true
     if git diff --cached --quiet; then echo "Nothing to publish"; exit 0; fi
     # safety net: refuse to publish private files even if .gitignore was edited
     if git diff --cached --name-only | grep -Eq '(^|/)(data|state|\.venv)/|subscriptions|\.csv$|cookie'; then
@@ -41,6 +45,7 @@ case "${1:-all}" in
     [ "$D" = "$CUR" ] && python3 scripts/edition.py published
     echo "Published: https://anthonyrussano.github.io/youtube-digest/reports/$D.html" ;;
   all|--*) [ "${1:-}" = all ] && shift; ensure_venv; rm -f data/selected.json; .venv/bin/python digest.py all "$@"
+    .venv/bin/python whisper_fallback.py || echo "whisper fallback failed (non-fatal)"
     echo "Data ready. Next: write articles/$TODAY.md (STYLE.md), ./run.sh render, ./run.sh publish" ;;
   *) echo "unknown command $1"; exit 2 ;;
 esac
