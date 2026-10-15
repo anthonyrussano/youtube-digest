@@ -2,7 +2,9 @@
 # Derived from the AI/DevOps topics of Anthony's YouTube subscriptions (topics only, no channel list).
 # One query per line; the routine appends the BASE suffix below to each. Lines starting with # are ignored.
 # BASE: -is:retweet -is:reply lang:en
-(AI agents OR agentic) (coding OR workflow OR production)
+# Operators tested 2026-10-14 on search_posts_all: min_likes:N works (min_faves:/min_bookmarks: do not);
+# has:links works but surfaces link spam, so it is not used. min_likes:5 only trims zero-engagement noise on broad queries.
+(agent OR agents OR agentic) (AI OR LLM OR coding OR workflow OR launch OR build OR built)
 ("Claude Code" OR Codex OR Cursor) (tips OR workflow OR prompt)
 (LLM OR "language model") (paper OR benchmark OR evals)
 ("context engineering" OR "prompt engineering" OR RAG)
@@ -26,3 +28,14 @@
 (web scraping OR "AI search" OR crawler) (agent OR LLM)
 ("AI startup" OR "Y Combinator" OR founders) (AI OR agents)
 (AGI OR "AI safety" OR alignment OR "scaling laws")
+# --- launches (big companies, agents, knowledge tools, general) ---
+(Microsoft OR Copilot OR M365 OR "Microsoft 365" OR SharePoint OR Teams OR Azure) (AI OR agents OR agent) (announcing OR introducing OR launch OR available OR new) min_likes:5
+(Google OR AWS OR Amazon OR Meta OR Apple OR Nvidia) (AI OR agents OR model) (announcing OR introducing OR launches OR launched OR "now available") min_likes:5
+(agent OR agents OR agentic) (announcing OR introducing OR shipped OR "just shipped" OR "now available" OR "we built" OR "open-sourced") min_likes:5
+("knowledge base" OR "second brain" OR "knowledge management" OR notes OR wiki OR Obsidian OR NotebookLM) (AI OR LLM OR agent) min_likes:5
+(developer OR developers OR devs OR API OR SDK OR CLI OR "open source") (launch OR launching OR introducing OR "just released" OR "now in beta") (AI OR LLM OR agent) min_likes:5
+# --- curated builder accounts (handles verified 2026-10-14); no topic terms: the filter decides ---
+(from:jeffteper OR from:karpathy OR from:simonw OR from:swyx OR from:sama OR from:gdb OR from:AndrewYNg OR from:DrJimFan OR from:emollick OR from:hwchase17 OR from:jerryjliu0 OR from:goodside OR from:mattshumer_ OR from:omarsar0)
+(from:lilianweng OR from:natolambert OR from:ClementDelangue OR from:levelsio OR from:rauchg OR from:amasad OR from:mitchellh OR from:kelseyhightower OR from:GergelyOrosz OR from:ThePrimeagen OR from:t3dotgg OR from:addyosmani OR from:leerob OR from:dhh)
+(from:satyanadella OR from:sundarpichai OR from:demishassabis OR from:OfficialLoganK OR from:alexalbert__ OR from:bcherny OR from:thsottiaux OR from:Steve_Yegge OR from:jxnlco OR from:HamelHusain OR from:eugeneyan OR from:chipro OR from:rasbt OR from:fchollet)
+(from:jeremyphoward OR from:AravSrinivas OR from:mustafasuleyman OR from:kevinweil OR from:nutlope OR from:danshipper OR from:garrytan OR from:aidangomez OR from:testingcatalog OR from:btibor91 OR from:AndrewCurran_ OR from:ProfTomYeh OR from:svpino OR from:_akhaliq)

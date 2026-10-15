@@ -12,6 +12,7 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 | `requirements.txt` | Pinned Python deps (yt-dlp). Installed into `.venv/` |
 | `config/x_queries.txt` | Topic queries for the daily X search (topics only, no channel list) |
 | `scripts/x_filter.py` | Applies the X rules to `data/x_raw/*.json` and writes `data/x_selected.json` |
+| `config/x_trends.txt`, `scripts/x_trends.py` | Daily keyword trends (`./run.sh trends`): category post counts today vs 7-day average -> `data/x_trends.json` |
 | `scripts/render_article.py` | Checks citations, appends "Also on the radar", and writes `reports/<date>.md` |
 | `articles/<date>.md` | The written article (source). `reports/<date>.md` is the published page |
 | `STYLE.md` | The Mind Blow format: rules, annotated example and pre-publish checklist |
@@ -48,6 +49,8 @@ cd /home/box/youtube-digest
 #     data/selected.json = {"<video_id>": "AI" | "DevOps", ...}  (see Relevance criteria; may be {})
 ./run.sh transcripts             # 3. captions -> data/transcripts/; also retries earlier 429 videos
 ./run.sh whisper                 # 3b. Whisper fallback for captionless (needs Whisper) videos
+./run.sh trends                  # 4a. once per PT day: prints CACHED, or the get_posts_counts_recent calls to save as
+#     data/x_counts/<name>.json; then ./run.sh trends compute -> data/x_trends.json
 ./run.sh x-reset                 # 4. X: clear data/x_raw/, then for EVERY non-# line Q of config/x_queries.txt call
 #     MCP x.search_posts_all {"query":"Q -is:retweet -is:reply lang:en","max_results":25,
 #       "sort_order":"relevancy","start_time":"<START from step 0>",
@@ -70,9 +73,10 @@ Exclude videos where AI or tech is incidental (general politics, comedy, sermons
 
 ## X filter rules (step 4)
 - The window is the open edition's START. Pass `start_time` = START to every call.
-- Queries come from `config/x_queries.txt` (about 24 topics from the subscriptions' AI/DevOps themes), which means about 24 calls a run. Limits are 30 calls a minute and 1000 a day.
-- `-is:retweet -is:reply lang:en` are accepted. **`min_faves:N` is silently ignored**, so engagement filtering happens locally.
-- `scripts/x_filter.py` (via `./run.sh x [--min-bookmarks 10] [--hours 24] [--top 15]`) keeps a post only if `bookmark_count > like_count`, it has at least 10 bookmarks, and it was created since the edition's window START (or the last 24 hours with no open edition), and not already published. It drops crypto and spam patterns, de-duplicates by ID and normalized text, ranks by bookmarks and then the bookmark/like ratio, and keeps the top 15. Expect roughly 5–15 qualifying posts out of about 600 scanned.
+- Queries come from `config/x_queries.txt`: 24 topics from the subscriptions' AI/DevOps themes, 5 launch queries (big-company AI, agent launches, knowledge-base tools, dev launches) and 4 curated-account queries (`from:` ~56 AI/DevOps builders). That is 33 calls a run (budget about 55), plus about 27 trend reads once a day. Limits are 30 calls a minute and 1000 a day; pace at 25/minute.
+- `-is:retweet -is:reply lang:en` are accepted. Tested 2026-10-14: **`min_likes:N` works** (launch queries use `min_likes:5` to drop zero-engagement noise), `min_faves:` is silently ignored, `min_bookmarks:` is rejected, and `has:links` works but surfaces link spam, so it is unused.
+- `scripts/x_filter.py` (via `./run.sh x [--min-bookmarks 10] [--hours 24] [--top 15]`) keeps a post only if it has at least 10 bookmarks and passes a route: **saves** (`bookmark_count > like_count`) or **shares** (at least 30 reposts or 5 quotes, and bookmarks at least 0.2x likes), and it was created since the edition's window START (or the last 24 hours with no open edition), and not already published. It drops crypto and spam patterns, de-duplicates by ID and normalized text, ranks by bookmarks (x1.5 when the post matches a top category in `data/x_trends.json`) and then the bookmark/like ratio, and keeps the top 15. Expect roughly 15–30 qualifying posts before the top-15 cut.
+- **Trends:** `./run.sh trends` caches `data/x_trends.json` once per PT day. Each line of `config/x_trends.txt` is `name | counts query | local regex`; noisy terms are disambiguated (MCP as "model context protocol"/"MCP server", Cursor as "Cursor AI/IDE"). "top" lists up to 5 categories at >= 1.1x their 7-day average with real volume (avg >= 200/day). The judge and writer favor those stories and the share caption leads with one.
 - The writer still applies judgment: drop off-topic or promotional posts, and flag dubious claims. Bookmark and like counts are for selection only and never appear in the article.
 
 ## Failure handling

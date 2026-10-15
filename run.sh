@@ -11,6 +11,8 @@
 #   ./run.sh edition                   show the current edition
 #   ./run.sh render [DATE]         articles/DATE.md -> reports/DATE.md (checks citations)
 #   ./run.sh x [--min-bookmarks 10]  filter data/x_raw/*.json (saved X searches) -> data/x_selected.json
+#   ./run.sh trends [plan|compute|show]  daily X keyword trends (plan prints CACHED when today's data/x_trends.json
+#                                  exists; else the get_posts_counts_recent calls to save in data/x_counts/)
 #   ./run.sh publish [DATE]        git add reports/ articles/ site files, commit, push to GitHub
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -31,6 +33,7 @@ case "${1:-all}" in
   edition) python3 scripts/edition.py show ;;
   render) D=${2:-$DEF}; python3 scripts/render_article.py "articles/$D.md" "$D" ;;
   x) shift; python3 scripts/x_filter.py "$@" ;;
+  trends) shift; python3 scripts/x_trends.py "${1:-plan}" ;;
   x-reset) rm -rf data/x_raw && mkdir -p data/x_raw && echo "cleared data/x_raw" ;;
   publish)
     D=${2:-$DEF}

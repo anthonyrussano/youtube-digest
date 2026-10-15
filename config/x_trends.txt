@@ -1,0 +1,30 @@
+# Daily keyword-trend categories for scripts/x_trends.py.  name | X counts query | local regex (matches post text)
+# Counts use get_posts_counts_recent (granularity=day, last 7 days) = 1 read per line, once per day (cached).
+# Noisy words are disambiguated (MCP -> "model context protocol" / MCP server; Cursor -> AI editor context).
+agents | ("AI agent" OR "AI agents" OR agentic) lang:en -is:retweet | \b(ai agents?|agentic|coding agents?)\b
+claude-code | ("Claude Code" OR "claude-code") lang:en -is:retweet | claude code
+codex | ("OpenAI Codex" OR "Codex CLI" OR "codex app") lang:en -is:retweet | \bcodex\b
+cursor | ("Cursor AI" OR "cursor_ai" OR "Cursor IDE" OR "Cursor agent") lang:en -is:retweet | \bcursor (ai|ide|agent|composer)\b|@cursor_ai
+mcp | ("model context protocol" OR "MCP server" OR "MCP servers") lang:en -is:retweet | model context protocol|\bmcp servers?\b
+anthropic | (Anthropic OR "Claude Opus" OR "Claude Sonnet") lang:en -is:retweet | \b(anthropic|claude)\b
+openai | (OpenAI OR ChatGPT OR "GPT-5") lang:en -is:retweet | \b(openai|chatgpt|gpt-?\d)\b
+gemini | ("Google Gemini" OR "Gemini 3" OR DeepMind OR NotebookLM) lang:en -is:retweet | \b(gemini|deepmind|notebooklm)\b
+grok | (Grok OR xAI) lang:en -is:retweet | \b(grok|xai)\b
+microsoft-copilot | ("Microsoft Copilot" OR "M365 Copilot" OR "Copilot Studio" OR SharePoint) lang:en -is:retweet | \b(copilot|sharepoint|m365|microsoft 365)\b
+github-copilot | ("GitHub Copilot") lang:en -is:retweet | github copilot
+meta-llama | (Llama OR "Meta AI") lang:en -is:retweet | \b(llama|meta ai)\b
+open-models | ("open weights" OR "open-weight" OR "open source model" OR Qwen OR DeepSeek OR Mistral) lang:en -is:retweet | \b(open[- ]weights?|qwen|deepseek|mistral)\b
+local-llm | ("local LLM" OR ollama OR "llama.cpp" OR "LM Studio") lang:en -is:retweet | \b(local llms?|ollama|llama\.cpp|lm studio)\b
+rag-knowledge | (RAG retrieval OR "knowledge base" OR "vector database") lang:en -is:retweet | \b(rag|knowledge base|vector (db|database)|embeddings?)\b
+context-eng | ("context engineering" OR "prompt engineering") lang:en -is:retweet | (context|prompt) engineering
+evals | (LLM evals OR "AI benchmark" OR SWE-bench) lang:en -is:retweet | \b(evals?|benchmarks?|swe-bench)\b
+gpu-inference | ((GPU OR Nvidia OR inference) (AI OR LLM)) lang:en -is:retweet | \b(gpus?|nvidia|inference|h100|b200)\b
+ai-security | ("prompt injection" OR "AI security" OR jailbreak) lang:en -is:retweet | prompt injection|ai security|jailbreak
+vibe-coding | ("vibe coding" OR "vibe coded") lang:en -is:retweet | vibe[- ]cod
+kubernetes | (kubernetes OR k8s) lang:en -is:retweet | \b(kubernetes|k8s)\b
+docker | (docker OR containers devops) lang:en -is:retweet | \b(docker|containers?)\b
+homelab | (homelab OR selfhosted OR "self-hosted") lang:en -is:retweet | \b(homelab|self-?hosted)\b
+devops-sre | (devops OR SRE OR "platform engineering" OR observability) lang:en -is:retweet | \b(devops|sre|platform engineering|observability)\b
+iac-cicd | (terraform OR ansible OR "GitHub Actions" OR CI/CD) lang:en -is:retweet | \b(terraform|ansible|github actions|ci/cd)\b
+postgres | (postgres OR postgresql) lang:en -is:retweet | \bpostgres(ql)?\b
+robotics | (humanoid OR robotics robot AI) lang:en -is:retweet | \b(humanoids?|robotics?)\b
