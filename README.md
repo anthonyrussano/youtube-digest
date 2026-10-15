@@ -10,7 +10,7 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 | `subscriptions.csv` | **Private, never committed.** The YouTube subscriptions export (see Setup) |
 | `subscriptions.example.csv` | Committed, sanitized starter list: the public AI/DevOps/tech channels only, same format. `cp subscriptions.example.csv subscriptions.csv` to bootstrap |
 | `state/x_posts.json`, `state/x_impressions.csv` | **Private.** Every X Article post (ids, caption, NASA header used) and the impressions log (see `docs/HANDOFF.md`) |
-| `run.sh` | Entry point with subcommands `edition-start`, `edition`, `fetch` (alias `rss`), `feeds`, `transcripts`, `whisper`, `trends`, `x-reset`, `x-accounts`, `x`, `render`, `publish` and `all` |
+| `run.sh` | Entry point with subcommands `edition-start`, `edition`, `fetch` (alias `rss`), `feeds`, `transcripts`, `whisper`, `trends`, `x-reset`, `x-accounts`, `x`, `render`, `publish`, `x-article` and `all` |
 | `whisper_fallback.py` | Whisper fallback stage (`./run.sh whisper`): pluggable backends, remote GPU host (whisper.cpp/Vulkan over ssh) then local CPU faster-whisper |
 | `digest.py` | Stages `fetch` (alias `rss`), `transcripts` and `all` (yt-dlp channel listing, keyword prefilter, exact dates, captions) |
 | `requirements.txt` | Pinned Python deps (yt-dlp). Installed into `.venv/` |
@@ -19,6 +19,7 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 | `config/x_accounts.txt`, `scripts/x_accounts.py` | Followed-account sources (32 accounts Anthony follows, audited 2026-10-15); `./run.sh x-accounts` prints the OR'd `from:` queries |
 | `scripts/x_filter.py` | Applies the X rules to `data/x_raw/*.json` and writes `data/x_selected.json` |
 | `config/x_trends.txt`, `scripts/x_trends.py` | Daily keyword trends (`./run.sh trends`): category post counts today vs 7-day average -> `data/x_trends.json` |
+| `scripts/x_article_html.py` | `./run.sh x-article <edition>`: `reports/<edition>.md` -> `/tmp/x-article/<edition>.html` (front matter stripped, links kept, any "Mind Blow" line dropped); prints title, a suggested hook caption and the localhost serve command |
 | `scripts/render_article.py` | Checks citations, appends "Also on the radar", and writes `reports/<date>.md` |
 | `articles/<date>.md` | The written article (source). `reports/<date>.md` is the published page |
 | `STYLE.md` | The Mind Blow format: rules, annotated example and pre-publish checklist |
@@ -71,7 +72,7 @@ cd /home/box/youtube-digest
 #     selected articles; otherwise stop here (nothing to publish, nothing marked seen).
 ./run.sh render                  # 6. -> reports/<EDITION>.md (citation check, no-repeat check, X-only minimum)
 ./run.sh publish                 # 7. push, record published IDs and publish time; then check the URL returns HTTP 200
-#  8. X Article on @russano via the signed-in browser (docs/HANDOFF.md playbook; held until 10:37 for the 6:04 run)
+#  8. X Article on @russano via the signed-in browser (./run.sh x-article, then the docs/HANDOFF.md playbook; held until 10:37 for the 6:04 run)
 ```
 `render` and `publish` default to the open edition's ID. An explicit ID (`./run.sh render 2026-10-12`) re-renders or republishes an older page without touching edition state. An on-demand edition uses the same sequence. `./run.sh edition-start --hours 6` forces a 6-hour window.
 

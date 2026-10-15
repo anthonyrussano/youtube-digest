@@ -45,8 +45,8 @@ Respect X limits: 30 reads/min, 1000/day across all routines.
 
 ## 4. X Article playbook
 The X API **cannot** create Articles, so this is done in the browser, which Anthony signed into @russano himself.
-1. Render the article to HTML from `articles/<EDITION>.md` (title, dek as first paragraph, body paragraphs with links intact; never the phrase "Mind Blow"). Write it under `/tmp/xart/` and serve it: `python3 -m http.server 8765 --bind 127.0.0.1 -d /tmp/xart` (file:// is blocked in the browser).
-2. Open `http://127.0.0.1:8765/<file>.html`, select the body, and **copy with the right-click context menu -> Copy**. Do not trust the existing clipboard: a stale clipboard once pasted yesterday's article.
+1. Run `./run.sh x-article <EDITION>` (`scripts/x_article_html.py`). It turns `reports/<EDITION>.md` into `/tmp/x-article/<EDITION>.html` (front matter stripped, dek in italics, links kept, any line containing "Mind Blow" dropped) and prints the `TITLE`, a suggested `CAPTION` (first cold-open sentence + "..."; improve it per step 6) and the `SERVE` command: `python3 -m http.server 8765 --bind 127.0.0.1 -d /tmp/x-article` (file:// is blocked in the browser). Run that in the background.
+2. Open `http://127.0.0.1:8765/<EDITION>.html`, select the body, and **copy with the right-click context menu -> Copy**. Do not trust the existing clipboard: a stale clipboard once pasted yesterday's article.
 3. Go to **https://x.com/compose/articles**, create a new Article, type the title, click into the body and paste with **real keystrokes** (Ctrl+V), not by injecting DOM text.
 4. **Check the body**: first and last paragraphs match this edition, links survived, nothing from an older edition.
 5. **Header image**: a random high-resolution public-domain NASA image from https://images.nasa.gov (download the original/large, not a thumbnail) whose id is **not** in any `header` field of `state/x_posts.json`. Upload it as the Article header.

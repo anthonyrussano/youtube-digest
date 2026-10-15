@@ -14,6 +14,7 @@
 #   ./run.sh x [--min-bookmarks 10]  filter data/x_raw/*.json (saved X searches) -> data/x_selected.json
 #   ./run.sh trends [plan|compute|show]  daily X keyword trends (plan prints CACHED when today's data/x_trends.json
 #                                  exists; else the get_posts_counts_recent calls to save in data/x_counts/)
+#   ./run.sh x-article [ID]        reports/ID.md -> /tmp/x-article/ID.html for the X Article (prints title, caption, serve cmd)
 #   ./run.sh publish [DATE]        git add reports/ articles/ site files, commit, push to GitHub
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -37,6 +38,7 @@ case "${1:-all}" in
   x) shift; python3 scripts/x_filter.py "$@" ;;
   trends) shift; python3 scripts/x_trends.py "${1:-plan}" ;;
   x-accounts) shift; python3 scripts/x_accounts.py "${1:-queries}" ;;
+  x-article) shift; python3 scripts/x_article_html.py "${1:-$DEF}" ;;
   x-reset) rm -rf data/x_raw && mkdir -p data/x_raw && echo "cleared data/x_raw" ;;
   publish)
     D=${2:-$DEF}
