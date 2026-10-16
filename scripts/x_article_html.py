@@ -37,7 +37,7 @@ def main():
     title = fm.get("title", ed); dek = fm.get("dek", "")
     if "mind blow" in title.lower(): sys.exit("title contains 'Mind Blow': fix the article first")
     if "mind blow" in dek.lower(): dek = ""
-    body = ([f"<p><em>{inline(dek)}</em></p>"] if dek else []) + [f"<p>{inline(p)}</p>" for p in paras]
+    body = [f"<p>{inline(p)}</p>" for p in paras]  # dek omitted: X auto-links it oddly and it repeats the cold open
     os.makedirs(OUT, exist_ok=True); out = f"{OUT}/{ed}.html"
     with open(out, "w", encoding="utf-8") as f:
         f.write(f'<!doctype html><html><head><meta charset="utf-8"><title>{html.escape(title)}</title></head>\n'
