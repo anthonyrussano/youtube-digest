@@ -94,3 +94,4 @@ All of `state/` and `data/` are **gitignored** (private). Files that matter:
 | `state/x_posts.json` | every X Article post, caption, header (prevents header reuse) |
 | `state/x_impressions.csv` | impressions log |
 Migrate by copying the `state/` folder privately (e.g. `tar czf state.tgz state/` and a direct file transfer Anthony approves), never via git. **A fresh start is OK**: with no state, `edition-start` uses a 24 h window; the only costs are possible repeats of recent stories (check the last few `reports/` by hand) and NASA header reuse (rebuild the used-header list from the posts on @russano). `config/whisper.json` and `subscriptions.csv` are recreated per section 2.
+- X turns `$<number>` into a stock-ticker link. `x-article` inserts an invisible word joiner after `$`; avoid `$<number>` in typed captions (write "3 dollars" or "16.8 billion dollars").

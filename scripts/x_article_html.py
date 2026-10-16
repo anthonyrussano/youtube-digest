@@ -7,6 +7,8 @@ OUT = "/tmp/x-article"; PORT = 8765
 
 def inline(t):
     t = html.escape(t, quote=False)
+    # X turns "$3" into a cashtag/stock link; a word joiner after $ keeps it plain text
+    t = re.sub(r"\$(?=\d)", "$\u2060", t)
     t = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", lambda m: f'<a href="{html.escape(m[2])}">{m[1]}</a>', t)
     t = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", t)
     return re.sub(r"(?<![\w*])\*([^*]+)\*(?![\w*])", r"<em>\1</em>", t)
