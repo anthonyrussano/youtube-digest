@@ -3,8 +3,9 @@
 
   edition.py start [--hours H]   open an edition: pick its id and time window, write state/current_edition.json
   edition.py show                print the current edition (id, window start)
-  edition.py published           after a successful push: record cited video/X ids and feed article URLs, mark the edition's
-                                 fetched videos (data/videos.json) and feed items (data/feeds.json) as seen, and record the publish time
+  edition.py published           after a successful push: record cited video/X ids and feed/AINews source URLs, mark the
+                                 edition's fetched videos (data/videos.json), feed items (data/feeds.json) and AINews
+                                 issues/sources (data/ainews.json -> state/ainews_seen.json) as seen, and record the publish time
 
 Edition id: the first edition of a PT day is YYYY-MM-DD; later ones are YYYY-MM-DD-HHMM (PT time at start).
 Window start: state/last_edition.json "published_utc" (previous edition's publish time), else now-24h
@@ -58,7 +59,15 @@ else:
     fitems = load(f"{ROOT}/data/feeds.json", {}).get("items_list", [])
     furls = {canon(i["url"]) for i in fitems}
     cited_urls = {canon(u) for u in re.findall(r"\]\((https?://[^)\s]+)\)", body)}
-    pub["articles"] = sorted(set(pub.get("articles", [])) | (cited_urls & furls)); save(PUB, pub)
+    # AINews (data/ainews.json): every story's source URL and the issue Message-ID count as considered
+    # (state/ainews_seen.json); cited non-X source URLs join published.json "articles" like feed articles
+    an = load(f"{ROOT}/data/ainews.json", {}); aitems = an.get("items_list", [])
+    aurls = {canon(s["url"]) for i in aitems for s in i.get("sources", [])}
+    pub["articles"] = sorted(set(pub.get("articles", [])) | (cited_urls & (furls | aurls))); save(PUB, pub)
+    if an.get("ok"):
+        aseen = load(f"{ST}/ainews_seen.json", {"issues": [], "urls": []})
+        aseen["issues"] = sorted(set(aseen.get("issues", [])) | {r["message_id"] for r in an.get("issues", [])})
+        aseen["urls"] = sorted(set(aseen.get("urls", [])) | aurls); save(f"{ST}/ainews_seen.json", aseen)
     fseen = set(load(f"{ST}/feeds_seen.json", [])); fadded = len(furls - fseen)
     json.dump(sorted(fseen | furls), open(f"{ST}/feeds_seen.json", "w"))
     save(LAST, {"id": cur["id"], "published_utc": iso(now), "window_start_utc": cur["start_utc"]})

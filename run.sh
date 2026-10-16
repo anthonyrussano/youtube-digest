@@ -4,6 +4,8 @@
 #   ./run.sh fetch [--hours 24]    stage 1: list channel uploads via yt-dlp -> data/videos.json (alias: rss)
 #                                  extra flags: --out FILE (dry run), --rss (legacy RSS first; 404s globally), --workers N
 #   ./run.sh feeds [--hours H]     RSS/Atom feeds (config/feeds.txt) since the edition window -> data/feeds.json
+#   ./run.sh ainews [--hours H]    AINews newsletter issue(s) in the edition window, via the box-private read-only
+#                                  mail bridge -> data/ainews.json (fails softly: empty file, exit 0)
 #   ./run.sh transcripts           stage 3: captions for data/selected.json (retries earlier 429s)
 #   ./run.sh whisper [IDS] [--include-rate-limited] [--model tiny.en|base.en] [--max-minutes 45]
 #                                  stage 3b: Whisper fallback for "needs Whisper" videos (remote backend if
@@ -30,6 +32,14 @@ DEF=${CUR:-$TODAY}
 case "${1:-all}" in
   fetch|rss) shift; ensure_venv; .venv/bin/python digest.py fetch "$@" ;;
   feeds) shift; ensure_venv; .venv/bin/python scripts/feeds.py "$@" ;;
+  ainews) shift; ensure_venv
+    # box-private mail bridge config (Vault AppRole); never committed. Missing/unreachable bridge is non-fatal.
+    [ -f "$HOME/.config/mail-bridge/env.sh" ] && . "$HOME/.config/mail-bridge/env.sh"
+    .venv/bin/python scripts/ainews.py "$@" || echo "ainews failed (non-fatal)"
+    if grep -q '"ok": false' data/ainews.json 2>/dev/null && [ -x "$HOME/.config/wireguard/ensure-up.sh" ]; then
+      echo "ainews: retrying after ~/.config/wireguard/ensure-up.sh"
+      { "$HOME/.config/wireguard/ensure-up.sh" >/dev/null 2>&1 && .venv/bin/python scripts/ainews.py "$@"; } || echo "ainews failed (non-fatal)"
+    fi ;;
   transcripts) shift; ensure_venv; .venv/bin/python digest.py transcripts "$@" ;;
   whisper) shift; ensure_venv; .venv/bin/python whisper_fallback.py "$@" ;;
   edition-start) shift; python3 scripts/edition.py start "$@" ;;

@@ -3,7 +3,7 @@
 This guide is for a Grok Bot on a different account, with none of the original box, memory or routines. Read it, then `README.md` (pipeline spec), `STYLE.md` (writing spec) and `docs/ROUTINE_PROMPT.md` (per-edition steps).
 
 ## 1. What this is and the goal
-A pipeline that turns Anthony Russano's YouTube subscriptions, curated X searches and 44 RSS/Atom feeds into short AI & DevOps "editions" (several per weekday). Each edition is published to GitHub Pages (https://anthonyrussano.github.io/youtube-digest/) **and as an X Article on @russano**. The goal is to **maximize impressions on @russano**: good stories, good timing, a concrete hook caption.
+A pipeline that turns Anthony Russano's YouTube subscriptions, curated X searches and 44 RSS/Atom feeds plus the daily AINews email newsletter into short AI & DevOps "editions" (several per weekday). Each edition is published to GitHub Pages (https://anthonyrussano.github.io/youtube-digest/) **and as an X Article on @russano**. The goal is to **maximize impressions on @russano**: good stories, good timing, a concrete hook caption.
 
 Anthony gave **full authority over project decisions** (sources, filters, format, schedule tweaks). Use it, and tell him what you changed.
 
@@ -13,8 +13,9 @@ Anthony gave **full authority over project decisions** (sources, filters, format
 3. **Subscriptions** (`subscriptions.csv`, private, gitignored): either a Google Takeout export (YouTube and YouTube Music -> `subscriptions/subscriptions.csv`, header `Channel Id,Channel Url,Channel Title`), or `cp subscriptions.example.csv subscriptions.csv` (70 public tech channels, sanitized) and edit.
 4. **Whisper**: optional GPU backend, whisper.cpp (Vulkan, in docker) on a home server reached over ssh. Set `WHISPER_REMOTE=user@host[:port]` in the environment (or `"remote"` in gitignored `config/whisper.json`). Ask Anthony for the host and an ssh key; never commit either, and never set it on your own guesswork. If unset or unreachable (2 s TCP check), `./run.sh whisper` falls back to local CPU faster-whisper `base.en` (45 min cap). Host setup is in README "Whisper fallback".
 5. **Connectors**: MCP namespace `x` (search_posts_all, get_posts_counts_recent, get_users_posts) for search and impressions reads; a browser with **@russano signed in by Anthony himself** (never ask for or type his password); a messaging channel to Anthony.
-6. **Pages**: Settings -> Pages -> deploy from `main` / root.
-7. Smoke test: `bash -n run.sh && ./run.sh feeds --hours 6 && ./run.sh x-accounts`.
+6. **AINews mail (optional)**: `./run.sh ainews` reads the AINews newsletter through a mail bridge that is **private to Anthony's original box**: a Proton Bridge container in `/home/box/mail-bridge`, credentials in Vault (AppRole ids in `~/.config/mail-bridge/env.sh`), reached over WireGuard (`~/.config/wireguard/ensure-up.sh`). None of it is in the repo and none of it carries over. A new bot gets access only from Anthony: ask him to either (a) provision this bridge setup for your box (his Vault AppRole role/secret id with read access to the mail secret, the WireGuard config, and the `mail-bridge` client), or (b) subscribe an inbox you control (e.g. your own Grok Bot inbox) to AINews and adapt `fetch_issues()` in `scripts/ainews.py` to read it. Never ask for his mailbox password, never send mail from the bridge, never mark messages read (keep `readonly=True` + `BODY.PEEK[]`) and never commit credentials or mail. Without it the step fails softly and editions run without AINews.
+7. **Pages**: Settings -> Pages -> deploy from `main` / root.
+8. Smoke test: `bash -n run.sh && ./run.sh feeds --hours 6 && ./run.sh x-accounts && ./run.sh ainews --hours 30`.
 
 ## 3. Routines to recreate (timezone America/Los_Angeles)
 ### A. Digest edition: `4 6,12,17 * * 1-5`
@@ -89,6 +90,7 @@ All of `state/` and `data/` are **gitignored** (private). Files that matter:
 | `state/published.json` | video, X post and article ids/URLs cited (blocks repeats) |
 | `state/last_edition.json` | last publish time = next window start |
 | `state/feeds_seen.json` | feed URLs considered at publish |
+| `state/ainews_seen.json` | AINews issue Message-IDs and source URLs considered at publish |
 | `state/x_posts.json` | every X Article post, caption, header (prevents header reuse) |
 | `state/x_impressions.csv` | impressions log |
 Migrate by copying the `state/` folder privately (e.g. `tar czf state.tgz state/` and a direct file transfer Anthony approves), never via git. **A fresh start is OK**: with no state, `edition-start` uses a 24 h window; the only costs are possible repeats of recent stories (check the last few `reports/` by hand) and NASA header reuse (rebuild the used-header list from the posts on @russano). `config/whisper.json` and `subscriptions.csv` are recreated per section 2.

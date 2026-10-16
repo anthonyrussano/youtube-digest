@@ -26,6 +26,15 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    aggregators. A story also covered by a video and/or an X post appears ONCE as one merged item, cited to the
    primary blog/article URL (the video/X links may support details in the same item). Write the picks to
    data/feeds_selected.json as {"<item id>": "AI" | "DevOps"} ({} if none).
+2c. ./run.sh ainews       (the daily AINews email issue(s) since START -> data/ainews.json, via the box-private,
+   read-only mail bridge; if it prints "mail bridge unavailable", carry on without it and note it in the report)
+   AINEWS JUDGE: read data/ainews.json "items_list" (title, summary, sources, primary_url; "theme" groups bullets
+   of one story) and pick the stories genuinely about AI/ML or DevOps that are big, concrete and new (usually 3-8).
+   Write data/ainews_selected.json as {"<item id>": "AI" | "DevOps"} ({} if none). Use only facts in the item's
+   summary. Link the claim to the item's original sources (prefer primary_url: the X post, paper, repo or blog),
+   NEVER to the newsletter, substack, latent.space or the email, and never say "AINews" or "newsletter".
+   Group: one story covered by AINews and by a feed article, X post or video is ONE item, cited to the primary
+   source (and merge several AINews bullets with the same "theme" into one item).
 3. ./run.sh transcripts    (429s get status "rate limited (retry later)" and are retried next edition, which is fine)
 3b. ./run.sh whisper       (Whisper fallback for "needs Whisper" videos only. Backend order: remote GPU host if
    WHISPER_REMOTE is set and reachable (whisper.cpp large-v3-turbo on Vulkan via ssh + docker, videos up to 3 h),
@@ -50,9 +59,9 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    Then: ./run.sh x   -> data/x_selected.json (posts matching a top trend carry "trends" and rank 1.5x higher)
    Budget: <= ~55 search reads per edition (36 today) plus <= 30 trend reads once a day (limits 30/min, 1000/day).
 5. DECIDE: if no new video has transcript_status "ok" in data/relevant.json AND fewer than 5 good X items
-   qualify AND fewer than 2 strong articles (tier 1-2, in data/feeds_selected.json) qualify, stop and publish nothing (report "skipped: nothing new"). Otherwise write articles/<EDITION>.md
+   qualify AND fewer than 2 strong articles (tier 1-2, in data/feeds_selected.json) qualify, stop and publish nothing (report "skipped: nothing new"). AINews stories never count toward this rule (render ignores X posts found only via AINews). Otherwise write articles/<EDITION>.md
    exactly per STYLE.md (Mind Blow format), using only the new transcripts (data/transcripts/<id>.txt),
-   data/x_selected.json and the articles in data/feeds_selected.json (link the article URL on the claim;
+   data/x_selected.json, the articles in data/feeds_selected.json and the stories in data/ainews_selected.json (link the article or original source URL on the claim;
    write article items exactly like video items, no "according to a blog post" framing). Write X items exactly like video items, with no platform framing or counts.
    TRENDS: favor stories in data/x_trends.json "top" categories (videos in step 2 and X posts alike, given
    equal quality): lead the cold open with the strongest trending story, and when writing the share caption
@@ -68,6 +77,6 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    append the post to state/x_posts.json.
 9. MESSAGE Anthony (not between 10 PM and 5:30 AM PT): headline, link (X post, else the Pages URL) and one
    sentence on the top item. Never message anyone else without his confirmation.
-Report: EDITION, the window, feeds ok/items/shortlisted/articles cited, videos found/selected/transcribed (captions vs Whisper)/rate limited, X calls (search + trend reads) and posts qualified (saves vs shares route), top trends,
+Report: EDITION, the window, feeds ok/items/shortlisted/articles cited, AINews issues/items/stories cited (or bridge error), videos found/selected/transcribed (captions vs Whisper)/rate limited, X calls (search + trend reads) and posts qualified (saves vs shares route), top trends,
 the live URL (or why it was skipped), and any errors.
 ```

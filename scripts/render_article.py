@@ -60,10 +60,19 @@ def strong_articles():
     except Exception: items = []
     urls = {canon(u) for u in re.findall(r"\]\((https?://[^)\s]+)\)", body)}
     return {i["url"] for i in items if i["id"] in sel and i.get("tier", 3) <= 2 and canon(i["url"]) in urls}
-if not any(has_speech(v) for v in rel) and len(cited_x) < MIN_X_ONLY:
+def skip_rule_x():
+    """Cited X posts that count toward the X-only minimum. AINews is a secondary digest, so posts known only from
+    data/ainews.json (not in data/x_selected.json) do not count; AINews items never satisfy the skip rule alone."""
+    try: an = json.load(open(f"{ROOT}/data/ainews.json")).get("items_list", [])
+    except Exception: an = []
+    try: xsel = {str(p["id"]) for p in json.load(open(f"{ROOT}/data/x_selected.json"))}
+    except Exception: xsel = set()
+    via_ainews = {m.group(1) for i in an for s in i.get("sources", []) for m in [re.search(r"/status/(\d+)", s["url"])] if m}
+    return {x for x in cited_x if x in xsel or x not in via_ainews}
+if not any(has_speech(v) for v in rel) and len(skip_rule_x()) < MIN_X_ONLY:
     n_art = len(strong_articles())
     if n_art < MIN_ARTICLES_ONLY:
-        sys.exit(f"SKIP: no new transcribed videos, only {len(cited_x)} X items (need {MIN_X_ONLY}) and {n_art} strong "
+        sys.exit(f"SKIP: no new transcribed videos, only {len(skip_rule_x())} X items (AINews-only posts excluded) (need {MIN_X_ONLY}) and {n_art} strong "
                  f"tier 1-2 articles (need {MIN_ARTICLES_ONLY}); do not publish this edition")
 radar = [v for v in rel if v["id"] not in cited]
 if radar and "Also on the radar" not in body:
