@@ -1,9 +1,9 @@
 # Handoff: running this project as a new Grok Bot
 
-This guide is for a Grok Bot on a different account, with none of the original box, memory or routines. Read it, then `README.md` (pipeline spec), `STYLE.md` (writing spec) and `docs/ROUTINE_PROMPT.md` (per-edition steps).
+This guide is for a Grok Bot on a different account, with none of the original box, memory or routines. Read it, then `README.md` (pipeline spec), `STYLE.md` (website writing spec), `docs/X_ARTICLE_STYLE.md` (X Article spec and four-step process) and `docs/ROUTINE_PROMPT.md` (per-edition steps).
 
 ## 1. What this is and the goal
-A pipeline that turns Anthony Russano's YouTube subscriptions, curated X searches and 44 RSS/Atom feeds plus the daily AINews email newsletter into short AI & DevOps "editions" (several per weekday). Each edition is published to GitHub Pages (https://anthonyrussano.github.io/youtube-digest/) **and as an X Article on @russano**. The goal is to **maximize impressions on @russano**: good stories, good timing, a concrete hook caption.
+A pipeline that turns Anthony Russano's YouTube subscriptions, curated X searches and 44 RSS/Atom feeds plus the daily AINews email newsletter into short AI & DevOps "editions" (several per weekday). Each edition is published to GitHub Pages (https://anthonyrussano.github.io/youtube-digest/) as a rapid-fire roundup **and, as a separate single-lead-story piece derived from it, as an X Article on @russano** (section 4a). The goal is to **maximize impressions on @russano**: good stories, good timing, a concrete hook caption.
 
 Anthony gave **full authority over project decisions** (sources, filters, format, schedule tweaks). Use it, and tell him what you changed.
 
@@ -28,9 +28,11 @@ Read docs/HANDOFF.md first (hard rules, X Article playbook). Quiet hours 10 PM-5
 ### B. Morning X post: `37 10 * * 1-5`
 ```
 Repo /home/box/youtube-digest. Read docs/HANDOFF.md. Find today's first edition (reports/<YYYY-MM-DD>.md,
-PT date). If it exists and has no entry in state/x_posts.json, publish it as an X Article on @russano
-following the "X Article playbook" exactly (fresh NASA header, hook caption ending in "...", read the live
-caption back, record in state/x_posts.json). Then message Anthony: headline, X link, one sentence on the top
+PT date). If it exists and has no entry in state/x_posts.json, publish its X Article on @russano following the
+"X Article playbook" exactly. The source is articles/x/<YYYY-MM-DD>/article.md (written by the 6:04 run; if it
+is missing or check.md is missing, do the four steps of docs/X_ARTICLE_STYLE.md first and commit them). Fresh
+NASA header, the caption from article.md front matter (ends in "..."), read the live caption back, record in
+state/x_posts.json). Then message Anthony: headline, X link, one sentence on the top
 item. If there is no edition today (skipped) or it is already posted, do nothing and send no message.
 ```
 ### C. Impressions tracker: `13 9 * * *` (daily)
@@ -44,14 +46,21 @@ docs/HANDOFF.md and commit it (pull --rebase first). Message Anthony only if som
 Respect X limits: 30 reads/min, 1000/day across all routines.
 ```
 
+## 4a. X Article format and four-step process (from the Mon 2026-10-19 6:04 AM PT edition)
+- **Start:** the process begins with the **Monday Oct 19, 2026 6:04 AM PT edition**, whose X Article posts at **10:37 AM PT** (routine B). Every edition from then on gets `articles/x/<EDITION>/` with `research.md`, `outline.md`, `article.md` and `check.md`, committed (all public-source material).
+- **Format:** the website edition (`reports/`) stays the rapid-fire roundup and does not change. The X Article is **one lead story in depth** (the most overlooked or most practical one, preferably an actionable dev/DevOps/agent-tooling idea, ~400–800 words), then **"Also this cycle"** with 4–6 linked one-liners. The title names the lead idea, not three stories. Full spec: `docs/X_ARTICLE_STYLE.md`.
+- **Steps:** 1 `research.md` (raw facts from the cited sources + a quick web/X search for what others covered and missed), 2 `outline.md` (one core idea at a time, plain language), 3 `article.md` (hook on the overlooked angle, short sentences, takeaway + reply-inviting question), 4 `check.md` (review, tighten, confirm the overlooked angle is real, sourced and simple; fix the article if anything fails).
+- **Model:** the Oct 15 Claude Code single-idea Article (edition `2026-10-15-1705`, https://x.com/russano/status/2110889513455321578, "each agent gets its own repo copy"): one actionable agent-tooling idea, 653 impressions in ~25 h, our best. Worked sample of the new process: `articles/x/2026-10-17-sample/` (built on edition 2026-10-17, never posted).
+- **Before/after baseline:** the editions **through 2026-10-17** (all roundup-style X Articles in `state/x_posts.json`, last one `2026-10-17`, posted 11:00 AM PT) are the "before" set. Compare impressions, likes, replies and bookmarks at ~24 h for posts from 2026-10-19 on against them in `state/x_impressions.csv`, and record the result in section 6.
+
 ## 4. X Article playbook
 The X API **cannot** create Articles, so this is done in the browser, which Anthony signed into @russano himself.
-1. Run `./run.sh x-article <EDITION>` (`scripts/x_article_html.py`). It turns `reports/<EDITION>.md` into `/tmp/x-article/<EDITION>.html` (front matter stripped, dek in italics, links kept, any line containing "Mind Blow" dropped) and prints the `TITLE`, a suggested `CAPTION` (first cold-open sentence + "..."; improve it per step 6) and the `SERVE` command: `python3 -m http.server 8765 --bind 127.0.0.1 -d /tmp/x-article` (file:// is blocked in the browser). Run that in the background.
+1. Run `./run.sh x-article <EDITION>` (`scripts/x_article_html.py`). It uses `articles/x/<EDITION>/article.md` when it exists (and refuses it if the title or caption has `$<number>` or "Mind Blow", or the caption doesn't end in `...`), else falls back to the roundup `reports/<EDITION>.md` (editions before 2026-10-19). It writes `/tmp/x-article/<EDITION>.html` (front matter stripped, every line its own `<p>`, links and **bold** kept, `- ` bullets as `•`, `##` labels as bold lines, `$` before a digit guarded, any line containing "Mind Blow" dropped) and prints the `SOURCE`, the `TITLE` from the front matter, the `CAPTION` (front matter `caption:`; for the fallback a suggestion from the first sentence, improve it per step 6) and the `SERVE` command: `python3 -m http.server 8765 --bind 127.0.0.1 -d /tmp/x-article` (file:// is blocked in the browser). Run that in the background.
 2. Open `http://127.0.0.1:8765/<EDITION>.html`, select the body, and **copy with the right-click context menu -> Copy**. Do not trust the existing clipboard: a stale clipboard once pasted yesterday's article.
 3. Go to **https://x.com/compose/articles**, create a new Article, type the title, click into the body and paste with **real keystrokes** (Ctrl+V), not by injecting DOM text.
 4. **Check the body**: first and last paragraphs match this edition, links survived, nothing from an older edition.
 5. **Header image**: a random high-resolution public-domain NASA image from https://images.nasa.gov (download the original/large, not a thumbnail) whose id is **not** in any `header` field of `state/x_posts.json`. Upload it as the Article header.
-6. Publish, then add the **caption** to the post: lead with the single most useful, actionable takeaway for developers and DevOps people (a how-to, a pattern or a tip, preferably about agent/coding tools such as Claude Code, Cursor or Codex), ending in `...`. Don't lead with spec numbers or model sizes; numbers may support the takeaway but are not the hook. No "Mind Blow", no `$<number>`. Example: `Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...` (see section 6).
+6. Publish, then add the **caption** to the post (from `article.md` front matter when present): lead with the single most useful, actionable takeaway for developers and DevOps people (a how-to, a pattern or a tip, preferably about agent/coding tools such as Claude Code, Cursor or Codex), ending in `...`. Don't lead with spec numbers or model sizes; numbers may support the takeaway but are not the hook. No "Mind Blow", no `$<number>`. Example: `Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...` (see section 6).
 7. **Read the live caption back** (profile timeline or `x.get_posts_by_id`). It was once truncated to `Forml`; if it is cut, fix it.
 8. Append to `state/x_posts.json` `posts`: `edition, posted_at_utc, post_id, article_id, url, article_url, title, caption, caption_note, header` (NASA id plus short description).
 9. Message Anthony (outside quiet hours): headline, link, one sentence on the top item.
@@ -71,7 +80,9 @@ The X API **cannot** create Articles, so this is done in the browser, which Anth
 - Hence the 6:04 AM edition's Article is **held until 10:37 AM**, and every caption is a concrete hook ending in "...". Keep measuring and revise this section with data.
 
 ## 7. Quality bar
-`STYLE.md` is the spec. Gold examples in `reports/` (source in `articles/`):
+X Articles: `docs/X_ARTICLE_STYLE.md` is the spec; model `2026-10-15-1705` (single Claude Code idea) and the worked sample `articles/x/2026-10-17-sample/`.
+
+Website editions: `STYLE.md` is the spec. Gold examples in `reports/` (source in `articles/`):
 - `2026-10-14-1211`: dense, number-led items (a million output tokens, Credit Karma's 90% cut); its number-led caption did well at the time, but tip-led captions now beat it (section 6).
 - `2026-10-15`: leads with the biggest concrete stories (Anthropic $16.8bn quarter, Modal $1B ARR), clean merging of video, X and blog sources.
 - `2026-10-15-1212`: a strong later edition; specific title (Meta 816B open model, Cloudflare Void, OpenAI's billion for defenders), no padding.

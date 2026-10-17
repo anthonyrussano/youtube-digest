@@ -6,7 +6,7 @@ Schedule: cron `4 6,12,17 * * 1-5` America/Los_Angeles (6:04 AM, 12:04 PM, 5:04 
 Run one edition of Anthony's AI & DevOps digest (internal format name "Mind Blow"; never write that phrase in titles,
 bodies or captions). Repo: /home/box/youtube-digest
 (GitHub anthonyrussano/youtube-digest, site https://anthonyrussano.github.io/youtube-digest/).
-First read README.md (especially "Editions") and STYLE.md in full. They are the spec. Never commit
+First read README.md (especially "Editions"), STYLE.md and docs/X_ARTICLE_STYLE.md in full. They are the spec. Never commit
 subscriptions.csv, data/, state/, cookies or any secret, and never print the subscription list anywhere public.
 
 0. cd /home/box/youtube-digest && ./run.sh edition-start
@@ -73,12 +73,27 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    reuse error and re-run. If it prints SKIP:, publish nothing.
 7. ./run.sh publish. Wait about 90 s, then confirm
    https://anthonyrussano.github.io/youtube-digest/reports/<EDITION>.html returns HTTP 200 and the index lists it.
-8. X ARTICLE (skip on the 6:04 AM run: the 10:37 routine posts it). Follow docs/HANDOFF.md "X Article
+8. X ARTICLE SOURCE (every run, including 6:04 AM): write the single-lead-story X Article for this edition per
+   docs/X_ARTICLE_STYLE.md, saving all four artifacts under articles/x/<EDITION>/ and doing the steps in order:
+   8a. research.md: raw facts from the cited sources (transcripts, articles, full X threads, AINews items via their
+       original sources) + a quick web/X search for what most creators covered and what they overlooked or
+       under-explained. Pick the lead: the most overlooked or most practical story, preferably an actionable
+       dev/DevOps/agent-tooling idea. Prioritize overlooked technical details, implications and nuances.
+   8b. outline.md: one core idea at a time, plain language, jargon dropped or defined at once, why it matters and
+       what people are missing, plus 4-6 "Also this cycle" picks.
+   8c. article.md: front matter title (names the lead idea, not three stories), caption (one actionable tip,
+       ends in "...", no "$<number>", never "Mind Blow"); hook on the overlooked angle; short direct sentences;
+       ~400-800 words for the lead; takeaway, then a question or call to action; then "## Also this cycle"
+       with 4-6 linked one-liners.
+   8d. check.md: review research, tighten outline, check clarity, confirm the overlooked angle is real, sourced and
+       explained simply; fix article.md if anything fails. Then ./run.sh x-article <EDITION> must print
+       SOURCE: articles/x/<EDITION>/article.md. Commit articles/x/<EDITION>/ (git add that path; pull --rebase, push).
+8e. X ARTICLE POST (skip on the 6:04 AM run: the 10:37 routine posts it). Follow docs/HANDOFF.md "X Article
    playbook" exactly: localhost http server, copy via right-click menu, paste with real keystrokes, verify the
-   body, new NASA header not in state/x_posts.json, takeaway-led hook caption ending in "..." (no "Mind Blow", no "$<number>"), read the live caption back,
-   append the post to state/x_posts.json.
+   body, new NASA header not in state/x_posts.json, the caption from article.md front matter, read the live
+   caption back, append the post to state/x_posts.json.
 9. MESSAGE Anthony (not between 10 PM and 5:30 AM PT): headline, link (X post, else the Pages URL) and one
    sentence on the top item. Never message anyone else without his confirmation.
 Report: EDITION, the window, feeds ok/items/shortlisted/articles cited, AINews issues/items/stories cited (or bridge error), videos found/selected/transcribed (captions vs Whisper)/rate limited, X calls (search + trend reads) and posts qualified (saves vs shares route), top trends,
-the live URL (or why it was skipped), and any errors.
+the X Article lead story and title (articles/x/<EDITION>/), the live URL (or why it was skipped), and any errors.
 ```

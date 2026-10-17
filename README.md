@@ -20,7 +20,8 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 | `config/x_accounts.txt`, `scripts/x_accounts.py` | Followed-account sources (32 accounts Anthony follows, audited 2026-10-15); `./run.sh x-accounts` prints the OR'd `from:` queries |
 | `scripts/x_filter.py` | Applies the X rules to `data/x_raw/*.json` and writes `data/x_selected.json` |
 | `config/x_trends.txt`, `scripts/x_trends.py` | Daily keyword trends (`./run.sh trends`): category post counts today vs 7-day average -> `data/x_trends.json` |
-| `scripts/x_article_html.py` | `./run.sh x-article <edition>`: `reports/<edition>.md` -> `/tmp/x-article/<edition>.html` (front matter stripped, links kept, any "Mind Blow" line dropped); prints title, a suggested hook caption and the localhost serve command |
+| `scripts/x_article_html.py` | `./run.sh x-article <edition>`: `articles/x/<edition>/article.md` (single-lead-story X Article, `docs/X_ARTICLE_STYLE.md`), else `reports/<edition>.md`, -> `/tmp/x-article/<edition>.html` (one `<p>` per line, links and bold kept, `$`-digit guard, any "Mind Blow" line dropped); prints title and caption from the front matter and the localhost serve command |
+| `articles/x/<edition>/` | X Article artifacts per edition (from 2026-10-19): `research.md`, `outline.md`, `article.md`, `check.md` |
 | `scripts/render_article.py` | Checks citations, appends "Also on the radar", and writes `reports/<date>.md` |
 | `articles/<date>.md` | The written article (source). `reports/<date>.md` is the published page |
 | `STYLE.md` | The Mind Blow format: rules, annotated example and pre-publish checklist |

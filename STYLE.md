@@ -2,6 +2,8 @@
 
 Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of short, self-contained items, each a small jolt of wonder. The writer (the scheduled Grok Bot routine) writes `articles/<EDITION>.md` (`YYYY-MM-DD` or `YYYY-MM-DD-HHMM`) from the edition's new transcripts (`data/relevant.json`, `data/transcripts/`), the qualifying X posts (`data/x_selected.json`) and the selected feed articles (`data/feeds_selected.json`). `./run.sh render` turns it into `reports/YYYY-MM-DD.md`.
 
+This guide covers the **website edition**. The X Article on @russano is a separate single-lead-story piece written with a four-step process: see [`docs/X_ARTICLE_STYLE.md`](docs/X_ARTICLE_STYLE.md).
+
 "Mind Blow" is only the internal name of this format. **Never write "Mind Blow" in a title, dek, body or X caption.**
 
 ## Shape
@@ -67,6 +69,7 @@ Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of
 8. After `./run.sh publish`, the report URL returns HTTP 200 (allow about 1–2 minutes for Pages).
 
 ## X share caption
+The caption now lives in the X Article's `caption:` front matter (`articles/x/<EDITION>/article.md`, see `docs/X_ARTICLE_STYLE.md`). The rules:
 - Lead with the **single most useful, actionable takeaway for developers and DevOps people**: a how-to, a pattern or a tip, preferably about agent or coding tools (Claude Code, Cursor, Codex and the like). Example: `Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...`
 - **Don't lead with spec numbers or model sizes.** Numbers may support the takeaway but never are the hook.
 - Always end with `...`. Never write "Mind Blow". Avoid `$` followed by a number (write "3 dollars").
