@@ -44,7 +44,7 @@ def main():
     with open(out, "w", encoding="utf-8") as f:
         f.write(f'<!doctype html><html><head><meta charset="utf-8"><title>{html.escape(title)}</title></head>\n'
                 f'<body><div id="article">\n' + "\n".join(body) + "\n</div></body></html>\n")
-    print(f"TITLE: {title}\nCAPTION: {caption(paras)}\n  (suggestion: rewrite to name the biggest concrete topic with numbers; keep the trailing ...)")
+    print(f"TITLE: {title}\nCAPTION: {caption(paras)}\n  (suggestion: lead with the most useful actionable dev/DevOps takeaway, not spec numbers; keep the trailing ...)")
     print(f"HTML: {out} ({len(paras)} paragraphs)")
     print(f"SERVE: python3 -m http.server {PORT} --bind 127.0.0.1 -d {OUT}  ->  http://127.0.0.1:{PORT}/{ed}.html")
 
