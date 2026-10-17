@@ -41,7 +41,17 @@ case "${1:-all}" in
       { "$HOME/.config/wireguard/ensure-up.sh" >/dev/null 2>&1 && .venv/bin/python scripts/ainews.py "$@"; } || echo "ainews failed (non-fatal)"
     fi ;;
   transcripts) shift; ensure_venv; .venv/bin/python digest.py transcripts "$@" ;;
-  whisper) shift; ensure_venv; .venv/bin/python whisper_fallback.py "$@" ;;
+  whisper) shift; ensure_venv; .venv/bin/python whisper_fallback.py "$@"
+    # caption-429 videos that already failed 2+ published editions (state/retry.json) go to Whisper as well
+    if [ $# -eq 0 ]; then
+      RIDS=$(python3 -c 'import json
+try: r=json.load(open("state/retry.json"))
+except Exception: r={}
+rel={v["id"]:v for v in json.load(open("data/relevant.json"))}
+print(" ".join(i for i,e in r.items() if e.get("attempts",0)>=2 and rel.get(i,{}).get("transcript_status","").startswith("rate limited")))' 2>/dev/null || true)
+      if [ -n "$RIDS" ]; then echo "whisper: retrying long-failing 429 videos: $RIDS"
+        .venv/bin/python whisper_fallback.py --include-rate-limited $RIDS || echo "whisper retry failed (non-fatal)"; fi
+    fi ;;
   edition-start) shift; python3 scripts/edition.py start "$@" ;;
   edition) python3 scripts/edition.py show ;;
   render) D=${2:-$DEF}; python3 scripts/render_article.py "articles/$D.md" "$D" ;;

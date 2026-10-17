@@ -127,6 +127,12 @@ def stage_fetch(hours, workers, since=None, use_rss=False, out_path=None):
         v["seen"] = False
         v["candidate"] = (v["kw_ai"] or v["kw_devops"]) and not v["is_short"] and v.get("live_status") not in ("is_upcoming", "is_live")
         vids.append(v)
+    # retry queue (state/retry.json, written at publish): videos still waiting for a usable transcript
+    have = {v["id"] for v in vids}
+    for rid, e in load_json(f"{ROOT}/state/retry.json", {}).items():
+        if rid in have or rid in seen or not e.get("video"): continue
+        rv = dict(e["video"]); rv.update(retry=True, retry_attempts=e.get("attempts", 0), seen=False, candidate=True)
+        vids.append(rv)
     vids.sort(key=lambda v: v["published_utc"], reverse=True)
     out = {"run_at": datetime.now(PT).isoformat(), "hours": hours, "since_utc": cutoff.isoformat(), "channels": len(chans),
            "channels_ok": len(chans) - len(errors), "source": "rss+yt-dlp" if use_rss else "yt-dlp",
@@ -179,6 +185,13 @@ def stage_transcripts(workers):
     ids = {v["id"] for v in todo}
     # carry forward videos whose captions were rate limited on an earlier run
     todo += [v for v in prev.values() if v["id"] not in ids and v.get("transcript_status", "").startswith("rate limited")]
+    # and the retry queue from earlier published editions (state/retry.json), with their earlier category
+    ids = {v["id"] for v in todo}
+    for rid, e in load_json(f"{ROOT}/state/retry.json", {}).items():
+        if rid not in ids and e.get("video"):
+            rv = dict(e["video"]); rv["retry_attempts"] = e.get("attempts", 0)
+            if rv.get("transcript_status") == "ok": rv["transcript_status"] = "rate limited (retry later)"
+            todo.append(rv); ids.add(rid)
     published = set(load_json(f"{ROOT}/state/published.json", {}).get("videos", []))
     todo = [v for v in todo if v["id"] not in published]
     run = [v for v in todo if prev.get(v["id"], {}).get("transcript_status") != "ok"]

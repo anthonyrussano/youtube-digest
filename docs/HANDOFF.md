@@ -78,7 +78,7 @@ The X API **cannot** create Articles, so this is done in the browser, which Anth
 
 ## 8. Troubleshooting
 - **YouTube RSS 404s**: the channel RSS feed is dead since Oct 2026; `fetch` uses yt-dlp listings (`--rss` only as a legacy try).
-- **Caption 429s**: status `rate limited (retry later)`; retried next run automatically. Whisper covers "needs Whisper" videos; `--include-rate-limited` forces it.
+- **Caption 429s**: status `rate limited (retry later)`. At publish they go to `state/retry.json` (not seen.json) and are retried by later editions; after 2 failed editions `./run.sh whisper` takes them with `--include-rate-limited`; dropped after 3 failed editions or 7 days. Whisper covers "needs Whisper" videos.
 - **Feed SSL errors/timeouts**: a few feeds fail occasionally (15 s timeout, one retry); non-fatal, they show in the `feeds` summary.
 - **X limits**: 30 reads/minute, 1000/day. Pace at <= 25/min; one edition is ~36 search reads plus ~27 trend reads once a day.
 - **Render exits** with a missing-citation, reuse or `SKIP:` message: fix the article or skip the edition (nothing gets marked seen).
@@ -88,6 +88,7 @@ All of `state/` and `data/` are **gitignored** (private). Files that matter:
 | File | Purpose |
 |---|---|
 | `state/seen.json` | video ids considered by published editions (written only at publish) |
+| `state/retry.json` | videos still waiting for a usable transcript (retried; dropped after 3 failed editions or 7 days) |
 | `state/published.json` | video, X post and article ids/URLs cited (blocks repeats) |
 | `state/last_edition.json` | last publish time = next window start |
 | `state/feeds_seen.json` | feed URLs considered at publish |

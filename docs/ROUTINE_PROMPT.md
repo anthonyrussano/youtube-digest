@@ -35,12 +35,13 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    NEVER to the newsletter, substack, latent.space or the email, and never say "AINews" or "newsletter".
    Group: one story covered by AINews and by a feed article, X post or video is ONE item, cited to the primary
    source (and merge several AINews bullets with the same "theme" into one item).
-3. ./run.sh transcripts    (429s get status "rate limited (retry later)" and are retried next edition, which is fine)
+3. ./run.sh transcripts    (429s get status "rate limited (retry later)"; at publish they go to state/retry.json and are
+   retried by the next editions, so this is fine; retry-queue videos have "retry": true in data/videos.json)
 3b. ./run.sh whisper       (Whisper fallback for "needs Whisper" videos only. Backend order: remote GPU host if
    WHISPER_REMOTE is set and reachable (whisper.cpp large-v3-turbo on Vulkan via ssh + docker, videos up to 3 h),
    else or on any remote failure local CPU faster-whisper base.en int8. Local skips videos over 45 min, caps each at 20 min wall time and 1.5 GB RSS, deletes audio. Transcripts land in data/transcripts/
    with status "ok" like captions. Failures are non-fatal: those videos go to "Also on the radar". Never set
-   WHISPER_REMOTE yourself.)
+   WHISPER_REMOTE yourself. 429 videos that failed 2+ editions are sent to Whisper automatically.)
 4. X: first trends, then searches. Pace every X call at <= 25 per minute (wait ~60 s between batches of 25).
    4a. TRENDS (once per PT day): ./run.sh trends. If it prints CACHED, spend no reads. Otherwise it prints one
    JSON line per category: call MCP "x" tool get_posts_counts_recent with that line's "args" (write_to_file=true)
