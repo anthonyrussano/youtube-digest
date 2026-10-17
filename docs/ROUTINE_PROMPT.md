@@ -64,8 +64,9 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    data/x_selected.json, the articles in data/feeds_selected.json and the stories in data/ainews_selected.json (link the article or original source URL on the claim;
    write article items exactly like video items, no "according to a blog post" framing). Write X items exactly like video items, with no platform framing or counts.
    TRENDS: favor stories in data/x_trends.json "top" categories (videos in step 2 and X posts alike, given
-   equal quality): lead the cold open with the strongest trending story, and when writing the share caption
-   for X, open with that trending topic as the hook. Never mention trends or volumes in the article.
+   equal quality): lead the cold open with the strongest trending story. The X share caption (STYLE.md "X share caption")
+   leads with the single most useful, actionable takeaway for developers/DevOps (a how-to, pattern or tip,
+   preferably about agent/coding tools like Claude Code, Cursor, Codex), never with spec numbers or model sizes. Never mention trends or volumes in the article.
    Use only facts from the transcripts and posts, and never repeat stories from earlier editions.
 6. Run through the STYLE.md pre-publish checklist, then ./run.sh render. Fix any missing-citation or
    reuse error and re-run. If it prints SKIP:, publish nothing.
@@ -73,7 +74,7 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    https://anthonyrussano.github.io/youtube-digest/reports/<EDITION>.html returns HTTP 200 and the index lists it.
 8. X ARTICLE (skip on the 6:04 AM run: the 10:37 routine posts it). Follow docs/HANDOFF.md "X Article
    playbook" exactly: localhost http server, copy via right-click menu, paste with real keystrokes, verify the
-   body, new NASA header not in state/x_posts.json, hook caption ending in "...", read the live caption back,
+   body, new NASA header not in state/x_posts.json, takeaway-led hook caption ending in "..." (no "Mind Blow", no "$<number>"), read the live caption back,
    append the post to state/x_posts.json.
 9. MESSAGE Anthony (not between 10 PM and 5:30 AM PT): headline, link (X post, else the Pages URL) and one
    sentence on the top item. Never message anyone else without his confirmation.

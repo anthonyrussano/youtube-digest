@@ -26,7 +26,7 @@ Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of
 ## Sources and citations
 - **YouTube:** link the video when introducing it, and give the key moment a timestamped link (`https://www.youtube.com/watch?v=ID&t=<seconds>s`) on the sentence that describes it. Every video with a transcript must be cited at least once; `render_article.py` fails otherwise. Keep the substance: an item may hold 2–4 timestamped links.
 - **X:** only posts from `data/x_selected.json` (since the window start, at least 10 bookmarks and either bookmarks > likes or 30+ reposts / 5+ quotes; that filter is for selection only). Write X-sourced items exactly like video items: who did, built or said what, the striking detail, and why it matters, with the post URL linked inline on the natural phrase. Never use platform framing: no "on X", no "posted", no "people saved", and no bookmark, like or save counts. X items mix into the run alongside the videos, ordered by story, and several small ones may share one item.
-- **Trending topics:** posts tagged with `trends` in `data/x_selected.json` match today's top categories in `data/x_trends.json`. At equal quality prefer them, open the cold open with the strongest trending story, and lead the X share caption with that topic. Never mention trends, volumes or counts in the article.
+- **Trending topics:** posts tagged with `trends` in `data/x_selected.json` match today's top categories in `data/x_trends.json`. at equal quality prefer them and open the cold open with the strongest trending story. Never mention trends, volumes or counts in the article.
 - **Articles (feeds):** only items from `data/feeds_selected.json` (3–6 per edition). Write them like video items, with the article URL linked on the claim and no "in a blog post" framing. When a video or X post covers the same story, merge it into one item and use the primary article as the main citation.
 - **AINews stories:** only items from `data/ainews_selected.json`. Write them like video items and link the original sources the item lists (X post, paper, repo, blog), never the newsletter, substack, latent.space or the email; no "according to a newsletter" framing. Merge with the same story from feeds, X or video. Use only facts in the item's summary.
 - Link the claim text itself. No footnotes or "(source)" tails.
@@ -65,3 +65,8 @@ Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of
 6. Every X item is drawn from `data/x_selected.json` and written like a video item. `grep -niE 'on x\b|bookmark|saves?\b|saved|likes?\b|posted' articles/<date>.md` prints nothing (check any hit by hand).
 7. Every number and claim appears in a transcript or post and is attributed. Dubious claims are flagged, and there is no spam or crypto.
 8. After `./run.sh publish`, the report URL returns HTTP 200 (allow about 1–2 minutes for Pages).
+
+## X share caption
+- Lead with the **single most useful, actionable takeaway for developers and DevOps people**: a how-to, a pattern or a tip, preferably about agent or coding tools (Claude Code, Cursor, Codex and the like). Example: `Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...`
+- **Don't lead with spec numbers or model sizes.** Numbers may support the takeaway but never are the hook.
+- Always end with `...`. Never write "Mind Blow". Avoid `$` followed by a number (write "3 dollars").

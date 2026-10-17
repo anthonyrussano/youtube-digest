@@ -51,7 +51,7 @@ The X API **cannot** create Articles, so this is done in the browser, which Anth
 3. Go to **https://x.com/compose/articles**, create a new Article, type the title, click into the body and paste with **real keystrokes** (Ctrl+V), not by injecting DOM text.
 4. **Check the body**: first and last paragraphs match this edition, links survived, nothing from an older edition.
 5. **Header image**: a random high-resolution public-domain NASA image from https://images.nasa.gov (download the original/large, not a thumbnail) whose id is **not** in any `header` field of `state/x_posts.json`. Upload it as the Article header.
-6. Publish, then add the **caption** to the post: a hook naming the biggest, most concrete topic with numbers, ending in `...`. Example: `Meta's 816B Muse Spark Open runs on two Mac Studios as Cloudflare's Void ships vibe-coded apps...`
+6. Publish, then add the **caption** to the post: lead with the single most useful, actionable takeaway for developers and DevOps people (a how-to, a pattern or a tip, preferably about agent/coding tools such as Claude Code, Cursor or Codex), ending in `...`. Don't lead with spec numbers or model sizes; numbers may support the takeaway but are not the hook. No "Mind Blow", no `$<number>`. Example: `Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...` (see section 6).
 7. **Read the live caption back** (profile timeline or `x.get_posts_by_id`). It was once truncated to `Forml`; if it is cut, fix it.
 8. Append to `state/x_posts.json` `posts`: `edition, posted_at_utc, post_id, article_id, url, article_url, title, caption, caption_note, header` (NASA id plus short description).
 9. Message Anthony (outside quiet hours): headline, link, one sentence on the top item.
@@ -65,13 +65,14 @@ The X API **cannot** create Articles, so this is done in the browser, which Anth
 - Anthony has full authority delegated to you over project decisions; act, then report.
 
 ## 6. Engagement lessons (from `state/x_impressions.csv`, `state/x_posts.json`)
-- **Best:** midday/afternoon posts with specific, number-led teaser captions. Tue Oct 13 2:51 PM PT: 321 impressions. Wed Oct 14 12:29 PM PT: 358+. Thu Oct 15 ~12:30 PM PT: ~280 in 2 hours with a real comment.
+- **Best (since Oct 15): actionable tip-led captions.** The Oct 15 5:24 PM PT tip hook ("Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...") got 653 impressions, 5 likes and 3 replies in about 25 hours. The Oct 16 noon numbers-led hook got only 11 impressions in 6 hours. So captions now lead with the most useful developer/DevOps takeaway (how-to, pattern, tip; agent/coding tools preferred), never with spec numbers or model sizes.
+- **Earlier:** midday/afternoon posts with specific, number-led teaser captions. Tue Oct 13 2:51 PM PT: 321 impressions. Wed Oct 14 12:29 PM PT: 358+. Thu Oct 15 ~12:30 PM PT: ~280 in 2 hours with a real comment.
 - **Worst:** overnight posts (Oct 13 12:19 AM: 27), and missing or truncated captions (Oct 13 7:43 AM no caption: 101; Oct 14 6:26 AM caption "Forml": 32).
 - Hence the 6:04 AM edition's Article is **held until 10:37 AM**, and every caption is a concrete hook ending in "...". Keep measuring and revise this section with data.
 
 ## 7. Quality bar
 `STYLE.md` is the spec. Gold examples in `reports/` (source in `articles/`):
-- `2026-10-14-1211`: dense, number-led items (a million output tokens, Credit Karma's 90% cut); its caption drew the best result so far.
+- `2026-10-14-1211`: dense, number-led items (a million output tokens, Credit Karma's 90% cut); its number-led caption did well at the time, but tip-led captions now beat it (section 6).
 - `2026-10-15`: leads with the biggest concrete stories (Anthropic $16.8bn quarter, Modal $1B ARR), clean merging of video, X and blog sources.
 - `2026-10-15-1212`: a strong later edition; specific title (Meta 816B open model, Cloudflare Void, OpenAI's billion for defenders), no padding.
 
