@@ -3,7 +3,7 @@
 This guide is for a Grok Bot on a different account, with none of the original box, memory or routines. Read it, then `README.md` (pipeline spec), `STYLE.md` (website writing spec), `docs/X_ARTICLE_STYLE.md` (X Article spec and four-step process) and `docs/ROUTINE_PROMPT.md` (per-edition steps).
 
 ## 1. What this is and the goal
-A pipeline that turns Anthony Russano's YouTube subscriptions, curated X searches and 44 RSS/Atom feeds plus the daily AINews email newsletter into short AI & DevOps "editions" (several per weekday). Each edition is published to GitHub Pages (https://anthonyrussano.github.io/youtube-digest/) as a rapid-fire roundup **and, as a separate single-lead-story piece derived from it, as an X Article on @russano** (section 4a). The goal is to **maximize impressions on @russano**: good stories, good timing, a concrete hook caption.
+A pipeline that turns Anthony Russano's YouTube subscriptions, curated X searches and 44 RSS/Atom feeds plus the daily AINews email newsletter into short AI & DevOps "editions" (three per weekday, two per weekend day). Each edition is published to GitHub Pages (https://anthonyrussano.github.io/youtube-digest/) as a rapid-fire roundup **and, as a separate single-lead-story piece derived from it, as an X Article on @russano** (section 4a). The goal is to **maximize impressions on @russano**: good stories, good timing, a concrete hook caption.
 
 Anthony gave **full authority over project decisions** (sources, filters, format, schedule tweaks). Use it, and tell him what you changed.
 
@@ -18,14 +18,24 @@ Anthony gave **full authority over project decisions** (sources, filters, format
 8. Smoke test: `bash -n run.sh && ./run.sh feeds --hours 6 && ./run.sh x-accounts && ./run.sh ainews --hours 30`.
 
 ## 3. Routines to recreate (timezone America/Los_Angeles)
-### A. Digest edition: `4 6,12,17 * * 1-5`
+Schedule at a glance (PT): **weekdays** 6:04 AM, 12:04 PM, 5:04 PM editions, with the 6:04 Article held to 10:37 AM; **Saturday and Sunday** 12:04 PM and 5:04 PM editions (made permanent by Anthony on Sat 2026-10-17), each posting its Article immediately (no held slot). Plus on-demand editions.
+### A. Weekday digest editions: `4 6,12,17 * * 1-5`
 Prompt: the full text in `docs/ROUTINE_PROMPT.md`, plus this preface:
 ```
-If the current PT time is the 6:04 AM run, do steps 0-7 and 9 but DO NOT post the X Article (step 8);
+If the current PT time is the 6:04 AM run, do steps 0-8d and 9 but DO NOT post the X Article (step 8e);
 the 10:37 routine posts it. On the 12:04 and 17:04 runs, post the X Article right after publish.
 Read docs/HANDOFF.md first (hard rules, X Article playbook). Quiet hours 10 PM-5:30 AM PT: no messages.
 ```
-### B. Morning X post: `37 10 * * 1-5`
+### A2. Weekend digest editions: `4 12,17 * * 0,6`
+Saturday and Sunday, 12:04 PM and 5:04 PM PT. Prompt: the full text in `docs/ROUTINE_PROMPT.md`, plus this preface:
+```
+Weekend edition (Saturday or Sunday, 12:04 or 17:04 PT). Do every step 0-9, including 8a-8d (the four-step
+X Article in articles/x/<EDITION>/) and 8e: post the X Article right after publish. There is no held slot on
+weekends and the 10:37 routine does not run. Weekend material is often thin: apply the skip rule as usual and
+keep the edition short rather than padding it. Read docs/HANDOFF.md first (hard rules, X Article playbook).
+Quiet hours 10 PM-5:30 AM PT: no messages.
+```
+### B. Morning X post (weekdays only): `37 10 * * 1-5`
 ```
 Repo /home/box/youtube-digest. Read docs/HANDOFF.md. Find today's first edition (reports/<YYYY-MM-DD>.md,
 PT date). If it exists and has no entry in state/x_posts.json, publish its X Article on @russano following the
@@ -46,12 +56,12 @@ docs/HANDOFF.md and commit it (pull --rebase first). Message Anthony only if som
 Respect X limits: 30 reads/min, 1000/day across all routines.
 ```
 
-## 4a. X Article format and four-step process (from the Mon 2026-10-19 6:04 AM PT edition)
-- **Start:** the process begins with the **Monday Oct 19, 2026 6:04 AM PT edition**, whose X Article posts at **10:37 AM PT** (routine B). Every edition from then on gets `articles/x/<EDITION>/` with `research.md`, `outline.md`, `article.md` and `check.md`, committed (all public-source material).
+## 4a. X Article format and four-step process (since edition 2026-10-17-1644)
+- **Start:** the first X Article on the new single-lead format was edition **`2026-10-17-1644`**, posted **Sat Oct 17, 2026 ~5 PM PT** (urgent weekend edition). The first held weekday morning Article on it is the Mon Oct 19, 2026 6:04 AM PT edition, posting at 10:37 AM PT (routine B). Every edition gets `articles/x/<EDITION>/` with `research.md`, `outline.md`, `article.md` and `check.md`, committed (all public-source material).
 - **Format:** the website edition (`reports/`) stays the rapid-fire roundup and does not change. The X Article is **one lead story in depth** (the most overlooked or most practical one, preferably an actionable dev/DevOps/agent-tooling idea, ~400–800 words), then **"Also this cycle"** with 4–6 linked one-liners. The title names the lead idea, not three stories. Full spec: `docs/X_ARTICLE_STYLE.md`.
 - **Steps:** 1 `research.md` (raw facts from the cited sources + a quick web/X search for what others covered and missed), 2 `outline.md` (one core idea at a time, plain language), 3 `article.md` (hook on the overlooked angle, short sentences, takeaway + reply-inviting question), 4 `check.md` (review, tighten, confirm the overlooked angle is real, sourced and simple; fix the article if anything fails).
 - **Model:** the Oct 15 Claude Code single-idea Article (edition `2026-10-15-1705`, https://x.com/russano/status/2110889513455321578, "each agent gets its own repo copy"): one actionable agent-tooling idea, 653 impressions in ~25 h, our best. Worked sample of the new process: `articles/x/2026-10-17-sample/` (built on edition 2026-10-17, never posted).
-- **Before/after baseline:** the editions **through 2026-10-17** (all roundup-style X Articles in `state/x_posts.json`, last one `2026-10-17`, posted 11:00 AM PT) are the "before" set. Compare impressions, likes, replies and bookmarks at ~24 h for posts from 2026-10-19 on against them in `state/x_impressions.csv`, and record the result in section 6.
+- **Before/after baseline:** the "before" set is every X Article **posted before `2026-10-17-1644`** (the roundup-style posts in `state/x_posts.json`, last one edition `2026-10-17`, posted 11:00 AM PT). `2026-10-17-1644` and everything after is the "after" set. Compare impressions, likes, replies and bookmarks at ~24 h against the baseline in `state/x_impressions.csv`, and record the result in section 6.
 
 ## 4. X Article playbook
 The X API **cannot** create Articles, so this is done in the browser, which Anthony signed into @russano himself.
@@ -77,7 +87,7 @@ The X API **cannot** create Articles, so this is done in the browser, which Anth
 - **Best (since Oct 15): actionable tip-led captions.** The Oct 15 5:24 PM PT tip hook ("Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...") got 653 impressions, 5 likes and 3 replies in about 25 hours. The Oct 16 noon numbers-led hook got only 11 impressions in 6 hours. So captions now lead with the most useful developer/DevOps takeaway (how-to, pattern, tip; agent/coding tools preferred), never with spec numbers or model sizes.
 - **Earlier:** midday/afternoon posts with specific, number-led teaser captions. Tue Oct 13 2:51 PM PT: 321 impressions. Wed Oct 14 12:29 PM PT: 358+. Thu Oct 15 ~12:30 PM PT: ~280 in 2 hours with a real comment.
 - **Worst:** overnight posts (Oct 13 12:19 AM: 27), and missing or truncated captions (Oct 13 7:43 AM no caption: 101; Oct 14 6:26 AM caption "Forml": 32).
-- Hence the 6:04 AM edition's Article is **held until 10:37 AM**, and every caption is a concrete hook ending in "...". Keep measuring and revise this section with data.
+- Hence the weekday 6:04 AM edition's Article is **held until 10:37 AM** (weekend editions run at 12:04 and 5:04 PM and post immediately), and every caption is a concrete hook ending in "...". Keep measuring and revise this section with data.
 
 ## 7. Quality bar
 X Articles: `docs/X_ARTICLE_STYLE.md` is the spec; model `2026-10-15-1705` (single Claude Code idea) and the worked sample `articles/x/2026-10-17-sample/`.

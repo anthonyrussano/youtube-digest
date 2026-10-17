@@ -1,6 +1,6 @@
 # YouTube AI & DevOps daily digest ("Mind Blow" edition)
 
-> **New agent taking this over?** Start with [`docs/HANDOFF.md`](docs/HANDOFF.md): setup from scratch, the three routines (with full prompts and cron times), the X Article publishing playbook, hard rules and engagement lessons.
+> **New agent taking this over?** Start with [`docs/HANDOFF.md`](docs/HANDOFF.md): setup from scratch, the routines (weekday and weekend editions, the 10:37 morning X post, the impressions tracker; full prompts and cron times), the X Article publishing playbook, hard rules and engagement lessons.
 
 This repo is Anthony's daily pipeline. It reads new videos from his YouTube subscriptions, filters them to AI and DevOps, pulls transcripts, adds high-signal X posts, and publishes a Vsauce2 *Mind Blow*-style article to GitHub Pages: https://anthonyrussano.github.io/youtube-digest/. A fresh agent should read this README, then `STYLE.md`, then follow `docs/ROUTINE_PROMPT.md`.
 
@@ -43,12 +43,12 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 6. **X search:** this needs the MCP namespace `x` (tool `search_posts_all`) connected for the agent. There is no API key in this repo.
 
 ## Editions (several per day)
-The routine runs at about 6:04 AM, noon and 5 PM PT on weekdays, plus on demand. Each run is one **edition**:
+The routines run on weekdays at 6:04 AM, 12:04 PM and 5:04 PM PT (`4 6,12,17 * * 1-5`) and on Saturday and Sunday at 12:04 PM and 5:04 PM PT (`4 12,17 * * 0,6`), plus on demand. Each run is one **edition**:
 - **Id and page:** the first edition of a PT day is `YYYY-MM-DD` (`articles/2026-10-13.md` becomes `reports/2026-10-13.html`). Later editions add the PT start time, `YYYY-MM-DD-HHMM` (`articles/2026-10-13-1158.md` becomes `reports/2026-10-13-1158.html`), so they never overwrite the morning page. The index lists every edition newest first, labeled with its date and "h:mm AM/PM PT edition".
 - **Window:** `./run.sh edition-start` sets the window start to the previous edition's publish time (`state/last_edition.json`). With no state it falls back to now-24h, and it never goes back more than 72 h. `--hours H` forces a window. The result goes to `state/current_edition.json`, which `fetch`, `x`, `render` and `publish` all read by default.
 - **No repeats:** `state/seen.json` holds every video fetched for an edition that was actually published; `publish` (via `scripts/edition.py published`) is its only writer, so a skipped edition leaves its in-window videos eligible for the next `fetch` (the window START also stays put, because it comes from the last *published* edition). `state/published.json` holds every video and X post ID (and feed article URL) cited in a published edition, recorded by `publish`. `fetch` and `transcripts` skip published videos, and `x` drops published posts. `render` refuses a new edition that cites anything already published. Flat yt-dlp listings have only day-level dates, so `fetch` widens its pre-filter by 36 h, then gets exact timestamps for keyword matches; seen/published tracking removes any overlap.
 - **Retry queue:** at publish, selected videos that never got a usable transcript (caption 429 or Whisper failed/skipped) are **not** marked seen; `edition.py published` puts them in `state/retry.json` (`attempts`, `first_edition`, `last_edition`, `status`, `video`). `fetch` re-adds them to `data/videos.json` (`"retry": true`) and `transcripts` always retries them with their earlier category. `./run.sh whisper` (no args) also sends 429 videos with 2+ failed editions to Whisper with `--include-rate-limited`. A video leaves the queue once it is transcribed or cited, or is dropped (and marked seen) after 3 failed published editions or once it is 7 days old.
-- **Publish:** `./run.sh publish` pushes, then records the cited IDs and the publish time, which is the next edition's window start, and closes the edition. If the push fails, the state isn't advanced.
+- **Publish:** `./run.sh publish` stages and commits **only the edition's own files by path** (`reports/<ed>.*`, `articles/<ed>.*`, `articles/x/<ed>/`, `index.md`; never whole `docs/` or `scripts/`, since other workers may be editing them; commit code and doc changes separately by explicit path), runs `git pull --rebase --autostash`, pushes, then records the cited IDs and the publish time, which is the next edition's window start, and closes the edition. If the push fails, the state isn't advanced.
 - **Skip rule:** an edition needs new transcribed videos, **or** at least 5 good X items for an X-only edition, **or** at least 2 strong articles (tier 1–2 feeds, selected in `data/feeds_selected.json` and cited) for an articles-only edition. AINews items never count toward it on their own (see "AINews"). Otherwise `render` exits with `SKIP:` and nothing is published. Leave the edition open; the next `edition-start` reopens with the same window start.
 
 ## Daily flow (one edition; for the scheduled routine)
@@ -77,8 +77,8 @@ cd /home/box/youtube-digest
 #     Skip rule: publish only with >= 1 new transcribed video, OR >= 5 good X items, OR >= 2 strong (tier 1-2)
 #     selected articles; otherwise stop here (nothing to publish, nothing marked seen).
 ./run.sh render                  # 6. -> reports/<EDITION>.md (citation check, no-repeat check, X-only minimum)
-./run.sh publish                 # 7. push, record published IDs and publish time; then check the URL returns HTTP 200
-#  8. X Article on @russano via the signed-in browser (./run.sh x-article, then the docs/HANDOFF.md playbook; held until 10:37 for the 6:04 run)
+./run.sh publish                 # 7. commit only this edition's files by path, pull --rebase, push, record published IDs and publish time; then check the URL returns HTTP 200
+#  8. X Article on @russano via the signed-in browser (./run.sh x-article, then the docs/HANDOFF.md playbook; held until 10:37 for the weekday 6:04 run; weekend editions post immediately)
 ```
 `render` and `publish` default to the open edition's ID. An explicit ID (`./run.sh render 2026-10-12`) re-renders or republishes an older page without touching edition state. An on-demand edition uses the same sequence. `./run.sh edition-start --hours 6` forces a 6-hour window.
 

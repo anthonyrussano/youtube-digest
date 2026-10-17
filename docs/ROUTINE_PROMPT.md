@@ -1,6 +1,6 @@
 # Edition routine prompt (paste into the scheduled Grok Bot routine)
 
-Schedule: cron `4 6,12,17 * * 1-5` America/Los_Angeles (6:04 AM, 12:04 PM, 5:04 PM PT weekdays), plus on demand. The same prompt works for every edition. The full set of routines (including the 10:37 morning X post and the impressions tracker) is in `docs/HANDOFF.md`.
+Schedule (America/Los_Angeles): weekdays cron `4 6,12,17 * * 1-5` (6:04 AM, 12:04 PM, 5:04 PM PT; the 6:04 Article is held to 10:37 AM) and weekends cron `4 12,17 * * 0,6` (Saturday and Sunday 12:04 PM and 5:04 PM PT; each Article posts immediately), plus on demand. The same prompt works for every edition; each routine adds a short preface. The full set of routines (weekday and weekend editions, the 10:37 weekday morning X post, the impressions tracker) with their prefaces is in `docs/HANDOFF.md` section 3.
 
 ```
 Run one edition of Anthony's AI & DevOps digest (internal format name "Mind Blow"; never write that phrase in titles,
@@ -73,7 +73,7 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    reuse error and re-run. If it prints SKIP:, publish nothing.
 7. ./run.sh publish. Wait about 90 s, then confirm
    https://anthonyrussano.github.io/youtube-digest/reports/<EDITION>.html returns HTTP 200 and the index lists it.
-8. X ARTICLE SOURCE (every run, including 6:04 AM): write the single-lead-story X Article for this edition per
+8. X ARTICLE SOURCE (every run, weekday and weekend, including 6:04 AM): write the single-lead-story X Article for this edition per
    docs/X_ARTICLE_STYLE.md, saving all four artifacts under articles/x/<EDITION>/ and doing the steps in order:
    8a. research.md: raw facts from the cited sources (transcripts, articles, full X threads, AINews items via their
        original sources) + a quick web/X search for what most creators covered and what they overlooked or
@@ -88,7 +88,8 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    8d. check.md: review research, tighten outline, check clarity, confirm the overlooked angle is real, sourced and
        explained simply; fix article.md if anything fails. Then ./run.sh x-article <EDITION> must print
        SOURCE: articles/x/<EDITION>/article.md. Commit articles/x/<EDITION>/ (git add that path; pull --rebase, push).
-8e. X ARTICLE POST (skip on the 6:04 AM run: the 10:37 routine posts it). Follow docs/HANDOFF.md "X Article
+8e. X ARTICLE POST (skip only on the weekday 6:04 AM run: the 10:37 routine posts it; every other run, including
+   both weekend runs, posts right after publish). Follow docs/HANDOFF.md "X Article
    playbook" exactly: localhost http server, copy via right-click menu, paste with real keystrokes, verify the
    body, new NASA header not in state/x_posts.json, the caption from article.md front matter, read the live
    caption back, append the post to state/x_posts.json.

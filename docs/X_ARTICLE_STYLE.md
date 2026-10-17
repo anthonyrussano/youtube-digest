@@ -1,6 +1,6 @@
 # X Article style and process (single lead story)
 
-The **website edition** (`articles/<EDITION>.md` -> `reports/<EDITION>.md`) stays the rapid-fire roundup in `STYLE.md`. The **X Article** on @russano is a separate piece derived from each edition: **one lead story in depth**, then a short "Also this cycle" list. It starts with the Monday 2026-10-19 6:04 AM PT edition (see `docs/HANDOFF.md`).
+The **website edition** (`articles/<EDITION>.md` -> `reports/<EDITION>.md`) stays the rapid-fire roundup in `STYLE.md`. The **X Article** on @russano is a separate piece derived from each edition: **one lead story in depth**, then a short "Also this cycle" list. The first X Article on this format was edition `2026-10-17-1644` (posted Sat Oct 17, 2026 ~5 PM PT; see `docs/HANDOFF.md` section 4a).
 
 Model: the Oct 15 Claude Code single-idea Article (edition `2026-10-15-1705`, https://x.com/russano/status/2110889513455321578). One concrete, actionable agent-tooling idea (each agent gets its own repo copy) carried the post: 653 impressions, 5 likes and 3 replies in ~25 h, our best so far. Worked sample of this process: `articles/x/2026-10-17-sample/`.
 

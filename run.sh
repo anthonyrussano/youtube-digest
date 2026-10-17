@@ -17,7 +17,8 @@
 #   ./run.sh trends [plan|compute|show]  daily X keyword trends (plan prints CACHED when today's data/x_trends.json
 #                                  exists; else the get_posts_counts_recent calls to save in data/x_counts/)
 #   ./run.sh x-article [ID]        articles/x/ID/article.md (else reports/ID.md) -> /tmp/x-article/ID.html for the X Article (prints title, caption, serve cmd)
-#   ./run.sh publish [DATE]        git add reports/ articles/ site files, commit, push to GitHub
+#   ./run.sh publish [DATE]        commit only this edition's files by path (reports/DATE.*, articles/DATE.*,
+#                                  articles/x/DATE/, index.md), pull --rebase, push to GitHub
 set -euo pipefail
 cd "$(dirname "$0")"
 ensure_venv() {
@@ -63,12 +64,19 @@ print(" ".join(i for i,e in r.items() if e.get("attempts",0)>=2 and rel.get(i,{}
   publish)
     D=${2:-$DEF}
     [ -f "reports/$D.md" ] || { echo "reports/$D.md missing: run ./run.sh render first"; exit 1; }
-    git add -- reports/ articles/ config/ scripts/ docs/ requirements.txt digest.py whisper_fallback.py run.sh index.md _config.yml _layouts assets STYLE.md README.md .gitignore 2>/dev/null || true
-    if git diff --cached --quiet; then echo "Nothing to publish"; exit 0; fi
+    # stage ONLY this edition's own files, by path: other workers may be editing docs/, scripts/ or other editions
+    # at the same time (code/doc changes are committed separately, by explicit path). Exact names, not "$D*",
+    # so 2026-10-17 never picks up 2026-10-17-1644.
+    P=()
+    for f in "reports/$D".* "articles/$D".* "articles/x/$D" index.md; do [ -e "$f" ] && P+=("$f"); done
+    git add -- "${P[@]}"
+    if git diff --cached --quiet -- "${P[@]}"; then echo "Nothing to publish"; exit 0; fi
     # safety net: refuse to publish private files even if .gitignore was edited
-    if git diff --cached --name-only | grep -Eq '(^|/)(data|state|\.venv)/|subscriptions|\.csv$|cookie|config/whisper\.json'; then
-      echo "Refusing to publish: private file staged"; git diff --cached --name-only; exit 1; fi
-    git commit -q -m "Report $D" && git push -q origin HEAD:main
+    if git diff --cached --name-only -- "${P[@]}" | grep -Eq '(^|/)(data|state|\.venv)/|subscriptions|\.csv$|cookie|config/whisper\.json'; then
+      echo "Refusing to publish: private file staged"; git diff --cached --name-only -- "${P[@]}"; exit 1; fi
+    # commit only these paths (anything else another worker staged stays staged and out of this commit)
+    git commit -q -m "Report $D" -- "${P[@]}"
+    git pull -q --rebase --autostash origin main && git push -q origin HEAD:main
     # record published stories + publish time (window start for the next edition), only for the open edition
     [ "$D" = "$CUR" ] && python3 scripts/edition.py published
     echo "Published: https://anthonyrussano.github.io/youtube-digest/reports/$D.html" ;;
