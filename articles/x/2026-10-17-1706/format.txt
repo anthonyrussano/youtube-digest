@@ -1,0 +1,3 @@
+roundup
+Thin Saturday evening cycle; the Resy/AAuth budgets story could carry a deep-dive, but the last posted Article (2026-10-17-1644) was a deep-dive, so this one alternates to roundup.
+caption: Copilot tip: run /chronicle to see where your tokens go, default to medium reasoning effort, and keep related work in one session so you don't break the cache...
