@@ -1,0 +1,3 @@
+roundup
+A broad Sunday afternoon edition with many strong agent-tooling items and no single lead; the morning Article was a deep-dive, so alternate.
+caption: Claude Code / Codex tip: add an agents.md that makes every agent run a Playwright "proof" command after each change, so it shows the feature works instead of just saying it's done...
