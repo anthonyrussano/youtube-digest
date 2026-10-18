@@ -1,9 +1,9 @@
 # Handoff: running this project as a new Grok Bot
 
-This guide is for a Grok Bot on a different account, with none of the original box, memory or routines. Read it, then `README.md` (pipeline spec), `STYLE.md` (website writing spec), `docs/X_ARTICLE_STYLE.md` (X Article spec and four-step process) and `docs/ROUTINE_PROMPT.md` (per-edition steps).
+This guide is for a Grok Bot on a different account, with none of the original box, memory or routines. Read it, then `README.md` (pipeline spec), `STYLE.md` (website writing spec), `docs/X_ARTICLE_STYLE.md` (the two X Article formats, roundup and deep-dive, and how to pick one) and `docs/ROUTINE_PROMPT.md` (per-edition steps).
 
 ## 1. What this is and the goal
-A pipeline that turns Anthony Russano's YouTube subscriptions, curated X searches and 44 RSS/Atom feeds plus the daily AINews email newsletter into short AI & DevOps "editions" (three per weekday, two per weekend day). Each edition is published to GitHub Pages (https://anthonyrussano.github.io/youtube-digest/) as a rapid-fire roundup **and, as a separate single-lead-story piece derived from it, as an X Article on @russano** (section 4a). The goal is to **maximize impressions on @russano**: good stories, good timing, a concrete hook caption.
+A pipeline that turns Anthony Russano's YouTube subscriptions, curated X searches and 44 RSS/Atom feeds plus the daily AINews email newsletter into short AI & DevOps "editions" (three per weekday, two per weekend day). Each edition is published to GitHub Pages (https://anthonyrussano.github.io/youtube-digest/) as a rapid-fire roundup **and as an X Article on @russano** in one of two named formats: **roundup** (the edition itself) or **deep-dive** (a single-lead piece derived from it), chosen per edition (section 4a). The goal is to **maximize impressions on @russano**: good stories, good timing, a concrete hook caption.
 
 Anthony gave **full authority over project decisions** (sources, filters, format, schedule tweaks). Use it, and tell him what you changed.
 
@@ -29,8 +29,8 @@ Read docs/HANDOFF.md first (hard rules, X Article playbook). Quiet hours 10 PM-5
 ### A2. Weekend digest editions: `4 12,17 * * 0,6`
 Saturday and Sunday, 12:04 PM and 5:04 PM PT. Prompt: the full text in `docs/ROUTINE_PROMPT.md`, plus this preface:
 ```
-Weekend edition (Saturday or Sunday, 12:04 or 17:04 PT). Do every step 0-9, including 8a-8d (the four-step
-X Article in articles/x/<EDITION>/) and 8e: post the X Article right after publish. There is no held slot on
+Weekend edition (Saturday or Sunday, 12:04 or 17:04 PT). Do every step 0-9, including step 8 (pick roundup or
+deep-dive; for deep-dive write 8a-8d in articles/x/<EDITION>/) and 8e: post the X Article right after publish. There is no held slot on
 weekends and the 10:37 routine does not run. Weekend material is often thin: apply the skip rule as usual and
 keep the edition short rather than padding it. Read docs/HANDOFF.md first (hard rules, X Article playbook).
 Quiet hours 10 PM-5:30 AM PT: no messages.
@@ -39,10 +39,12 @@ Quiet hours 10 PM-5:30 AM PT: no messages.
 ```
 Repo /home/box/youtube-digest. Read docs/HANDOFF.md. Find today's first edition (reports/<YYYY-MM-DD>.md,
 PT date). If it exists and has no entry in state/x_posts.json, publish its X Article on @russano following the
-"X Article playbook" exactly. The source is articles/x/<YYYY-MM-DD>/article.md (written by the 6:04 run; if it
-is missing or check.md is missing, do the four steps of docs/X_ARTICLE_STYLE.md first and commit them). Fresh
-NASA header, the caption from article.md front matter (ends in "..."), read the live caption back, record in
-state/x_posts.json). Then message Anthony: headline, X link, one sentence on the top
+"X Article playbook" exactly, in the format the 6:04 run chose in articles/x/<YYYY-MM-DD>/format.txt
+(./run.sh x-article <YYYY-MM-DD> reads it and prints FORMAT). If format.txt is missing, pick the format now per
+docs/X_ARTICLE_STYLE.md "Selection rule" (and for deep-dive do the four steps first), then commit
+articles/x/<YYYY-MM-DD>/ by path. Fresh NASA header, the tip-first caption (deep-dive: article.md front matter;
+roundup: format.txt line 3; ends in "..."), read the live caption back, record in state/x_posts.json with
+"format"). Then message Anthony: headline, X link, one sentence on the top
 item. If there is no edition today (skipped) or it is already posted, do nothing and send no message.
 ```
 ### C. Impressions tracker: `13 9 * * *` (daily)
@@ -51,28 +53,32 @@ Repo /home/box/youtube-digest. For every post in state/x_posts.json, read its pu
 get_posts_by_ids (post.fields=public_metrics,created_at; batches of up to 100 ids, one read). Upsert one row
 per post_id in state/x_impressions.csv (columns: post_id,title,caption,posted_pt,impressions_24h,likes,
 reposts,bookmarks,replies,quotes,measured_at_pt,age_hours_at_measure,note). Note when the age is not ~24 h.
-Then compare by posting hour and caption type and, if a pattern changed, update the "Engagement lessons" in
+Then run ./run.sh x-stats (impressions by X Article format, roundup vs deep-dive) and compare by format,
+posting hour and caption type; if a pattern changed, update the "Engagement lessons" in
 docs/HANDOFF.md and commit it (pull --rebase first). Message Anthony only if something notable changed.
 Respect X limits: 30 reads/min, 1000/day across all routines.
 ```
 
-## 4a. X Article format and four-step process (since edition 2026-10-17-1644)
-- **Start:** the first X Article on the new single-lead format was edition **`2026-10-17-1644`**, posted **Sat Oct 17, 2026 ~5 PM PT** (urgent weekend edition). The first held weekday morning Article on it is the Mon Oct 19, 2026 6:04 AM PT edition, posting at 10:37 AM PT (routine B). Every edition gets `articles/x/<EDITION>/` with `research.md`, `outline.md`, `article.md` and `check.md`, committed (all public-source material).
-- **Format:** the website edition (`reports/`) stays the rapid-fire roundup and does not change. The X Article is **one lead story in depth** (the most overlooked or most practical one, preferably an actionable dev/DevOps/agent-tooling idea, ~400–800 words), then **"Also this cycle"** with 4–6 linked one-liners. The title names the lead idea, not three stories. Full spec: `docs/X_ARTICLE_STYLE.md`.
-- **Steps:** 1 `research.md` (raw facts from the cited sources + a quick web/X search for what others covered and missed), 2 `outline.md` (one core idea at a time, plain language), 3 `article.md` (hook on the overlooked angle, short sentences, takeaway + reply-inviting question), 4 `check.md` (review, tighten, confirm the overlooked angle is real, sourced and simple; fix the article if anything fails).
+## 4a. X Article formats: roundup and deep-dive
+- **Two named formats, picked per edition** (full spec, side by side: `docs/X_ARTICLE_STYLE.md`). The website edition (`reports/`) is always the roundup and does not change.
+  - **roundup:** the classic digest Article, `reports/<EDITION>.md` as is (rapid-fire cold open, one paragraph per item, `STYLE.md`). Every X Article through edition `2026-10-17` used it.
+  - **deep-dive:** one lead story in depth (~400–800 words) + "Also this cycle" (4–6 linked one-liners), title naming the lead idea, written with the four steps in `articles/x/<EDITION>/`. First used on edition **`2026-10-17-1644`**, posted **Sat Oct 17, 2026 ~5 PM PT**.
+- **Selection rule:** deep-dive only when the edition has one lead story with a genuinely overlooked angle, an actionable takeaway and enough primary-source material for ~400–600 words; otherwise roundup (always for thin editions with no strong lead). When both fit, **alternate** against the `format` of the last posted Article in `state/x_posts.json`, to gather comparison data. The choice is written to `articles/x/<EDITION>/format.txt` (format, reason, and for roundup the caption) so the 10:37 routine posts what the 6:04 run picked.
+- **Record it:** every post in `state/x_posts.json` carries `"format": "roundup" | "deep-dive"` (backfilled Oct 17: all editions before `2026-10-17-1644` = roundup, `2026-10-17-1644` = deep-dive). `./run.sh x-stats` breaks impressions down by format.
+- **Deep-dive steps:** 1 `research.md` (raw facts from the cited sources + a quick web/X search for what others covered and missed), 2 `outline.md` (one core idea at a time, plain language), 3 `article.md` (hook on the overlooked angle, short sentences, takeaway + reply-inviting question), 4 `check.md` (review, tighten, confirm the overlooked angle is real, sourced and simple; fix the article if anything fails).
 - **Model:** the Oct 15 Claude Code single-idea Article (edition `2026-10-15-1705`, https://x.com/russano/status/2110889513455321578, "each agent gets its own repo copy"): one actionable agent-tooling idea, 653 impressions in ~25 h, our best. Worked sample of the new process: `articles/x/2026-10-17-sample/` (built on edition 2026-10-17, never posted).
-- **Before/after baseline:** the "before" set is every X Article **posted before `2026-10-17-1644`** (the roundup-style posts in `state/x_posts.json`, last one edition `2026-10-17`, posted 11:00 AM PT). `2026-10-17-1644` and everything after is the "after" set. Compare impressions, likes, replies and bookmarks at ~24 h against the baseline in `state/x_impressions.csv`, and record the result in section 6.
+- **Comparison:** the baseline is every X Article **posted before `2026-10-17-1644`** (all roundup; last one edition `2026-10-17`, posted 11:00 AM PT). From `2026-10-17-1644` on, both formats run side by side, so compare **by `format`** (roundup vs deep-dive) at ~24 h with `./run.sh x-stats` (impressions, likes, replies, bookmarks), and against the pre-1644 baseline; record the result in section 6.
 
 ## 4. X Article playbook
 The X API **cannot** create Articles, so this is done in the browser, which Anthony signed into @russano himself.
-1. Run `./run.sh x-article <EDITION>` (`scripts/x_article_html.py`). It uses `articles/x/<EDITION>/article.md` when it exists (and refuses it if the title or caption has `$<number>` or "Mind Blow", or the caption doesn't end in `...`), else falls back to the roundup `reports/<EDITION>.md` (editions before 2026-10-19). It writes `/tmp/x-article/<EDITION>.html` (front matter stripped, every line its own `<p>`, links and **bold** kept, `- ` bullets as `•`, `##` labels as bold lines, `$` before a digit guarded, any line containing "Mind Blow" dropped) and prints the `SOURCE`, the `TITLE` from the front matter, the `CAPTION` (front matter `caption:`; for the fallback a suggestion from the first sentence, improve it per step 6) and the `SERVE` command: `python3 -m http.server 8765 --bind 127.0.0.1 -d /tmp/x-article` (file:// is blocked in the browser). Run that in the background.
+1. Run `./run.sh x-article <EDITION> [--format roundup|deep-dive]` (`scripts/x_article_html.py`). Default: the format in `articles/x/<EDITION>/format.txt`, else deep-dive if `articles/x/<EDITION>/article.md` exists, else roundup. **roundup** renders `reports/<EDITION>.md` exactly as before (one `<p>` per paragraph, dek omitted, links kept, `$`-digit guard) and suggests a caption from the first sentence (rewrite it tip-first, or use `format.txt` line 3). **deep-dive** renders `article.md` (every line its own `<p>`, **bold** kept, `- ` bullets as `•`, `##` labels as bold lines) and refuses it if the title or caption has `$<number>` or "Mind Blow" or the caption doesn't end in `...`. Both drop any line containing "Mind Blow" and print `FORMAT`, `SOURCE`, `TITLE`, `CAPTION` and the `SERVE` command: `python3 -m http.server 8765 --bind 127.0.0.1 -d /tmp/x-article` (file:// is blocked in the browser). Run that in the background.
 2. Open `http://127.0.0.1:8765/<EDITION>.html`, select the body, and **copy with the right-click context menu -> Copy**. Do not trust the existing clipboard: a stale clipboard once pasted yesterday's article.
 3. Go to **https://x.com/compose/articles**, create a new Article, type the title, click into the body and paste with **real keystrokes** (Ctrl+V), not by injecting DOM text.
 4. **Check the body**: first and last paragraphs match this edition, links survived, nothing from an older edition.
 5. **Header image**: a random high-resolution public-domain NASA image from https://images.nasa.gov (download the original/large, not a thumbnail) whose id is **not** in any `header` field of `state/x_posts.json`. Upload it as the Article header.
-6. Publish, then add the **caption** to the post (from `article.md` front matter when present): lead with the single most useful, actionable takeaway for developers and DevOps people (a how-to, a pattern or a tip, preferably about agent/coding tools such as Claude Code, Cursor or Codex), ending in `...`. Don't lead with spec numbers or model sizes; numbers may support the takeaway but are not the hook. No "Mind Blow", no `$<number>`. Example: `Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...` (see section 6).
+6. Publish, then add the **caption** to the post (deep-dive: `article.md` front matter; roundup: `format.txt` line 3). Tip-first applies to both formats: lead with the single most useful, actionable takeaway for developers and DevOps people (a how-to, a pattern or a tip, preferably about agent/coding tools such as Claude Code, Cursor or Codex), ending in `...`. Don't lead with spec numbers or model sizes; numbers may support the takeaway but are not the hook. No "Mind Blow", no `$<number>`. Example: `Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...` (see section 6).
 7. **Read the live caption back** (profile timeline or `x.get_posts_by_id`). It was once truncated to `Forml`; if it is cut, fix it.
-8. Append to `state/x_posts.json` `posts`: `edition, posted_at_utc, post_id, article_id, url, article_url, title, caption, caption_note, header` (NASA id plus short description).
+8. Append to `state/x_posts.json` `posts`: `edition, posted_at_utc, post_id, article_id, url, article_url, title, caption, caption_note, format` (`roundup` or `deep-dive`, as printed by `x-article`), `header` (NASA id plus short description).
 9. Message Anthony (outside quiet hours): headline, link, one sentence on the top item.
 
 ## 5. Hard rules
@@ -90,7 +96,7 @@ The X API **cannot** create Articles, so this is done in the browser, which Anth
 - Hence the weekday 6:04 AM edition's Article is **held until 10:37 AM** (weekend editions run at 12:04 and 5:04 PM and post immediately), and every caption is a concrete hook ending in "...". Keep measuring and revise this section with data.
 
 ## 7. Quality bar
-X Articles: `docs/X_ARTICLE_STYLE.md` is the spec; model `2026-10-15-1705` (single Claude Code idea) and the worked sample `articles/x/2026-10-17-sample/`.
+X Articles: `docs/X_ARTICLE_STYLE.md` is the spec for both formats. Deep-dive models: `2026-10-15-1705` (single Claude Code idea), the worked sample `articles/x/2026-10-17-sample/` and the first live one `articles/x/2026-10-17-1644/`. Roundup models: the gold editions below.
 
 Website editions: `STYLE.md` is the spec. Gold examples in `reports/` (source in `articles/`):
 - `2026-10-14-1211`: dense, number-led items (a million output tokens, Credit Karma's 90% cut); its number-led caption did well at the time, but tip-led captions now beat it (section 6).
@@ -114,7 +120,7 @@ All of `state/` and `data/` are **gitignored** (private). Files that matter:
 | `state/last_edition.json` | last publish time = next window start |
 | `state/feeds_seen.json` | feed URLs considered at publish |
 | `state/ainews_seen.json` | AINews issue Message-IDs and source URLs considered at publish |
-| `state/x_posts.json` | every X Article post, caption, header (prevents header reuse) |
+| `state/x_posts.json` | every X Article post, caption, `format` (roundup/deep-dive), header (prevents header reuse) |
 | `state/x_impressions.csv` | impressions log |
 Migrate by copying the `state/` folder privately (e.g. `tar czf state.tgz state/` and a direct file transfer Anthony approves), never via git. **A fresh start is OK**: with no state, `edition-start` uses a 24 h window; the only costs are possible repeats of recent stories (check the last few `reports/` by hand) and NASA header reuse (rebuild the used-header list from the posts on @russano). `config/whisper.json` and `subscriptions.csv` are recreated per section 2.
 - X turns `$<number>` into a stock-ticker link. `x-article` inserts an invisible word joiner after `$`; avoid `$<number>` in typed captions (write "3 dollars" or "16.8 billion dollars").

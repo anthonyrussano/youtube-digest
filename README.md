@@ -20,8 +20,9 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 | `config/x_accounts.txt`, `scripts/x_accounts.py` | Followed-account sources (32 accounts Anthony follows, audited 2026-10-15); `./run.sh x-accounts` prints the OR'd `from:` queries |
 | `scripts/x_filter.py` | Applies the X rules to `data/x_raw/*.json` and writes `data/x_selected.json` |
 | `config/x_trends.txt`, `scripts/x_trends.py` | Daily keyword trends (`./run.sh trends`): category post counts today vs 7-day average -> `data/x_trends.json` |
-| `scripts/x_article_html.py` | `./run.sh x-article <edition>`: `articles/x/<edition>/article.md` (single-lead-story X Article, `docs/X_ARTICLE_STYLE.md`), else `reports/<edition>.md`, -> `/tmp/x-article/<edition>.html` (one `<p>` per line, links and bold kept, `$`-digit guard, any "Mind Blow" line dropped); prints title and caption from the front matter and the localhost serve command |
-| `articles/x/<edition>/` | X Article artifacts per edition (from 2026-10-19): `research.md`, `outline.md`, `article.md`, `check.md` |
+| `scripts/x_article_html.py` | `./run.sh x-article <edition> [--format roundup\|deep-dive]` -> `/tmp/x-article/<edition>.html` for the X Article. **roundup** = `reports/<edition>.md` (classic, unchanged output); **deep-dive** = `articles/x/<edition>/article.md` (one `<p>` per line, bold kept, title/caption guards). Default: `articles/x/<edition>/format.txt`, else deep-dive if `article.md` exists, else roundup. Prints format, title, caption and the localhost serve command (`docs/X_ARTICLE_STYLE.md`) |
+| `scripts/x_stats.py` | `./run.sh x-stats`: impressions by X Article format from the private `state/x_posts.json` + `state/x_impressions.csv` (stdout only) |
+| `articles/x/<edition>/` | X Article choice and artifacts per edition: `format.txt` (roundup or deep-dive + reason); for deep-dive also `research.md`, `outline.md`, `article.md`, `check.md` |
 | `scripts/render_article.py` | Checks citations, appends "Also on the radar", and writes `reports/<date>.md` |
 | `articles/<date>.md` | The written article (source). `reports/<date>.md` is the published page |
 | `STYLE.md` | The Mind Blow format: rules, annotated example and pre-publish checklist |
@@ -78,7 +79,7 @@ cd /home/box/youtube-digest
 #     selected articles; otherwise stop here (nothing to publish, nothing marked seen).
 ./run.sh render                  # 6. -> reports/<EDITION>.md (citation check, no-repeat check, X-only minimum)
 ./run.sh publish                 # 7. commit only this edition's files by path, pull --rebase, push, record published IDs and publish time; then check the URL returns HTTP 200
-#  8. X Article on @russano via the signed-in browser (./run.sh x-article, then the docs/HANDOFF.md playbook; held until 10:37 for the weekday 6:04 run; weekend editions post immediately)
+#  8. X Article on @russano via the signed-in browser (pick roundup or deep-dive per docs/X_ARTICLE_STYLE.md, ./run.sh x-article, then the docs/HANDOFF.md playbook; held until 10:37 for the weekday 6:04 run; weekend editions post immediately)
 ```
 `render` and `publish` default to the open edition's ID. An explicit ID (`./run.sh render 2026-10-12`) re-renders or republishes an older page without touching edition state. An on-demand edition uses the same sequence. `./run.sh edition-start --hours 6` forces a 6-hour window.
 

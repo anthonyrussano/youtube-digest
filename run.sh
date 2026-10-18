@@ -16,7 +16,9 @@
 #   ./run.sh x [--min-bookmarks 10]  filter data/x_raw/*.json (saved X searches) -> data/x_selected.json
 #   ./run.sh trends [plan|compute|show]  daily X keyword trends (plan prints CACHED when today's data/x_trends.json
 #                                  exists; else the get_posts_counts_recent calls to save in data/x_counts/)
-#   ./run.sh x-article [ID]        articles/x/ID/article.md (else reports/ID.md) -> /tmp/x-article/ID.html for the X Article (prints title, caption, serve cmd)
+#   ./run.sh x-article [ID] [--format roundup|deep-dive]  X Article HTML -> /tmp/x-article/ID.html: roundup = reports/ID.md,
+#                                  deep-dive = articles/x/ID/article.md (default: deep-dive if that exists); prints format, title, caption, serve cmd
+#   ./run.sh x-stats               impressions by X Article format (state/x_posts.json "format" + state/x_impressions.csv; stdout only)
 #   ./run.sh publish [DATE]        commit only this edition's files by path (reports/DATE.*, articles/DATE.*,
 #                                  articles/x/DATE/, index.md), pull --rebase, push to GitHub
 set -euo pipefail
@@ -59,7 +61,8 @@ print(" ".join(i for i,e in r.items() if e.get("attempts",0)>=2 and rel.get(i,{}
   x) shift; python3 scripts/x_filter.py "$@" ;;
   trends) shift; python3 scripts/x_trends.py "${1:-plan}" ;;
   x-accounts) shift; python3 scripts/x_accounts.py "${1:-queries}" ;;
-  x-article) shift; python3 scripts/x_article_html.py "${1:-$DEF}" ;;
+  x-article) shift; if [ $# -eq 0 ] || [[ "$1" == --* ]]; then set -- "$DEF" "$@"; fi; python3 scripts/x_article_html.py "$@" ;;
+  x-stats) python3 scripts/x_stats.py ;;
   x-reset) rm -rf data/x_raw && mkdir -p data/x_raw && echo "cleared data/x_raw" ;;
   publish)
     D=${2:-$DEF}
