@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """YouTube digest: yt-dlp channel listing -> relevance prefilter -> exact dates -> captions. See README.md."""
 import argparse, csv, json, os, re, subprocess, sys, time, urllib.request
+import ytrun   # yt-dlp on the box, or over ssh on the remote host (config/whisper.json "ytdlp_remote")
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
@@ -46,9 +47,9 @@ def fetch_rss(ch):
 def list_channel(ch):
     """Flat-list the channel's newest uploads (/videos tab) with approximate dates. Returns (ch, entries, err)."""
     try:
-        r = subprocess.run([YTDLP, "--flat-playlist", "--playlist-end", str(LIST_N), "--extractor-args",
+        r = ytrun.run(["--flat-playlist", "--playlist-end", str(LIST_N), "--extractor-args",
             "youtubetab:approximate_date", "--no-warnings", "-J", f"https://www.youtube.com/channel/{ch['Channel Id']}/videos"],
-            capture_output=True, text=True, timeout=90)
+            timeout=90)
         d = json.loads(r.stdout) if r.stdout.strip() else None
         if not d: return ch, None, (r.stderr.strip().splitlines() or ["no output"])[-1][:300]
     except Exception as e:
@@ -65,8 +66,7 @@ def list_channel(ch):
 def full_lookup(v):
     """Full (non-flat) metadata for one video: exact timestamp, full description, duration."""
     try:
-        r = subprocess.run([YTDLP, "-J", "--skip-download", "--no-playlist", "--no-warnings", v["url"]],
-            capture_output=True, text=True, timeout=120)
+        r = ytrun.run(["-J", "--skip-download", "--no-playlist", "--no-warnings", v["url"]], timeout=120)
         d = json.loads(r.stdout) if r.stdout.strip() else None
         if not d: v["lookup_error"] = (r.stderr.strip().splitlines() or ["no output"])[-1][:300]; return v
     except Exception as e:
@@ -158,15 +158,16 @@ def vtt_to_segments(path):
 
 def get_transcript(v):
     d = f"{ROOT}/data/subs"; os.makedirs(d, exist_ok=True)
-    cmd = [f"{ROOT}/.venv/bin/yt-dlp", "--skip-download", "--write-subs", "--write-auto-subs",
-           "--sub-langs", "en", "--sub-format", "vtt", "--print-to-file", "%(duration)s", f"{d}/{v['id']}.dur",
-           "-o", f"{d}/%(id)s.%(ext)s", "--sleep-requests", "2", "--sleep-subtitles", "15", v["url"]]
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+    cmd = ["--skip-download", "--write-subs", "--write-auto-subs",
+           "--sub-langs", "en", "--sub-format", "vtt", "--print-to-file", "%(duration)s", f"{{OUT}}/{v['id']}.dur",
+           "-o", "{OUT}/%(id)s.%(ext)s", "--sleep-requests", "2", "--sleep-subtitles", "15", v["url"]]
+    r = ytrun.run_files(cmd, d, timeout=300)
     files = sorted(f for f in os.listdir(d) if f.startswith(v["id"]) and f.endswith(".vtt"))
     try: v["duration_s"] = int(open(f"{d}/{v['id']}.dur").read().split()[0])
     except Exception: v["duration_s"] = v.get("duration_s")
     if not files:
-        v["transcript_status"] = "rate limited (retry later)" if "429" in r.stderr else "needs Whisper"; v["yt_dlp_error"] = r.stderr[-400:]; return v
+        # ssh to the remote yt-dlp host failing is transient too: retry later, don't send to Whisper as captionless
+        v["transcript_status"] = "rate limited (retry later)" if "429" in r.stderr or ytrun.ssh_failed(r) else "needs Whisper"; v["yt_dlp_error"] = r.stderr[-400:]; return v
     pick = next((f for f in files if ".en." in f and "orig" not in f), files[0])
     segs = vtt_to_segments(f"{d}/{pick}")
     with open(f"{ROOT}/data/transcripts/{v['id']}.txt", "w") as fh:

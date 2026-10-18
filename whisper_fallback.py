@@ -8,7 +8,8 @@ Backends are tried in order; the first that is available and succeeds wins:
                cap and an RSS cap (polled; process group killed). Audio is downloaded with yt-dlp and deleted after.
 Only data/relevant.json and data/transcripts/ are written; state/ (seen/published) is never touched.
 """
-import argparse, json, os, resource, signal, socket, subprocess, sys, time
+import argparse, json, os, resource, shlex, signal, socket, subprocess, sys, time
+import ytrun   # yt-dlp on the box, or over ssh on the remote host (config/whisper.json "ytdlp_remote")
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PY = f"{ROOT}/.venv/bin/python"; YTDLP = f"{ROOT}/.venv/bin/yt-dlp"
 REL = f"{ROOT}/data/relevant.json"; AUDIO = f"{ROOT}/data/audio"
@@ -69,7 +70,7 @@ class Backend:
 
 REMOTE_DIR = "grokbot-whisper"   # on the GPU host, relative to the ssh user's home
 REMOTE_IMAGE = "grokbot-whisper:vulkan"
-SSH_OPTS = ["-o", "BatchMode=yes", "-o", "ConnectTimeout=5"]
+SSH_OPTS = ytrun.SSH_OPTS   # BatchMode + multiplexed connection
 
 class RemoteBackend(Backend):
     """whisper.cpp (Vulkan) in a Docker image on a GPU host reached over ssh (WHISPER_REMOTE=user@host[:port]).
@@ -82,9 +83,10 @@ class RemoteBackend(Backend):
         self.port = port or "22"
     def available(self):
         if not self.target: return False, "WHISPER_REMOTE unset"
-        host = self.dest.rpartition("@")[2]
-        try: socket.create_connection((host, int(self.port)), self.timeout).close()
-        except Exception as e: return False, f"unreachable ({e.__class__.__name__})"
+        # `ssh true`, not a bare TCP connect: preauth disconnects trip sshd PerSourcePenalties on the host
+        rc, _, _, err = run_capped(["ssh", *SSH_OPTS, "-o", f"ConnectTimeout={max(int(self.timeout), 2)}", "-p", self.port,
+                                    self.dest, "true"], max(self.timeout, 2) + 10)
+        if rc != 0: return False, f"unreachable ({(err.strip().splitlines() or [str(rc)])[-1][:100]})"
         return True, "reachable"
     def ssh(self, cmd, timeout):
         return run_capped(["ssh", *SSH_OPTS, "-p", self.port, self.dest, cmd], timeout)
@@ -92,12 +94,28 @@ class RemoteBackend(Backend):
         vid = v["id"]; wav = f"{AUDIO}/{vid}.wav"; js = f"{AUDIO}/{vid}.json"; m = opts.remote_model
         rin, rout = f"{REMOTE_DIR}/in/{vid}.wav", f"{REMOTE_DIR}/out/{vid}"
         try:
-            audio, err = download_audio(v, opts)
-            if not audio: return {"ok": False, "error": err, "model": m}
-            rc, _, _, err = run_capped(["ffmpeg", "-v", "error", "-y", "-i", audio, "-ac", "1", "-ar", "16000", wav], 600)
-            if rc != 0: return {"ok": False, "error": f"ffmpeg rc={rc}: {err.strip()[-200:]}", "model": m}
-            rc, _, _, err = run_capped(["scp", *SSH_OPTS, "-q", "-P", self.port, wav, f"{self.dest}:{rin}"], 900)
-            if rc != 0: return {"ok": False, "error": f"scp upload rc={rc}: {err.strip()[-200:]}", "model": m}
+            yt = ytrun.target()
+            if yt and yt[0] == self.dest and yt[1] == self.port:
+                # yt-dlp runs on the GPU host itself: download + convert straight into ~/grokbot-whisper/in/,
+                # so no audio crosses the tunnel (the box is bot-blocked by YouTube anyway)
+                src = f"{REMOTE_DIR}/in/{vid}.src"
+                dl = (f"cd ~ && for i in 1 2; do {ytrun.rbin(yt)} -f {shlex.quote(AUDIO_FMT)} --no-playlist -q --no-warnings "
+                      f"-o '{src}.%(ext)s' {shlex.quote(v['url'])} && break; sleep 10; done; "
+                      f"f=$(ls {src}.* 2>/dev/null | grep -v -e '\\.part$' -e '\\.ytdl$' | head -1); "
+                      f"[ -n \"$f\" ] || {{ echo 'audio download failed' >&2; exit 3; }}; "
+                      f"ffmpeg -v error -y -i \"$f\" -ac 1 -ar 16000 {rin}; rc=$?; rm -f {src}.*; exit $rc")
+                rc, _, out, err = self.ssh(dl, opts.dl_timeout + 600)
+                if rc != 0:
+                    e = (err or out).strip()
+                    return {"ok": False, "model": m, "error": "remote audio download " + ("timed out" if rc is None else
+                            ("429" if "429" in e else e.splitlines()[-1][-200:] if e else f"rc={rc}"))}
+            else:
+                audio, err = download_audio(v, opts)
+                if not audio: return {"ok": False, "error": err, "model": m}
+                rc, _, _, err = run_capped(["ffmpeg", "-v", "error", "-y", "-i", audio, "-ac", "1", "-ar", "16000", wav], 600)
+                if rc != 0: return {"ok": False, "error": f"ffmpeg rc={rc}: {err.strip()[-200:]}", "model": m}
+                rc, _, _, err = run_capped(["scp", *SSH_OPTS, "-q", "-P", self.port, wav, f"{self.dest}:{rin}"], 900)
+                if rc != 0: return {"ok": False, "error": f"scp upload rc={rc}: {err.strip()[-200:]}", "model": m}
             run = (f"cd ~/{REMOTE_DIR} && docker run --rm --name grokbot-whisper-{vid.replace('_','x').lstrip('-')} "
                    f"--device /dev/dri --group-add $(getent group video | cut -d: -f3) "
                    f"--group-add $(getent group render | cut -d: -f3) --user $(id -u):$(id -g) "
@@ -116,7 +134,7 @@ class RemoteBackend(Backend):
         except Exception as e:
             return {"ok": False, "error": f"{e.__class__.__name__}: {e}"[:200], "model": m}
         finally:
-            try: self.ssh(f"rm -f ~/{rin} ~/{rout}.json", 30)   # never keep audio/transcripts on the host
+            try: self.ssh(f"rm -f ~/{rin} ~/{rout}.json ~/{REMOTE_DIR}/in/{vid}.src.*", 30)   # never keep audio/transcripts on the host
             except Exception: pass
             cleanup(vid)
 
@@ -124,14 +142,23 @@ def cleanup(vid):
     for f in os.listdir(AUDIO) if os.path.isdir(AUDIO) else []:   # audio, wav, segs json, chunk wav
         if f.startswith(vid + "."): os.remove(f"{AUDIO}/{f}")   # never keep audio
 
+AUDIO_FMT = "wa[format_note*=original][protocol^=http]/wa[language^=en][protocol^=http]/wa[protocol^=http]/wa"
+
 def download_audio(v, opts):
     """-> (path, None) or (None, error). Lowest-bitrate audio-only DASH stream of the ORIGINAL track: many
     videos carry auto-dubbed tracks (ar, de, ...) and plain "worstaudio" can pick one of those or a slow m3u8 variant."""
     os.makedirs(AUDIO, exist_ok=True); base = f"{AUDIO}/{v['id']}"
-    fmt = "wa[format_note*=original][protocol^=http]/wa[language^=en][protocol^=http]/wa[protocol^=http]/wa"
-    dl = [YTDLP, "-f", fmt, "--no-playlist", "-q", "--no-warnings", "-o", base + ".%(ext)s", v["url"]]
+    remote = ytrun.target()   # remote yt-dlp host: download there, scp the audio back for local CPU whisper
     for attempt in range(2):   # YouTube's media CDN returns sporadic 403s; one retry usually clears it
-        rc, _, _, err = run_capped(dl, opts.dl_timeout)
+        if remote:
+            try:
+                r = ytrun.run_files(["-f", AUDIO_FMT, "--no-playlist", "-q", "--no-warnings", "-o", "{OUT}/" + v["id"] + ".%(ext)s",
+                                     v["url"]], AUDIO, opts.dl_timeout + 300)
+                rc, err = r.returncode, r.stderr
+            except subprocess.TimeoutExpired: rc, err = None, ""
+        else:
+            rc, _, _, err = run_capped([YTDLP, "-f", AUDIO_FMT, "--no-playlist", "-q", "--no-warnings",
+                                        "-o", base + ".%(ext)s", v["url"]], opts.dl_timeout)
         if rc == 0 or "403" not in err: break
         time.sleep(10)
     files = [f for f in os.listdir(AUDIO) if f.startswith(v["id"] + ".") and not f.endswith((".part", ".ytdl", ".wav", ".json"))]
@@ -196,8 +223,7 @@ def duration(v):
     if v.get("duration_s"): return int(v["duration_s"])
     try: return int(open(f"{ROOT}/data/subs/{v['id']}.dur").read().split()[0])   # written by the caption step
     except Exception: pass
-    try: return int(float(subprocess.run([YTDLP, "--print", "duration", "-q", v["url"]], capture_output=True,
-                                         text=True, timeout=60).stdout.split()[0]))
+    try: return int(float(ytrun.run(["--print", "duration", "-q", "--no-warnings", v["url"]], timeout=60).stdout.split()[0]))
     except Exception: return None
 
 def main(a):

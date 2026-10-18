@@ -43,6 +43,10 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    else or on any remote failure local CPU faster-whisper base.en int8. Local skips videos over 45 min, caps each at 20 min wall time and 1.5 GB RSS, deletes audio. Transcripts land in data/transcripts/
    with status "ok" like captions. Failures are non-fatal: those videos go to "Also on the radar". Never set
    WHISPER_REMOTE yourself. 429 videos that failed 2+ editions are sent to Whisper automatically.)
+   Remote yt-dlp: YouTube bot-blocks this box, so fetch/transcripts/whisper run every yt-dlp call on the home GPU host
+   over ssh ("ytdlp_remote" in config/whisper.json); on the remote backend audio is downloaded and converted there.
+   Each step prints "yt-dlp: running on remote host"; if it prints "REMOTE HOST UNREACHABLE ... falling back", expect
+   bot-check failures, say so in the report, and don't probe the host with nc or /dev/tcp. Never use YouTube cookies.
 4. X: first trends, then searches. Pace every X call at <= 25 per minute (wait ~60 s between batches of 25).
    4a. TRENDS (once per PT day): ./run.sh trends. If it prints CACHED, spend no reads. Otherwise it prints one
    JSON line per category: call MCP "x" tool get_posts_counts_recent with that line's "args" (write_to_file=true)
