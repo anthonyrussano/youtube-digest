@@ -1,0 +1,2 @@
+deep-dive
+One lead with an under-explained, actionable angle (DeepSeek's per-request search billing and account-wide rate limits change how agents should call web search) and full primary docs; last Article was roundup, so alternate.
