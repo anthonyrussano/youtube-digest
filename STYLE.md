@@ -2,7 +2,7 @@
 
 Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of short, self-contained items, each a small jolt of wonder. The writer (the scheduled Grok Bot routine) writes `articles/<EDITION>.md` (`YYYY-MM-DD` or `YYYY-MM-DD-HHMM`) from the edition's new transcripts (`data/relevant.json`, `data/transcripts/`), the qualifying X posts (`data/x_selected.json`) and the selected feed articles (`data/feeds_selected.json`). `./run.sh render` turns it into `reports/YYYY-MM-DD.md`.
 
-This guide covers the **website edition**, which is always this roundup. The X Article on @russano uses one of two named formats per edition: **roundup** (this page as is) or **deep-dive** (a single-lead piece written with a four-step process). See [`docs/X_ARTICLE_STYLE.md`](docs/X_ARTICLE_STYLE.md).
+This guide covers the **website edition**, which is always this roundup. The X Article on @russano uses one of two named formats per edition: **roundup** (several stories led by one researched item) or **deep-dive** (a single-lead piece), both written with a four-step process in `articles/x/<EDITION>/`. This page is not the X Article source and does not change. See [`docs/X_ARTICLE_STYLE.md`](docs/X_ARTICLE_STYLE.md).
 
 "Mind Blow" is only the internal name of this format. **Never write "Mind Blow" in a title, dek, body or X caption.**
 
@@ -69,7 +69,7 @@ This guide covers the **website edition**, which is always this roundup. The X A
 8. After `./run.sh publish`, the report URL returns HTTP 200 (allow about 1–2 minutes for Pages).
 
 ## X share caption
-Applies to both X Article formats (deep-dive: `caption:` in `articles/x/<EDITION>/article.md`; roundup: line 3 of `articles/x/<EDITION>/format.txt`; see `docs/X_ARTICLE_STYLE.md`). The rules:
+Applies to both X Article formats (`caption:` in `articles/x/<EDITION>/article.md`; for roundup also line 3 of `articles/x/<EDITION>/format.txt`; see `docs/X_ARTICLE_STYLE.md`). The rules:
 - Lead with the **single most useful, actionable takeaway for developers and DevOps people**: a how-to, a pattern or a tip, preferably about agent or coding tools (Claude Code, Cursor, Codex and the like). Example: `Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...`
 - **Don't lead with spec numbers or model sizes.** Numbers may support the takeaway but never are the hook.
 - Always end with `...`. Never write "Mind Blow". Avoid `$` followed by a number (write "3 dollars").

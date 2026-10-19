@@ -1,13 +1,13 @@
 # Edition routine prompt (paste into the scheduled Grok Bot routine)
 
-Schedule (America/Los_Angeles): weekdays cron `4 6,12,17 * * 1-5` (6:04 AM, 12:04 PM, 5:04 PM PT; the 6:04 Article is held to 10:37 AM) and weekends cron `4 12,17 * * 0,6` (Saturday and Sunday 12:04 PM and 5:04 PM PT; each Article posts immediately), plus on demand. The same prompt works for every edition; each routine adds a short preface. The full set of routines (weekday and weekend editions, the 10:37 weekday morning X post, the impressions tracker) with their prefaces is in `docs/HANDOFF.md` section 3.
+Schedule (America/Los_Angeles): weekdays cron `4 6,12,17 * * 1-5` (6:04 AM, 12:04 PM, 5:04 PM PT; the 6:04 Article is held to 10:37 AM) and weekends cron `4 12,17 * * 0,6` (Saturday and Sunday 12:04 PM and 5:04 PM PT; each Article posts immediately), plus on demand. Every Article post keeps a 2-hour gap from the previous one and none posts after 9 PM PT (step 8e timing gate). The same prompt works for every edition; each routine adds a short preface. The full set of routines (weekday and weekend editions, the 10:37 weekday morning X post, the impressions tracker) with their prefaces is in `docs/HANDOFF.md` section 3.
 
 ```
 Run one edition of Anthony's AI & DevOps digest (internal format name "Mind Blow"; never write that phrase in titles,
 bodies or captions). Repo: /home/box/youtube-digest
 (GitHub anthonyrussano/youtube-digest, site https://anthonyrussano.github.io/youtube-digest/).
 First read README.md (especially "Editions"), STYLE.md (website edition, always the roundup) and
-docs/X_ARTICLE_STYLE.md (the two X Article formats and how to pick one) in full. They are the spec. Never commit
+docs/X_ARTICLE_STYLE.md (the two X Article formats, how to pick one, the four steps for both) in full. They are the spec. Never commit
 subscriptions.csv, data/, state/, cookies or any secret, and never print the subscription list anywhere public.
 
 0. cd /home/box/youtube-digest && ./run.sh edition-start
@@ -83,37 +83,58 @@ subscriptions.csv, data/, state/, cookies or any secret, and never print the sub
    overlooked angle, an actionable takeaway and enough primary-source material for ~400-600 words; otherwise
    roundup (always for thin editions with no strong lead). If both fit, alternate: look at the "format" of the
    last posted Article in state/x_posts.json and pick the other one. Write articles/x/<EDITION>/format.txt:
-   line 1 the format, line 2 a one-line reason (public text only).
-   ROUNDUP: nothing more to write; the Article is reports/<EDITION>.md. Draft the tip-first caption now (one
-   actionable dev/DevOps tip, ends in "...", no "$<number>", never "Mind Blow") and put it on line 3 of
-   format.txt as "caption: ...".
-   DEEP-DIVE: write the single-lead X Article per docs/X_ARTICLE_STYLE.md, saving all four artifacts under
-   articles/x/<EDITION>/ and doing the steps in order:
+   line 1 the format, line 2 a one-line reason (public text only), line 3 (roundup) "caption: ..." (same caption
+   as article.md front matter).
+   BOTH FORMATS go through the same four steps, saving all four artifacts under articles/x/<EDITION>/ in order.
+   (The website edition reports/<EDITION>.md stays the classic roundup per STYLE.md; it is no longer the X
+   Article source.) A ROUNDUP Article still covers several stories, one short paragraph per story, but it LEADS
+   with one item: its overlooked angle, researched and explained in plain language, then the other items, then a
+   closing question or call to action.
    8a. research.md: raw facts from the cited sources (transcripts, articles, full X threads, AINews items via their
        original sources) + a quick web/X search for what most creators covered and what they overlooked or
        under-explained. Confirm the lead: the most overlooked or most practical story, preferably an actionable
-       dev/DevOps/agent-tooling idea. Prioritize overlooked technical details, implications and nuances. If the
-       research shows the angle is not really overlooked or the material is thin, switch to roundup (update
-       format.txt) and skip 8b-8d.
+       dev/DevOps/agent-tooling idea. Prioritize overlooked technical details, implications and nuances.
+       Deep-dive: if the research shows the angle is not really overlooked or the material is thin, switch to
+       roundup (update format.txt) and continue with 8b-8d as a roundup. Roundup: pick the lead item here (its
+       overlooked angle) and note the facts for the other items.
    8b. outline.md: one core idea at a time, plain language, jargon dropped or defined at once, why it matters and
-       what people are missing, plus 4-6 "Also this cycle" picks.
-   8c. article.md: front matter title (names the lead idea, not three stories), caption (one actionable tip,
-       ends in "...", no "$<number>", never "Mind Blow"); hook on the overlooked angle; short direct sentences;
-       ~400-800 words for the lead; takeaway, then a question or call to action; then "## Also this cycle"
-       with 4-6 linked one-liners.
+       what people are missing. Deep-dive: plus 4-6 "Also this cycle" picks. Roundup: the lead item's angle in
+       a few plain points, then the order of the other items (one line each), then the closing question/CTA.
+   8c. article.md: front matter title, caption (one actionable dev/DevOps tip first, ends in "...", no
+       "$<number>", never "Mind Blow"), edition, lead_source. Short direct sentences.
+       Deep-dive: title names the lead idea (not three stories); hook on the overlooked angle; ~400-800 words for
+       the lead; takeaway, then a question or call to action; then "## Also this cycle" with 4-6 linked one-liners.
+       Roundup: title leads with the lead item's idea (may tease 1-2 more); opens with the lead item's overlooked
+       angle in plain language (a few short paragraphs); then one short linked paragraph per other story (same
+       facts and sourcing as STYLE.md, no repeats from earlier editions); ends with a closing question or call to
+       action that invites replies.
    8d. check.md: review research, tighten outline, check clarity, confirm the overlooked angle is real, sourced and
-       explained simply; fix article.md if anything fails.
-   Either way: ./run.sh x-article <EDITION> must print the chosen FORMAT (roundup: SOURCE reports/<EDITION>.md;
-   deep-dive: SOURCE articles/x/<EDITION>/article.md). Commit articles/x/<EDITION>/ by that path
+       explained simply; check title, caption (tip-first, "..."), no "$<number>", no "Mind Blow"; fix article.md if
+       anything fails and record what changed.
+   Either way: ./run.sh x-article <EDITION> must print the chosen FORMAT and SOURCE articles/x/<EDITION>/article.md
+   (for both formats; "SOURCE: reports/<EDITION>.md" plus a NOTE means article.md is missing: go back to 8c).
+   Commit articles/x/<EDITION>/ by that path
    (git add -- articles/x/<EDITION>; git commit -- articles/x/<EDITION>; pull --rebase, push).
 8e. X ARTICLE POST (skip only on the weekday 6:04 AM run: the 10:37 routine posts it; every other run, including
-   both weekend runs, posts right after publish). Follow docs/HANDOFF.md "X Article
+   both weekend runs, posts right after publish, subject to the TIMING GATE below). Follow docs/HANDOFF.md "X Article
    playbook" exactly: localhost http server, copy via right-click menu, paste with real keystrokes, verify the
-   body, new NASA header not in state/x_posts.json, the caption (deep-dive: article.md front matter; roundup:
+   body, new NASA header not in state/x_posts.json, the caption (article.md front matter; roundup may fall back to
    format.txt line 3), read the live caption back, append the post to state/x_posts.json WITH
    "format": "roundup" | "deep-dive".
+   TIMING GATE (check right before posting; docs/HANDOFF.md "Article timing"):
+   - 2-HOUR GAP: read the latest posted_at_utc in state/x_posts.json. If it is less than 2 hours ago, do NOT
+     post now. The Article stays committed under articles/x/<EDITION>/; hold it for the next slot that is at least
+     2 h after that last post, and put "X Article HELD: <EDITION>, next slot <h:mm AM/PM PT> (last post <h:mm PT>)"
+     in the run report so the parent can queue it.
+   - NO POSTS AFTER 9 PM PT: if it is after 9:00 PM PT (e.g. a late-night on-demand deep dive), do not post;
+     hold it for the next 12:04 PM PT slot (still at least 2 h after the last post) and report it the same way.
+     The only exception is Anthony explicitly saying "post now" for that Article.
+   - Weekday morning: the 6:04 AM edition's Article posts at 10:37. If Anthony asked for it early and it is already
+     in state/x_posts.json, the 10:37 routine skips it. Either way the 12:04 run's Article must still be >= 2 h
+     after that post (a 10:37 post means no 12:04 Article before 12:37 PM PT).
 9. MESSAGE Anthony (not between 10 PM and 5:30 AM PT): headline, link (X post, else the Pages URL) and one
    sentence on the top item. Never message anyone else without his confirmation.
 Report: EDITION, the window, feeds ok/items/shortlisted/articles cited, AINews issues/items/stories cited (or bridge error), videos found/selected/transcribed (captions vs Whisper)/rate limited, X calls (search + trend reads) and posts qualified (saves vs shares route), top trends,
-the X Article format and why (roundup/deep-dive), its title (and lead story for deep-dive), the live URL (or why it was skipped), and any errors.
+the X Article format and why (roundup/deep-dive), its title and lead story, the live URL (or why it was skipped or HELD,
+with the next slot in PT), and any errors.
 ```

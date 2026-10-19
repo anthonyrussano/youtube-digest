@@ -16,8 +16,8 @@
 #   ./run.sh x [--min-bookmarks 10]  filter data/x_raw/*.json (saved X searches) -> data/x_selected.json
 #   ./run.sh trends [plan|compute|show]  daily X keyword trends (plan prints CACHED when today's data/x_trends.json
 #                                  exists; else the get_posts_counts_recent calls to save in data/x_counts/)
-#   ./run.sh x-article [ID] [--format roundup|deep-dive]  X Article HTML -> /tmp/x-article/ID.html: roundup = reports/ID.md,
-#                                  deep-dive = articles/x/ID/article.md (default: deep-dive if that exists); prints format, title, caption, serve cmd
+#   ./run.sh x-article [ID] [--format roundup|deep-dive]  X Article HTML -> /tmp/x-article/ID.html: both formats = articles/x/ID/article.md
+#                                  (roundup falls back to reports/ID.md only if article.md is missing; [--dry-run] writes nothing); prints format, title, caption, serve cmd
 #   ./run.sh x-stats               impressions by X Article format (state/x_posts.json "format" + state/x_impressions.csv; stdout only)
 #   ./run.sh publish [DATE]        commit only this edition's files by path (reports/DATE.*, articles/DATE.*,
 #                                  articles/x/DATE/, index.md), pull --rebase, push to GitHub
