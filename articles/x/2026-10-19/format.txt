@@ -1,0 +1,3 @@
+roundup
+Last Article was deep-dive; this edition has several strong items but no single overlooked lead thick enough for 400 words, so alternate to roundup.
+caption: Loop engineering tip: give the agent a verifiable stopping condition like "every checkout unit test passes," not a vague goal like "make it faster"...
