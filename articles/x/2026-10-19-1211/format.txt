@@ -1,0 +1,2 @@
+deep-dive
+One lead with an overlooked, actionable angle (Grafana's production lessons for agent tools: load tool manuals on demand, CLIs whose errors explain recovery, graders that check the work) backed by a full primary write-up; the last Article was a roundup, so alternate.
