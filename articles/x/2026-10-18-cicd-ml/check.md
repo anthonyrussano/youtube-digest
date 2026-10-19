@@ -39,7 +39,7 @@ No NotebookLM-only number is used in the article.
 - [x] Caption tip-first (from Table IV ranks 1-2), 180 chars (<250), ends "...", no "$<digit>".
 - [x] Lead ~658 words (script counts ~878 incl. alt text and Sources); takeaway and closing question present.
 - [x] "Also this cycle" replaced by a short "## Sources" list (single-source deep-dive, per request; same as 2026-10-18-opencode).
-- Changes in check: dropped a "14-minute warning clears the 2-minute bar" line (survey details not reported); reworded the Monday checkpoint step to "usual duration" so it's clearly our estimate, not the paper's method.
+- Changes in check: none needed in article.md. While drafting, a "the 14-minute warning clears the 2-minute bar" line was left out (survey results are not reported), and the Monday step uses "usual duration" so it reads as our estimate, not the paper's method.
 - `./run.sh x-article 2026-10-18-cicd-ml --format deep-dive` printed FORMAT: deep-dive, SOURCE: articles/x/2026-10-18-cicd-ml/article.md. Served at http://127.0.0.1:8765/2026-10-18-cicd-ml.html.
 
 ## Header
