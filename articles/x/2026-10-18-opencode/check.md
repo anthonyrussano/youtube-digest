@@ -1,0 +1,12 @@
+# Final check: 2026-10-18-opencode
+- [x] Angle is real and sourced: viral debate is guardrails (Sacks/Curran); damage came from provider keys saved in Console's legacy system (OpenCode post + email); fixes came from providers (Anthropic, Google, OpenAI posts) and spend limits (Cyera, Tony Dinh).
+- [x] Confirmed vs claimed separated: dollar losses marked as user claims; "distillation" marked as OpenCode's unexplained label; no attribution (Cyera); Sacks's China line framed as capability claim.
+- [x] Jargon defined: Console / bring your own key, distillation, Daybreak Blue.
+- [x] Title names the idea (73 chars), no "$<digit>", no "Mind Blow".
+- [x] Caption tip-first, 189 chars, ends "...", no "$<digit>".
+- [x] Lead ~610 words (script counts ~795 incl. image markers and Sources); closing question.
+- [x] "Also this cycle" replaced by "## Sources" (6 bullets), per request.
+- [x] 3 diagrams (img/*.png) rendered with diagram-generator spec-batch (specs in img/specs/); labels mark unconfirmed items.
+- Changes in check: softened loss sentence (ranges were inconsistent), reworded The Latent and Sacks attribution lines.
+- `./run.sh x-article 2026-10-18-opencode --format deep-dive` printed FORMAT: deep-dive, SOURCE: articles/x/2026-10-18-opencode/article.md.
+- Caveats: OpenCode email text is from a screenshot shared by users (OpenCode confirmed emailing, not the wording); no OpenCode postmortem yet; incident ongoing.

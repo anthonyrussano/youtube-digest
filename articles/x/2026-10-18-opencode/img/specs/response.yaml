@@ -1,0 +1,65 @@
+title: "Response so far, and what you should rotate"
+direction: LR
+graph_attr:
+  ranksep: "0.8"
+  nodesep: "0.45"
+  fontsize: "26"
+  dpi: "200"
+node_attr:
+  fontsize: "20"
+edge_attr:
+  fontsize: "19"
+clusters:
+  - id: done
+    label: "Done by vendors (their posts)"
+    graph_attr: {bgcolor: "#f0fdf4", color: "#15803d", fontsize: "18"}
+  - id: you
+    label: "Do this yourself"
+    graph_attr: {bgcolor: "#eff6ff", color: "#2563eb", fontsize: "18"}
+nodes:
+  - id: oc
+    label: "OpenCode\nemailed affected users,\nrefunds underway"
+    cluster: done
+  - id: ant
+    label: "Anthropic\nrevoked affected\nClaude keys"
+    cluster: done
+  - id: goog
+    label: "Google\nblocked exposed\nGemini keys"
+    cluster: done
+  - id: oai
+    label: "OpenAI\nrefunded credits\ndrawn in the attack"
+    cluster: done
+  - id: dbb
+    label: "OpenCode\ngot OpenAI Daybreak Blue\n(fewer refusals for\nincident response)"
+    cluster: done
+  - id: s1
+    label: "1. Revoke the key\nat the provider"
+    cluster: you
+  - id: s2
+    label: "2. New key,\none per tool"
+    cluster: you
+  - id: s3
+    label: "3. Hard spend cap\n+ usage alert"
+    cluster: you
+  - id: s4
+    label: "4. Check usage\nsince Oct 16"
+    cluster: you
+edges:
+  - from: oc
+    to: ant
+    style: invis
+  - from: ant
+    to: goog
+    style: invis
+  - from: goog
+    to: oai
+    style: invis
+  - from: oai
+    to: dbb
+    style: invis
+  - from: s1
+    to: s2
+  - from: s2
+    to: s3
+  - from: s3
+    to: s4

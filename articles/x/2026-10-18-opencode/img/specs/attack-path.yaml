@@ -1,0 +1,63 @@
+title: "OpenCode Console breach: what is known"
+direction: TB
+graph_attr:
+  ranksep: "0.8"
+  nodesep: "0.45"
+  fontsize: "26"
+  dpi: "200"
+node_attr:
+  fontsize: "20"
+edge_attr:
+  fontsize: "19"
+clusters:
+  - id: oc
+    label: "Confirmed by OpenCode"
+    graph_attr: {bgcolor: "#fff7ed", color: "#ea580c", fontsize: "18"}
+  - id: providers
+    label: "Model providers"
+    graph_attr: {bgcolor: "#f0fdf4", color: "#15803d", fontsize: "18"}
+  - id: claims
+    label: "Claimed / unconfirmed"
+    graph_attr: {bgcolor: "#f3f4f6", color: "#6b7280", style: "dashed", fontsize: "18"}
+nodes:
+  - id: attacker
+    label: "Attacker\n(not identified)"
+    attrs: {color: "#dc2626", penwidth: "2"}
+  - id: legacy
+    label: "Legacy Console system\n(being retired)"
+    cluster: oc
+    attrs: {color: "#dc2626", penwidth: "2"}
+  - id: keys
+    label: "Saved provider keys\n1.4% of Console users"
+    cluster: oc
+  - id: providers_api
+    label: "Anthropic / OpenAI /\nGoogle APIs"
+    cluster: providers
+  - id: bills
+    label: "Victims' bills drained\n(user reports)"
+    cluster: claims
+  - id: distill
+    label: "'Distillation attack'\nOpenCode's label,\nlink not explained"
+    cluster: claims
+edges:
+  - from: attacker
+    to: legacy
+    label: "unauthorized access\nOct 16 night\n(method not disclosed)"
+    color: "#dc2626"
+  - from: legacy
+    to: keys
+    label: "may have\nbeen exposed"
+    color: "#dc2626"
+  - from: keys
+    to: providers_api
+    label: "keys used to\ncall models\n(user reports)"
+    color: "#dc2626"
+    style: dashed
+  - from: providers_api
+    to: bills
+    label: "victim pays"
+    style: dashed
+  - from: providers_api
+    to: distill
+    label: "model outputs?"
+    style: dashed

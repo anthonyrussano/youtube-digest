@@ -1,0 +1,71 @@
+title: "Where your AI keys live with OpenCode"
+direction: LR
+graph_attr:
+  ranksep: "0.9"
+  nodesep: "0.5"
+  fontsize: "26"
+  dpi: "200"
+node_attr:
+  fontsize: "20"
+edge_attr:
+  fontsize: "19"
+clusters:
+  - id: local
+    label: "Your machine"
+    graph_attr: {bgcolor: "#eff6ff", color: "#2563eb", fontsize: "18"}
+  - id: console
+    label: "OpenCode Console (hosted)"
+    graph_attr: {bgcolor: "#fff7ed", color: "#ea580c", fontsize: "18"}
+  - id: providers
+    label: "Model providers"
+    graph_attr: {bgcolor: "#f0fdf4", color: "#15803d", fontsize: "18"}
+nodes:
+  - id: dev
+    label: "Developer"
+    cluster: local
+  - id: app
+    label: "OpenCode app\n(CLI / desktop)"
+    cluster: local
+  - id: authjson
+    label: "auth.json\nkeys or OAuth\nfrom /connect"
+    cluster: local
+  - id: workspace
+    label: "Console workspace\nSAVED provider keys\n(bring your own key)"
+    cluster: console
+    attrs: {color: "#ea580c", penwidth: "2"}
+  - id: gateway
+    label: "Console gateway\nroutes requests"
+    cluster: console
+  - id: anthropic
+    label: "Anthropic"
+    cluster: providers
+  - id: openai
+    label: "OpenAI"
+    cluster: providers
+  - id: google
+    label: "Google Gemini"
+    cluster: providers
+edges:
+  - from: dev
+    to: app
+    label: "codes with"
+  - from: app
+    to: authjson
+    label: "reads"
+    style: dashed
+  - from: authjson
+    to: openai
+    label: "local key goes to\nprovider, not OpenCode"
+    attrs: {constraint: "false"}
+  - from: dev
+    to: workspace
+    label: "pastes provider key"
+  - from: workspace
+    to: gateway
+  - from: gateway
+    to: anthropic
+    label: "uses saved key"
+  - from: gateway
+    to: openai
+  - from: gateway
+    to: google
