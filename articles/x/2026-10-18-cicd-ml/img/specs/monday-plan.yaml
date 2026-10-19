@@ -1,0 +1,53 @@
+title: "Try it on your own CI logs (alert-only first)"
+direction: LR
+graph_attr:
+  ranksep: "0.7"
+  nodesep: "0.45"
+  fontsize: "26"
+  dpi: "200"
+node_attr:
+  fontsize: "20"
+edge_attr:
+  fontsize: "18"
+clusters:
+  - id: sig
+    label: "Top 3 signals in the paper (Table IV)"
+    graph_attr: {bgcolor: "#f0fdf4", color: "#15803d", fontsize: "18"}
+  - id: you
+    label: "Suggested rollout (not from the paper)"
+    graph_attr: {bgcolor: "#eff6ff", color: "#2563eb", fontsize: "18"}
+nodes:
+  - id: dur
+    label: "1. Run slower\nthan usual\n(build-duration\ndeviation)"
+    cluster: sig
+  - id: kw
+    label: "2. Error keywords\nin the logs so far\n(error-keyword frequency)"
+    cluster: sig
+  - id: cpu
+    label: "3. CPU spikes\non the runner\n(CPU spike ratio)"
+    cluster: sig
+  - id: cp
+    label: "Score at 10/25/50%\nof usual run time\n(data known so far)"
+    cluster: you
+  - id: alert
+    label: "Alert only\n(no auto-cancel yet)"
+    cluster: you
+  - id: log
+    label: "Log every alert:\nreal failure or\nfalse alarm?"
+    cluster: you
+  - id: decide
+    label: "Then decide:\nauto-cancel? add ML?"
+    cluster: you
+edges:
+  - from: dur
+    to: cp
+  - from: kw
+    to: cp
+  - from: cpu
+    to: cp
+  - from: cp
+    to: alert
+  - from: alert
+    to: log
+  - from: log
+    to: decide

@@ -1,0 +1,2 @@
+deep-dive
+One lead source (a peer-reviewed CI/CD failure-prediction paper) with an overlooked angle (half-coverage at the 14-minute mark, no false-alarm rates, cheap top signals) and an actionable alert-only rollout.
