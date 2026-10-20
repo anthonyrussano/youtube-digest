@@ -68,4 +68,5 @@ Would you let a model rate severity for your project, or does triage stay human?
 - An audit of Terminal Bench 4 found [60 of 65 tasks had at least one issue and 44 could be passed by cheating](https://x.com/chem_safety/status/2112212879734947937).
 - Coinbase's Lincoln Murr says x402 aimed for 25,000 agent transactions by year end, and by then [one was happening every 17 seconds](https://www.youtube.com/watch?v=f_HwzoYrZ7s&t=202s).
 - Meta published a report on [Muse Glimmer, a 30B open-weight agent model](https://x.com/AIatMeta/status/2112265822274302066) that runs at 4-bit on a single consumer GPU.
+- DeepSeek open-sourced [DeepInfer](https://github.com/deepseek-ai/DeepInfer), the inference engine behind DeepSeek-V4.1-Flash, with deterministic sampling; the KV cache and load balancing are not included.
 - [vLLM v0.32.0](https://x.com/vllm_project/status/2111814711956168760) shipped 814 commits, three security fixes and up to 85% more requests per second with multi-API workers.
