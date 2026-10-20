@@ -72,6 +72,19 @@ At the start, check `articles/x/<today PT date>/overnight.json`.
 - **Accuracy:** check **every number, label and name in an image** against its source (record it in `check.md` and set `numbers_checked` in `overnight.json`). Drop an image you cannot verify.
 - **Rendering:** `./run.sh x-article` keeps a marker line verbatim as its own `<p>` (tested Oct 19, 2026, both formats). It shows up in the pasted body as that literal line.
 
+## 3b. Image toolkit (tested Oct 19, 2026)
+All four render on **iphedeiah** under `~/Projects/` (repos cloned, images built locally; `ssh`/`scp` with one reused connection, e.g. `-o ControlMaster=auto -o ControlPersist=30m`). Work in a scratch dir like `/tmp/imgs/`, then `scp` the PNG to `/workspace/<EDITION>-<n>-<slug>.png`. Look at every image before using it. X shows images ~1200 px wide on a dark page, so render 1200 CSS px at 2x and prefer dark themes.
+
+| Need | Tool | Command (on iphedeiah) |
+|---|---|---|
+| **Number chart** from source data (bar, line, ...) | `chart-generator` (anthonyrussano) | `cd ~/Projects/chart-generator && ./scripts/build-container.sh` (once; image `chart-gen:local`), then `./scripts/run-container.sh chart --data <dir-in-repo>/data.csv --form bar --x <col> --y <col> --title "..." --unit <u> --theme dark --width 1200 --png --png-width 2400 --out-dir <dir-in-repo> --name <name>` (`--auto-form` picks the form; `recommend --data ...` suggests one). Input CSV/JSON/JSONL/YAML; the data must sit inside the repo dir (mounted as `/workspace`). Also writes `<name>.md` (every value) and `<name>.blindspots.md`: read both. |
+| **Flow / sequence / simple architecture** from Mermaid text | `pele` (obsidianmd) | `cd ~/Projects/pele && npm ci && npm run build` and `cd ~/Projects/ferroprint && npm ci` (once), then `node scripts/img/pele-png.mjs in.mmd out.png` (copy `scripts/img/pele-png.mjs` from this repo to the host). Dark X-style palette, clean modern look; the default diagram tool. |
+| **Blueprint-style sketch** (system diagram, flow, wireframe) | `ferroprint` (anthonyrussano) | `cd ~/Projects/ferroprint && npm ci` (once), then `npm run export -- in.mmd --out <dir> --theme blue` (PNG + SVG, 3000 px wide; input Mermaid or a Ferroprint JSON). Blue blueprint sheet with a title block; use when that look suits the story, at most once per Article. |
+| **Infrastructure architecture** (cloud icons, clusters) | `diagram-generator` (anthonyrussano) | `cd ~/Projects/diagram-generator && docker build -f Containerfile -t diagram-gen:local .` (GHCR image is private; never pull), then `./scripts/run-container.sh spec --spec <spec>.yaml --out-dir output/<dir> --output <name> --format png` (spec format: `docs/SPECS.md`; `--check` validates). Light background. |
+| Screenshots, source figures | box browser | Section 3 (b), (c). |
+
+**Every number in a chart must come from the sources** cited in `research.md`: put the data file's values and their source URL in `check.md`, never estimate, interpolate or invent a value, and label units and dates. Same for numbers and names in diagrams. If a number cannot be sourced, drop it (or the chart).
+
 ## 4. Posting at 10:37 (routine B) and timing
 - The 10:37 poster follows the `docs/HANDOFF.md` playbook. After pasting the body, for each `[[IMG: path | alt]]` paragraph in order: put the cursor on that paragraph, delete the marker text, insert the image file from `path` with the Article editor's media button, and set its alt/description to `alt`. Check no `[[IMG` text remains before publishing. A missing file: remove the marker and note it in the report.
 - **Header:** use the prepared `/workspace/x-header-<EDITION>.jpg` (`header` in `overnight.json`). Re-check that its id is still unused in `state/x_posts.json`; if it was used meanwhile, or the file is missing, pick a fresh one per the playbook. Record `header` (id plus description) in `state/x_posts.json` as usual.
