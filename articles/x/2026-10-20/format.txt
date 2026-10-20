@@ -1,0 +1,2 @@
+deep-dive
+One lead with an overlooked, actionable angle (Anthropic's OSS Scanner: the threat_model.md severity rubric maintainers write for AI auditors, the same week curl moved low and medium reports into the open), plenty of primary material, and the last posted Article was a roundup.

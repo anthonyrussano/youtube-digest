@@ -1,0 +1,61 @@
+{
+ "edition": "2026-10-20",
+ "window_start": "2026-10-20T00:19:05Z",
+ "window_end": "2026-10-20T07:37:13Z",
+ "files": {
+  "draft_report": "articles/x/2026-10-20/draft-report.md",
+  "article": "articles/x/2026-10-20/article.md",
+  "format": "articles/x/2026-10-20/format.txt",
+  "research": "articles/x/2026-10-20/research.md",
+  "outline": "articles/x/2026-10-20/outline.md",
+  "check": "articles/x/2026-10-20/check.md"
+ },
+ "images": [
+  {
+   "path": "/workspace/2026-10-20-1-oss-scanner-flow.png",
+   "alt": "Flow diagram of OSS Scanner: a maintainer's pull request, a human check, an online Docker build, an offline audit by Claude agents guided by the project's threat_model.md, then a proof of concept, patch and encrypted email with no 90-day disclosure clock",
+   "kind": "diagram",
+   "source": "https://red.anthropic.com/oss-scanner",
+   "license": "own diagram (pele)",
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-10-20-2-found-vs-reviewed.png",
+   "alt": "Column chart: over 29,000 candidate vulnerabilities found by Anthropic's models in six months, about 6,000 reviewed by humans, and nearly 5,000 sent unreviewed at maintainers' request",
+   "kind": "diagram",
+   "source": "https://www.anthropic.com/research/launching-opt-in-vuln-finding-service-for-open-source",
+   "license": "own chart (chart-generator) from published figures",
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-10-20-3-threat-model.png",
+   "alt": "Screenshot of the threat_model.md template in Anthropic's oss-scanner repository on GitHub, with sections for where untrusted input enters, components that matter, how to exercise the code, how you rate severity, and anything to leave alone",
+   "kind": "screenshot",
+   "source": "https://github.com/anthropics/oss-scanner/blob/main/templates/threat_model.md",
+   "license": "screenshot of a public page",
+   "numbers_checked": true
+  }
+ ],
+ "header": {
+  "id": "PIA25433",
+  "description": "The Eagle Nebula Observed by WISE (infrared, 3400x3400)",
+  "path": "/workspace/x-header-2026-10-20.jpg"
+ },
+ "caption": "Maintainer tip: before an AI scanner touches your repo, write a threat_model.md that says where untrusted input enters and how you rate severity. OpenSSH and Valkey already did...",
+ "title": "AI now finds the bugs for free. Your threat model decides whether that helps.",
+ "format": "deep-dive",
+ "status": "ready",
+ "todo": [
+  "Push: the overnight commit of articles/x/2026-10-20/ is local only (an outbound push was held during quiet hours); ./run.sh publish pulls, rebases and pushes it with the edition",
+  "6:04 run: collect only after window_end (videos, feeds, AINews, X deltas), merge by id, transcribe new picks, fold big new items in briefly",
+  "Copy draft-report.md to articles/2026-10-20.md, polish, STYLE checklist, render, publish, check HTTP 200",
+  "Re-run ./run.sh x-article 2026-10-20 --dry-run; leave the Article for the 10:37 post"
+ ],
+ "notes": [
+  "One video selected (Coinbase x402 talk). Captions were rate-limited; transcribed with Whisper large-v3-turbo on the home GPU host. Retry queue was empty.",
+  "X was thin overnight: 36 search reads, 11 posts qualified, 3 used (PandaCode, Terminal-RSI claim, data-selection paper). Trends were computed at about 12:40 AM PT on a partial day (top: rag-knowledge) and are cached for the day.",
+  "Feeds: 43 of 44 ok (Google DeepMind feed returned a malformed document); no strong feed article this window, so no feed picks.",
+  "AINews issue of Oct 19 used for 16 stories, all linked to original sources; stories already published (MiniMax M3.1 Flash, DeepSeek V4.1 Flash, Harness2, OpenCode) were skipped.",
+  "Image tooling: one new ssh connection to the home GPU host was refused for a few minutes (likely sshd connection throttling); the remaining renders reused the open connection. All three images rendered and checked."
+ ]
+}
