@@ -112,6 +112,13 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
        angle in plain language (a few short paragraphs); then one short linked paragraph per other story (same
        facts and sourcing as STYLE.md, no repeats from earlier editions); ends with a closing question or call to
        action that invites replies.
+       Images (both formats, regular and overnight runs): each on its own line as [[IMG: /workspace/<file> | alt]].
+       Types: video-frame, chart, diagram, page screenshot, licensed source figure (docs/OVERNIGHT.md 3/3b). If the
+       Article cites a video, include at least 1 video frame when a frame shows a slide, demo, diagram, chart or
+       code (never a talking head): ./run.sh yt-frame <video_id> <seconds> /workspace/<EDITION>-<n>-<slug>.png at
+       the SAME timestamp the Article cites; alt names the channel and video; the text near it links the
+       timestamped video; 1-2 frames per video, credited, for commentary (fair use). Record each in check.md (and
+       overnight.json images on overnight runs) as kind "video-frame" with source_url and timestamp.
    8d. check.md: review research, tighten outline, check clarity, confirm the overlooked angle is real, sourced and
        explained simply; check title, caption (tip-first, "..."), no "$<number>", no "Mind Blow"; fix article.md if
        anything fails and record what changed.
