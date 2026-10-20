@@ -1,0 +1,3 @@
+roundup
+Last Article was a deep-dive and the Coinbase agent-autonomy talk would fit either format, so alternate to roundup led by that story.
+caption: Agent rollout tip: go supervised, then sampled, then exceptions-only, and move up a step only when your evals clear the bar...
