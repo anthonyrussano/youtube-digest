@@ -63,3 +63,9 @@ All of it is public-source material. Never put `data/`, `state/`, subscriptions 
 4. **`check.md` (final check).** Review the research summary, tighten the outline, check clarity, and confirm the overlooked angle is **real, sourced and explained simply**. Check the rules (title names the idea, caption tip-first ending in `...`, no `$<number>`, no "Mind Blow"; deep-dive: word count and 4–6 extras; roundup: lead item first, one short paragraph per other story, closing question/CTA). Fix `article.md` if anything fails and record what changed, then run `./run.sh x-article <EDITION>` (or `--dry-run`) and confirm it prints the chosen `FORMAT` and `SOURCE: articles/x/<EDITION>/article.md`.
 
 Then post via the `docs/HANDOFF.md` "X Article playbook".
+
+## Format default (updated 2026-10-20, from impressions data)
+Since Oct 17, roundups with an in-depth lead averaged 632 impressions vs 220 for deep dives. Do NOT alternate formats by default.
+- Default: roundup shape. The overlooked lead is explained in depth, then a short bulleted "Also this cycle" list (one line per side story, never full paragraphs), a tip-first caption, and a closing question.
+- Pure deep dive only for a truly exceptional single story.
+- Keep the no-posts-after-9-PM-PT rule (late posts averaged 84 impressions).
