@@ -4,6 +4,8 @@ Every daily report reads like an episode of Vsauce2's *Mind Blow*: a fast run of
 
 This guide covers the **website edition**, which is always this roundup. The X Article on @russano uses one of two named formats per edition: **roundup** (several stories led by one researched item) or **deep-dive** (a single-lead piece), both written with a four-step process in `articles/x/<EDITION>/`. This page is not the X Article source and does not change. See [`docs/X_ARTICLE_STYLE.md`](docs/X_ARTICLE_STYLE.md).
 
+On weekdays the morning edition is drafted overnight as `articles/x/<EDITION>/draft-report.md` (same format; `docs/OVERNIGHT.md`) and the 6:04 AM run copies it to `articles/<EDITION>.md`, polishes and publishes it.
+
 "Mind Blow" is only the internal name of this format. **Never write "Mind Blow" in a title, dek, body or X caption.**
 
 ## Shape

@@ -23,7 +23,9 @@ Schedule at a glance (PT): **weekdays** 6:04 AM, 12:04 PM, 5:04 PM editions, wit
 ### A. Weekday digest editions: `4 6,12,17 * * 1-5`
 Prompt: the full text in `docs/ROUTINE_PROMPT.md`, plus this preface:
 ```
-If the current PT time is the 6:04 AM run, do steps 0-8d and 9 but DO NOT post the X Article (step 8e);
+If the current PT time is the 6:04 AM run, first check articles/x/<today>/overnight.json: status ready or partial
+means follow docs/OVERNIGHT.md section 2 (collect only after its window_end, fold big items in briefly, publish,
+report what it flagged); missing or failed means run as normal. Either way DO NOT post the X Article (step 8e);
 the 10:37 routine posts it. On the 12:04 and 17:04 runs, post the X Article right after publish unless the
 step 8e timing gate holds it (< 2 h since the last post in state/x_posts.json, or after 9 PM PT); then report it as HELD
 with the next slot.
@@ -39,6 +41,19 @@ weekends and the 10:37 routine does not run. Weekend material is often thin: app
 keep the edition short rather than padding it. Read docs/HANDOFF.md first (hard rules, X Article playbook).
 Quiet hours 10 PM-5:30 AM PT: no messages.
 ```
+### A0. Overnight prep (weekdays only): `30 0 * * 1-5` (~12:30 AM PT)
+Full spec: `docs/OVERNIGHT.md`. Prompt:
+```
+Overnight prep for today's first edition of Anthony's AI & DevOps digest. Repo /home/box/youtube-digest. Read
+README.md, STYLE.md, docs/X_ARTICLE_STYLE.md, docs/HANDOFF.md and docs/OVERNIGHT.md first; follow
+docs/OVERNIGHT.md section 1 exactly. No time pressure: transcribe every selected video and everything in
+state/retry.json on iphedeiah (remote yt-dlp + large-v3-turbo). Draft the website edition as
+articles/x/<EDITION>/draft-report.md (NOT reports/, which Pages publishes), do the full four-step X Article with
+rich inline images ([[IMG: /workspace/<file> | alt]], every number checked against its source) and save a fresh
+NASA header to /workspace/x-header-<EDITION>.jpg. Write articles/x/<EDITION>/overnight.json, commit
+articles/x/<EDITION>/ by path, pull --rebase, push. Do NOT publish, do NOT post to X, send NO messages (quiet hours).
+```
+The 6:04 AM run (routine A) checks `articles/x/<today>/overnight.json` first: ready/partial means continue it (`docs/OVERNIGHT.md` section 2), missing/failed means run as normal.
 ### B. Morning X post (weekdays only): `37 10 * * 1-5`
 ```
 Repo /home/box/youtube-digest. Read docs/HANDOFF.md. Find today's first edition (reports/<YYYY-MM-DD>.md,
@@ -47,6 +62,9 @@ PT date). If it exists and has no entry in state/x_posts.json, publish its X Art
 (./run.sh x-article <YYYY-MM-DD> reads it and prints FORMAT). If format.txt is missing, pick the format now per
 docs/X_ARTICLE_STYLE.md "Selection rule". If articles/x/<YYYY-MM-DD>/article.md is missing (either format), do
 the four steps first (research.md, outline.md, article.md, check.md), then commit articles/x/<YYYY-MM-DD>/ by path.
+Inline images: for every [[IMG: /workspace/<file> | alt]] paragraph, replace the marker with that image (editor
+media button, alt text = alt) at that spot; no [[IMG text may remain. Header: the prepared
+/workspace/x-header-<YYYY-MM-DD>.jpg (overnight.json "header") if present and its id is still unused, else a fresh one.
 Timing gate: if the latest posted_at_utc in state/x_posts.json is under 2 h ago, do not post; report it as HELD
 with the next slot >= 2 h after that post. Fresh NASA header, the tip-first caption (article.md front matter;
 roundup may fall back to format.txt line 3; ends in "..."), read the live caption back, record in
@@ -87,7 +105,8 @@ The X API **cannot** create Articles, so this is done in the browser, which Anth
 2. Open `http://127.0.0.1:8765/<EDITION>.html`, select the body, and **copy with the right-click context menu -> Copy**. Do not trust the existing clipboard: a stale clipboard once pasted yesterday's article.
 3. Go to **https://x.com/compose/articles**, create a new Article, type the title, click into the body and paste with **real keystrokes** (Ctrl+V), not by injecting DOM text.
 4. **Check the body**: first and last paragraphs match this edition, links survived, nothing from an older edition.
-5. **Header image**: a random high-resolution public-domain NASA image from https://images.nasa.gov (download the original/large, not a thumbnail) whose id is **not** in any `header` field of `state/x_posts.json`. Upload it as the Article header.
+4b. **Inline images** (both formats): each `[[IMG: /workspace/<file> | alt]]` line arrives as its own paragraph. Click into it, delete the marker text, insert that file with the editor's media button at that spot and set the alt text. Before publishing, confirm no `[[IMG` text remains. Images are prepared overnight (`docs/OVERNIGHT.md` section 3).
+5. **Header image**: the prepared `/workspace/x-header-<EDITION>.jpg` from the overnight run (`header` in `articles/x/<EDITION>/overnight.json`) if it exists and its id is still unused; otherwise a random high-resolution public-domain NASA image from https://images.nasa.gov (download the original/large, not a thumbnail) whose id is **not** in any `header` field of `state/x_posts.json`. Upload it as the Article header.
 6. Publish, then add the **caption** to the post (`article.md` front matter; for a roundup it matches `format.txt` line 3). Tip-first applies to both formats: lead with the single most useful, actionable takeaway for developers and DevOps people (a how-to, a pattern or a tip, preferably about agent/coding tools such as Claude Code, Cursor or Codex), ending in `...`. Don't lead with spec numbers or model sizes; numbers may support the takeaway but are not the hook. No "Mind Blow", no `$<number>`. Example: `Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...` (see section 6).
 7. **Read the live caption back** (profile timeline or `x.get_posts_by_id`). It was once truncated to `Forml`; if it is cut, fix it.
 8. Append to `state/x_posts.json` `posts`: `edition, posted_at_utc, post_id, article_id, url, article_url, title, caption, caption_note, format` (`roundup` or `deep-dive`, as printed by `x-article`), `header` (NASA id plus short description).

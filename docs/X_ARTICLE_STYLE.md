@@ -26,6 +26,7 @@ The **website edition** (`articles/<EDITION>.md` -> `reports/<EDITION>.md`) is *
 - **Never "Mind Blow"** in a title, body or caption (`x-article` drops body lines containing it and refuses such a title or caption in `article.md`).
 - **No `$` followed by a number** in a title or caption (write "3 dollars"). In the body, `x-article` inserts an invisible word joiner after `$` so X doesn't make a cashtag link.
 - **Header:** a fresh high-resolution public-domain NASA image not used before (`header` in `state/x_posts.json`), per the `docs/HANDOFF.md` playbook.
+- **Inline images (both formats):** one per line in `article.md` as `[[IMG: /workspace/<file> | alt]]` where the image belongs: diagram-generator diagrams, screenshots of key pages or charts, or source figures whose license allows reuse. Check every number in an image against its source. `x-article` keeps the marker as its own paragraph and the poster swaps it for the image (`docs/OVERNIGHT.md` section 3, `docs/HANDOFF.md` playbook step 4b). Weekday morning Articles get them from the overnight prep run.
 - Same sourcing rules as `STYLE.md`: link the claim text, attribute vendor numbers, no platform framing or engagement counts, never link or name the newsletter.
 
 # Roundup format in detail

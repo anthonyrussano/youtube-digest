@@ -1,6 +1,6 @@
 # Edition routine prompt (paste into the scheduled Grok Bot routine)
 
-Schedule (America/Los_Angeles): weekdays cron `4 6,12,17 * * 1-5` (6:04 AM, 12:04 PM, 5:04 PM PT; the 6:04 Article is held to 10:37 AM) and weekends cron `4 12,17 * * 0,6` (Saturday and Sunday 12:04 PM and 5:04 PM PT; each Article posts immediately), plus on demand. Every Article post keeps a 2-hour gap from the previous one and none posts after 9 PM PT (step 8e timing gate). The same prompt works for every edition; each routine adds a short preface. The full set of routines (weekday and weekend editions, the 10:37 weekday morning X post, the impressions tracker) with their prefaces is in `docs/HANDOFF.md` section 3.
+Schedule (America/Los_Angeles): weekdays cron `4 6,12,17 * * 1-5` (6:04 AM, 12:04 PM, 5:04 PM PT; the 6:04 Article is held to 10:37 AM) and weekends cron `4 12,17 * * 0,6` (Saturday and Sunday 12:04 PM and 5:04 PM PT; each Article posts immediately), plus on demand. **Weekdays also run the overnight prep at ~12:30 AM PT** (`docs/OVERNIGHT.md`); when `articles/x/<today>/overnight.json` exists with status ready or partial, the 6:04 AM run follows `docs/OVERNIGHT.md` section 2 instead of starting from scratch. Every Article post keeps a 2-hour gap from the previous one and none posts after 9 PM PT (step 8e timing gate). The same prompt works for every edition; each routine adds a short preface. The full set of routines (weekday and weekend editions, the 10:37 weekday morning X post, the impressions tracker) with their prefaces is in `docs/HANDOFF.md` section 3.
 
 ```
 Run one edition of Anthony's AI & DevOps digest (internal format name "Mind Blow"; never write that phrase in titles,
@@ -10,6 +10,10 @@ First read README.md (especially "Editions"), STYLE.md (website edition, always 
 docs/X_ARTICLE_STYLE.md (the two X Article formats, how to pick one, the four steps for both) in full. They are the spec. Never commit
 subscriptions.csv, data/, state/, cookies or any secret, and never print the subscription list anywhere public.
 
+OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.json exists with "status" ready or
+   partial, follow docs/OVERNIGHT.md section 2 (no new edition-start; collect only after its window_end; fold big
+   new items in briefly, don't redo research; publish from its draft-report.md; leave the Article for 10:37; report
+   what overnight.json flagged). Missing or "failed": run all steps below as normal.
 0. cd /home/box/youtube-digest && ./run.sh edition-start
    Note EDITION (page id) and START (ISO UTC window start = previous edition's publish time, else now-24h).
 1. ./run.sh fetch          (yt-dlp channel listing; only new videos since START; exact dates for keyword matches)
