@@ -16,7 +16,7 @@
 ## Rule checks
 - Title names the lead idea (not a list): PASS.
 - Caption tip-first ("Kubernetes agent tip: ... give Claude Code a view-only identity plus read-only ... tools"),
-  ends with "...": PASS. No "$<number>": PASS. No "Mind Blow": PASS.
+  ends with "...": PASS. No "$<number>": PASS. No banned internal style name: PASS.
 - Roundup shape: in-depth lead first (~466 words), short bulleted "Also this cycle" (7 one-liners), closing
   question inviting replies: PASS.
 - No platform framing or engagement counts; claims linked on the text; vendor numbers attributed: PASS.
