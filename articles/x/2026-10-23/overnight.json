@@ -48,8 +48,8 @@
  "format": "roundup",
  "status": "ready",
  "todo": [
-  "Leave the Article for the late-morning post (6:04 run folds in the morning delta, re-runs the dry run, publishes the website edition)",
-  "Spare frame available if wanted: /workspace/2026-10-23-4-grep-295.png (Jarmak slide at 9:12, 295 files returned vs 6 reference files)"
+  "Spare frame available if wanted: /workspace/2026-10-23-4-grep-295.png (Jarmak slide at 9:12, 295 files returned vs 6 reference files)",
+  "Article queued for the next X posting slot (about 9:30 AM PT)"
  ],
  "notes": [
   "Five videos selected; two transcribed with Whisper large-v3-turbo on the home GPU host, three had YouTube captions. Retry queue was empty.",
@@ -57,7 +57,8 @@
   "AINews: no new issue this window.",
   "X: 36 search reads plus 27 trend reads, 724 unique posts, 15 used. Trends: homelab, kubernetes, docker.",
   "Repeat check: PHP2Shell, Perplexity Decision Model and Aside were covered in earlier editions; Aside dropped, Perplexity's local-Mac update kept as a one-liner.",
-  "Engagement data had no follower counts, so post ideas use bookmark-to-like ratio and topic fit only."
+  "Engagement data had no follower counts, so post ideas use bookmark-to-like ratio and topic fit only.",
+  "6:04 run: morning delta (since 00:18 PT) added WorkOS agent sign-up talk, Level 2 Jeff Ubiquiti sensor, Torvalds on AI patches, CNCF Kamaji+HAMi and levelsio VPS-off-the-internet post to the website edition; two new videos (No Priors with Cloudflare CTO, Wells Fargo fraud model) were caption rate-limited and queued for retry. Article unchanged."
  ],
  "post_ideas": [
   {
