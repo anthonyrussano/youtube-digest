@@ -1,0 +1,84 @@
+{
+ "edition": "2026-10-23",
+ "window_start": "2026-10-22T19:07:09Z",
+ "window_end": "2026-10-23T07:18:13Z",
+ "files": {
+  "draft_report": "articles/x/2026-10-23/draft-report.md",
+  "article": "articles/x/2026-10-23/article.md",
+  "format": "articles/x/2026-10-23/format.txt",
+  "research": "articles/x/2026-10-23/research.md",
+  "outline": "articles/x/2026-10-23/outline.md",
+  "check": "articles/x/2026-10-23/check.md"
+ },
+ "images": [
+  {
+   "path": "/workspace/2026-10-23-1-fuzz-target-spec.png",
+   "alt": "Diagram: your fuzz target defines correct (if decompress(compress(x)) != x, abort), pinned to one RISC-V binary by SHA-256 and proven by Claude in Rocq, so the property holds for every input under 64 MiB; a dashed branch shows assert() removed by NDEBUG, or returning -1, leaves the proof saying nothing about that property",
+   "kind": "diagram",
+   "source": "https://github.com/theorem-labs/oss-verify/blob/main/docs/what-gets-proven.md",
+   "license": "own diagram (pele)",
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-10-23-2-firecrawl-hidden-instructions.png",
+   "alt": "Frame from Firecrawl's YouTube video 'Stop Prompt Injection Before It Reaches Your AI Agent' at 1:18: page source of a fake pricing page with a JSON-LD note telling automated assistants to report double the price",
+   "kind": "yt-frame",
+   "source_url": "https://www.youtube.com/watch?v=YzLR8X3_5gw&t=78s",
+   "timestamp": 78,
+   "license": "still frame from cited video",
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-10-23-3-harness-swap.png",
+   "alt": "Slide from Stephanie Jarmak's AI Engineer talk 'Don't Trust Your AI Agents. Test Them Like a Scientist' at 3:16: same 63 tasks, Claude Opus 5 beats GPT-6 Astra 36 to 31 in OpenHands but loses 19 to 38 in Pi",
+   "kind": "yt-frame",
+   "source_url": "https://www.youtube.com/watch?v=A3FL_zTQKU0&t=196s",
+   "timestamp": 196,
+   "license": "still frame from cited video",
+   "numbers_checked": true
+  }
+ ],
+ "header": {
+  "id": "GSFC_20171208_Archive_e000743",
+  "description": "NASA Unveils Celestial Fireworks as Official Image for Hubble 25th Anniversary (Westerlund 2, 1600x1200)",
+  "path": "/workspace/x-header-2026-10-23.jpg"
+ },
+ "caption": "Fuzz harness tip for the AI-proof era: write each property as if (!ok) abort(), not assert(). Release builds strip assert(), and a proof of your harness then quietly covers nothing...",
+ "title": "Anthropic's AI proofs only cover what your fuzz target checks. Two habits make them cover nothing",
+ "format": "roundup",
+ "status": "ready",
+ "todo": [
+  "Leave the Article for the late-morning post (6:04 run folds in the morning delta, re-runs the dry run, publishes the website edition)",
+  "Spare frame available if wanted: /workspace/2026-10-23-4-grep-295.png (Jarmak slide at 9:12, 295 files returned vs 6 reference files)"
+ ],
+ "notes": [
+  "Five videos selected; two transcribed with Whisper large-v3-turbo on the home GPU host, three had YouTube captions. Retry queue was empty.",
+  "Feeds: 44 feeds, 13 items, 5 picks (Anthropic formal verification, AWS Continuum, ThinkingBox, Docker is weird, backdoored robot).",
+  "AINews: no new issue this window.",
+  "X: 36 search reads plus 27 trend reads, 724 unique posts, 15 used. Trends: homelab, kubernetes, docker.",
+  "Repeat check: PHP2Shell, Perplexity Decision Model and Aside were covered in earlier editions; Aside dropped, Perplexity's local-Mac update kept as a one-liner.",
+  "Engagement data had no follower counts, so post ideas use bookmark-to-like ratio and topic fit only."
+ ],
+ "post_ideas": [
+  {
+   "url": "https://x.com/omarsar0/status/2113435080278360133",
+   "angle": "Why owning your agent harness matters: tie Ramp's harness post to Jarmak's slide where swapping only the harness flipped the model ranking."
+  },
+  {
+   "url": "https://x.com/merill/status/2113347524358787348",
+   "angle": "Homelab/CI how-to: delete the .env secrets and move GitHub Actions to cloud OIDC, pairing with Rauch's kill-static-credentials call."
+  },
+  {
+   "url": "https://x.com/freeCodeCamp/status/2113420664489038235",
+   "angle": "pg_cron instead of a Kubernetes CronJob: run homelab Postgres jobs with no extra worker pods."
+  },
+  {
+   "url": "https://x.com/JoshuaSWarren/status/2113424762617610335",
+   "angle": "AMD eGPU plus Vulkan llama.cpp: a cheap path to local inference and Whisper without CUDA."
+  },
+  {
+   "url": "https://x.com/pamelafox/status/2113373434147471397",
+   "angle": "MCP server design rules from the OpenAI team: no meta tools hiding real tools, short descriptions because ChatGPT truncates them."
+  }
+ ]
+}
