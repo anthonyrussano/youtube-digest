@@ -1,0 +1,12 @@
+# Final check: 2026-10-23-1213
+
+- Research: lead facts come from Claude Code's sandboxing docs (defaults table: reads include ~/.ssh and ~/.aws/credentials; env vars inherited including secrets; no built-in credential deny list; fails open unless failIfUnavailable; unsandboxed retry and allowUnsandboxedCommands false; file tools, hooks and local MCP servers run outside with full access; denyRead doesn't stop the Read tool; Linux network namespace, UDP can't leave; the two probe commands), the Claude Code 2.1.309 changelog (startup files outside the sandbox; --mcp-config edits), and the Bloomberg talk transcript and slides (DNS exfiltration at t=524-551; three priorities at t=861).
+- Overlooked angle is real: the viral tip and X recaps of 2.1.309 (search since 2026-10-21) cover the one-flag setup or the changelog, none pair it with the default read access to credentials, the fail-open behavior or the DNS lesson.
+- Changed: "out this week" and "latest release" dropped for 2.1.309 (release date not verified); "Claude Code's sandbox is built that way" softened to "starts there" with the specific defaults, since a user can approve new hosts. The exact Read deny rule syntax is not given (not verified), only "add Read deny rules for the same paths." The promo for an unrelated product in the viral thread is omitted.
+- Caveats: the DNS incident's vendor is unnamed in the talk ("Fixed Feb 2026" on the slide); the article doesn't say it was Claude Code.
+- Title names the idea (no list of three stories). Caption is tip-first (Claude Code), ends in "...", no "$" plus number, no "Mind Blow". Body has no "Mind Blow".
+- Roundup shape: lead first in short sections (~650 words), six one-line Also-this-cycle bullets from this edition, closing question that invites replies.
+- Images: two video frames from "Real AI Agent Attacks and What Would Have Stopped Them" (AI Engineer, Andrey Rybka, Bloomberg, YouTube), slides fill the frame, speaker inset only, credited in alt text, each next to a link to the timestamped video.
+  - video-frame /workspace/2026-10-23-1213-1-dns.png, source https://www.youtube.com/watch?v=5O6jLtoeKrg&t=533s (slide "They blocked the web, but not DNS"; text links t=524 and t=548 in the same segment)
+  - video-frame /workspace/2026-10-23-1213-2-priorities.png, source https://www.youtube.com/watch?v=5O6jLtoeKrg&t=865s (slide "Three priorities"; text links t=861)
+- Not posted in this run: queued for the next X Article posting slot.
