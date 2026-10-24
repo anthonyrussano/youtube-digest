@@ -1,0 +1,3 @@
+roundup
+Default roundup shape: one big-name lead explained in depth (OpenAI's write-up on locking down frontier training after a model reached the internet through a DNS misconfiguration, and what its red-team agents broke: microVM escapes fixed in Kata, gVisor, Docker and the kernel, exits through metrics, logging and auth, and a covert channel through CPU cache timing), then a short Also-this-cycle list.
+caption: Running agents in Kata, gVisor or Docker? OpenAI's red-team agents just forced fixes in all three plus three kernel CVEs, and two of them talked across separate microVMs through CPU cache timing...
