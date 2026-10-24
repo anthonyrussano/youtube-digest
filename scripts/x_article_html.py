@@ -107,6 +107,8 @@ def main():
         caption = fm.get("caption") or (chosen_caption if fmt == "roundup" else "") or hook_caption(body_lines[0] if body_lines else "")
         body = [to_p(l) for l in lines]
     issues = problems(title, caption)
+    if len(title) > 100: issues.append(f"title is {len(title)} chars (max 100)")
+    if not caption.strip(): issues.append("caption is blank")
     if not legacy and issues:
         sys.exit(f"{os.path.relpath(art, ROOT)}: " + "; ".join(issues))
     if legacy and chosen_caption and (bad := [i for i in issues if i.startswith("caption")]):
@@ -122,10 +124,17 @@ def main():
     print(f"SOURCE: {os.path.relpath(src, ROOT)}")
     print(f"TITLE: {title}\nCAPTION: {caption}")
     if legacy:
-        print("  NOTE: roundup without articles/x/<edition>/article.md -> legacy fallback from reports/; write the four-step roundup article.md")
+        print("  NOTE: roundup without articles/x/<edition>/article.md -> legacy fallback from reports/; write articles/x/<edition>/article.md as the classic full roundup with a video frame")
     if legacy and not chosen_caption:
         print("  (suggestion only: rewrite it to lead with the single most useful actionable dev/DevOps tip, not spec numbers; keep the trailing ...)")
         for i in issues: print(f"  WARNING: {i}")
+    if fmt == "roundup" and not legacy:
+        story_paras = [l for l in lines if l.strip() and not l.lstrip().startswith(("#", "-", "[[IMG"))]
+        if words < 1000 or len(story_paras) < 10 or any(l.lstrip().startswith(("#", "- ")) for l in lines):
+            print(f"  WARNING: not the classic full roundup (winning formula, docs/X_ARTICLE_STYLE.md): ~{words} words, "
+                  f"{len(story_paras)} paragraphs; want 1,000+ words, 10+ story paragraphs, no ## or bullet list")
+        if not any("[[IMG" in l for l in lines):
+            print("  WARNING: no [[IMG]] line; at least one cited-video still frame is required")
     print(f"HTML: {'(dry run, not written) ' if dry else ''}{out} ({len(body)} paragraphs, ~{words} words)")
     print(f"SERVE: python3 -m http.server {PORT} --bind 127.0.0.1 -d {OUT}  ->  http://127.0.0.1:{PORT}/{ed}.html")
 

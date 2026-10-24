@@ -9,3 +9,6 @@
   - video-frame /workspace/2026-10-24-1-provider-gap.png, source https://www.youtube.com/watch?v=mHNKuH-9OxU&t=2900s (slide "Provider gap > open–closed gap"; text link t=2886)
   - video-frame /workspace/2026-10-24-2-logprob-drift.png, source https://www.youtube.com/watch?v=mHNKuH-9OxU&t=3200s (slide "Log-prob tracking (Chauvin et al.)"; text link t=3192)
 - Not posted in this run: X posting was skipped per the run instructions.
+
+## Revision 2026-10-24 (winning formula)
+Rewritten from the lead-first roundup (717 words, ## sections, bulleted Also list) to the classic full roundup per docs/X_ARTICLE_STYLE.md "Winning formula": every story of reports/2026-10-24.md as its own linked paragraph (~1,190 words), three-item title (97 chars), tip-first caption from the Arize story ending in "...", the two existing YC Paper Club video frames kept after the Ollama paragraph, closing reply question. No "$" + digit in title/caption, no "Mind Blow". Not posted.

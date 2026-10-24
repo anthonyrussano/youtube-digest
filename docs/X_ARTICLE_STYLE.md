@@ -64,8 +64,17 @@ All of it is public-source material. Never put `data/`, `state/`, subscriptions 
 
 Then post via the `docs/HANDOFF.md` "X Article playbook".
 
-## Format default (updated 2026-10-20, from impressions data)
-Since Oct 17, roundups with an in-depth lead averaged 632 impressions vs 220 for deep dives. Do NOT alternate formats by default.
-- Default: roundup shape. The overlooked lead is explained in depth, then a short bulleted "Also this cycle" list (one line per side story, never full paragraphs), a tip-first caption, and a closing question.
-- Pure deep dive only for a truly exceptional single story.
-- Keep the no-posts-after-9-PM-PT rule (late posts averaged 84 impressions).
+## Winning formula (adopted 2026-10-24; overrides the 2026-10-20 "Format default" and the lead-first roundup above)
+Data (state/x_impressions.csv, 25 measured Articles, Oct 13-23): the only 1,000+ posts were edition `2026-10-17` (1,021, Sat 11:00 AM PT) and `2026-10-18-1341` (1,332, Sun 2:41 PM PT). The next three (917, 725, 693) were also this shape. All five were the **classic full roundup**: the whole website edition (`reports/<EDITION>.md`, ~1,100-2,000 words, 12-20 stories) posted as is. Classic roundups (13) averaged 523 impressions; the four-step lead-first roundups with a short "Also this cycle" list (6) averaged 222, and deep dives (6) averaged 190. Small sample; the two winners were weekend posts, and classic roundups also produced 32s, so this is a strong lean, not a law.
+
+**Default X Article = classic roundup.** Checkable rules:
+1. **Body = the full edition.** `article.md` carries the same stories as `reports/<EDITION>.md`: a cold open with 1-2 hard numbers, "Here is what happened in AI and DevOps this cycle.", then **every story as its own 2-4 sentence paragraph** with the claim text linked (timestamped video links), a "A few quick ones." line for small items. At least **10 story paragraphs** and **1,000+ words** (`x-article` warns below that). **No `##` sections and no bulleted "Also this cycle" list.** Lead with the edition's strongest/broadest story (big named brand + hard number), not a niche angle.
+2. **Title = three-item list** naming brands/tools with numbers, `A, B, and C` (Oxford comma), 75-100 characters, e.g. "Agents ship 60% of Vercel deploys, DeepSeek Flash cuts tokens 44%, and 1,000 Claudes tackle an OS". Never a single-idea essay title.
+3. **Caption = tip-first**: `<Tool> tip:` + one concrete action a dev can do today (Claude Code / Codex / Cursor / agents preferred), drawn from one of the stories, 120-250 characters, ends with `...`. Never blank.
+4. **Images:** NASA header plus at least one cited-video still frame (`[[IMG: ...]]` on its own line right after the paragraph that cites it), 1-3 total. The winners had no inline images, so keep them few.
+5. **Timing:** prefer 11 AM-3 PM PT; weekend editions are the strongest slots. Hard limits below.
+6. The four-step artifacts are optional for the classic roundup: write `check.md` with the rules above ticked. Deep-dive only on Anthony's request or a truly exceptional single story.
+
+## Hard rules (never change without Anthony)
+- No "Mind Blow" anywhere. Titles 100 characters or fewer. No `$` followed by a digit in title or caption. Fresh NASA header. At least one cited-video still frame. Caption never blank.
+- **At most 2 Article posts per PT day, at least 4 hours apart, only between 8 AM and 3 PM PT.** An Article that misses the window is held for the next valid slot (this supersedes the older 2-hour gap / 9 PM cutoff).

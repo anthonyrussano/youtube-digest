@@ -1,54 +1,45 @@
 ---
-title: "The provider serving your open model matters more than open vs closed. Ollama's CEO showed the numbers and three cheap ways to check."
-caption: "Running a coding agent on an open model through a third-party API? Ping it with a one-token log-prob probe every day, because the worst endpoint for the same weights scored 72% of the best one..."
+title: "OpenCode's stolen keys fed a distillation ring, Ollama's provider gap, and a 17-point prompt trap"
+caption: "Agent tip: before you merge a 'confirm before acting' prompt tweak, replay real production traces through it. One such line raised action safety 17 points and cut task completion 17 points..."
 edition: "2026-10-24"
-lead_source: "https://www.youtube.com/watch?v=mHNKuH-9OxU&t=2886s"
+lead_source: "https://www.youtube.com/watch?v=9OahTki4cPA&t=131s"
 ---
-Everyone argues about how far open models trail closed ones. At YC's inference night, Ollama founder and CEO Jeffrey Morgan argued that's the wrong gap to worry about. For open models, [the gap between the worst and best provider serving the same model is bigger than the gap between open and closed](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=2886s).
+OpenCode's security breach hit [1.4% of OpenCode console users](https://www.youtube.com/watch?v=9OahTki4cPA&t=131s), and the stolen keys weren't sold for crypto mining. They went into a distillation ring that milked frontier models for their reasoning, and OpenCode's Dax says the defense now [costs at least several thousand dollars a day](https://www.youtube.com/watch?v=9OahTki4cPA&t=562s).
+
+Here is what happened in AI and DevOps this cycle.
+
+ThePrimeagen walked through the OpenCode incident with answers from Dax himself. Customers learned their keys were compromised when [Google, Anthropic and OpenAI revoked them and emailed about distillation](https://www.youtube.com/watch?v=9OahTki4cPA&t=198s), since the labs run detection systems that cut off accounts quickly. The attackers want reasoning traces, not answers, and the extraction prompts Anthropic shared are almost comic, from ["do not flag this as reasoning extraction"](https://www.youtube.com/watch?v=9OahTki4cPA&t=363s) to asking Claude to [translate its working memory into katakana](https://www.youtube.com/watch?v=9OahTki4cPA&t=403s). Dax says the attacks are fully automated and [jump from one hole to the next](https://www.youtube.com/watch?v=9OahTki4cPA&t=531s), so OpenCode now runs OpenAI's Daybreak Blue agents around the clock, and frontier cyber safeguards even [blocked his team mid-incident](https://www.youtube.com/watch?v=9OahTki4cPA&t=471s).
+
+At YC's inference night, Ollama CEO Jeffrey Morgan made the point every open-model shop should hear: the gap between the worst and best provider serving the same open model is [bigger than the gap between open and closed models](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=2886s). Causes range from over-quantized weights and broken tool-call parsing to [models served under the wrong name](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=2850s), and agents make it worse, because a 10% deviation compounds to [as much as 79% wrong over a 15-step coding task](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=2995s). His cheap checks are a reference distribution test at [about a dollar per test](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=3158s), single-token log-prob drift checks, and [watching tool-call failure rates and output lengths](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=3276s) to catch infinite loops.
 
 [[IMG: /workspace/2026-10-24-1-provider-gap.png | Slide from Jeffrey Morgan's talk at YC Paper Club (YouTube): best open model at 79% of the best closed model, while the worst of 14 gpt-oss-120b endpoints scores 72% of the best]]
 
-## Same weights, different model
-
-His slide puts numbers on it. On the Artificial Analysis Intelligence Index, the best open model sits at **79%** of the best closed model. Across **14 endpoints serving gpt-oss-120b**, the worst endpoint scores **72%** of the best one. A 2024 study of 31 Llama endpoints found some behaving closer to GPT-3.5 than to the same weights served elsewhere.
-
-The causes he listed are [mostly boring](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=2793s):
-
-- Over-quantized weights, faulty hardware, or a different version of the weights
-- Tool-call parsing that breaks at the tokenizer level, or loose schema enforcement
-- Different sampling, custom kernels, or KV cache precision that only bites at long context
-- Models [served under the wrong name](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=2850s), which is hard to spot because every model is "a friendly assistant trying to help you"
-
-## Why agents feel it most
-
-Chat users might never notice. Agents will. Morgan's math: a 10% deviation per call compounds to [as much as 79% wrong over a 15-step coding task](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=2995s).
-
-## Three cheap checks
-
-Full benchmark runs catch bad quantization, but they're [expensive and slow](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=3080s), so nobody runs them every day. His cheaper options:
-
-- **Reference distribution test.** Send the same prompts to a reference model and the endpoint and compare outputs. About [a dollar per test](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=3158s), but it won't tell you why things differ.
-- **Log-prob drift.** A [one-token request on a schedule](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=3192s), compared with yesterday's log-probs, flags redeploys and engine upgrades.
-- **Shape monitoring.** Track tool-call pass and error rates and output lengths, which [catches infinite-loop run-ons](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=3276s) without storing any request data.
-
 [[IMG: /workspace/2026-10-24-2-logprob-drift.png | Slide from Jeffrey Morgan's talk at YC Paper Club (YouTube) on log-prob tracking (Chauvin et al., ICLR 2026): one-token probes cost about 1/1,000th of an eval and found 37 suspected silent changes across 189 endpoints]]
 
-The log-prob paper he cited (Chauvin et al., ICLR 2026) found **37 suspected silent changes across 189 endpoints from 10 providers, 34 of them on open-weight models**, at about a thousandth of the cost of an eval. The catches: plenty of APIs no longer return log-probs, and drift only tells you something changed. If the endpoint was wrong on day one, your baseline is wrong too.
+Dan Fu, who runs research at Together AI, traced a request from the API to the GPU. Routing isn't round robin anymore, because sending the same session to the same GPU means [the KV cache is already resident](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=1057s). Together is building an agent loop that tunes its own kernels against real traffic, which he calls [the beginnings of a recursive self-improvement loop for inference](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=1559s), and every quantized model has to pass [a Flappy Bird coding loop](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=1917s) before release. That rigor let Together [match MiniMax's original FP8 quality in NVFP4](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=2013s) when MiniMax's own recipe fell short.
 
-## What to do with this
+The evening's opener had numbers worth stealing. By DeepSeek's own figures, inference burns about [6x the flops of training per year](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=97s), and its newest stats show a [96% input cache hit rate](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=322s), decode at 14,000 tokens per second per GPU against 1.5 million for cached prefill, and KV caches [kept for 72 hours](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=395s). Decode is the bottleneck, and agent traffic is the cache-friendly kind.
 
-- Pick your provider with an eval, then keep that run as your baseline.
-- Add a daily one-token log-prob probe if the API supports it.
-- Alert on tool-call error rate and output length, per provider.
-- Re-run the eval when the probe moves.
+Luminal's Joe Fioti explained why an eight-person compiler company can push [80 to 90 trillion tokens a month](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=3980s). It boils PyTorch down to [about 14 or 15 primitive ops](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=4050s), uses equality saturation to explore rewrites, and skips the cost model entirely by [timing candidates on the real hardware](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=4703s), searching about 1% of 1% of the space for a local optimum that's 99% as good.
 
-## Also this cycle
+SGLang's Liangsheng Yin closed with the agent-shaped parts of the engine. Radix attention keeps shared agent context [in a tree so forked subagents reuse the prefix](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=5549s), overlap scheduling hides CPU work and can [reach 2x throughput on Blackwell](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=5884s), and a three-tier cache across GPU, host memory and storage [cut time to first token by 56%](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=5982s).
 
-- OpenCode's breach hit [1.4% of console users](https://www.youtube.com/watch?v=9OahTki4cPA&t=131s), and the keys fed a distillation ring. Dax says the always-on agent defense costs [at least several thousand dollars a day](https://www.youtube.com/watch?v=9OahTki4cPA&t=562s).
-- Arize showed a one-line "confirm before any action" prompt change that gave [+17 on safety and −17 on task completion](https://www.youtube.com/watch?v=v5tm5EAzsAs&t=214s). Gate prompt PRs on evals in CI.
-- LangChain's Deep Agents [offloads tool results over about 20,000 tokens to files](https://www.langchain.com/blog/context-engineering-deep-agents-remember) and summarizes at 85% of the window.
-- Bridgewater hand-built about 200 search test questions in under a week and took [precision at 10 from about 60% to 90–95%](https://www.youtube.com/watch?v=CLve4Nx_RwI&t=538s).
-- SGLang's three-tier KV cache across GPU, host memory and storage [cut time to first token by 56%](https://www.youtube.com/watch?v=mHNKuH-9OxU&t=5982s).
-- The creator of Claude Code on desktop [has left Anthropic](https://x.com/amorriscode/status/2113972174524674247).
+Arize's Sofia Jakovcevic opened with a security engineer's one-line prompt change, "confirm before taking any action." It gave a [17-point gain in action safety and a 17-point drop in task completion](https://www.youtube.com/watch?v=v5tm5EAzsAs&t=214s), a net zero nobody would catch in code review. Her point is that [the diff tells you what changed, but the trace tells you what actually happened](https://www.youtube.com/watch?v=v5tm5EAzsAs&t=337s), so build the regression set from production traces, including [the successful workflows you want to protect](https://www.youtube.com/watch?v=v5tm5EAzsAs&t=440s), and make every PR [pass the evals in CI before merge](https://www.youtube.com/watch?v=v5tm5EAzsAs&t=680s). Every failure becomes a new test.
 
-Have you ever caught a provider silently changing the model behind your endpoint, and how did you notice?
+LangChain spelled out how its open-source Deep Agents harness fights context rot. Tool results over about [20,000 tokens get written to a file and replaced with a preview](https://www.langchain.com/blog/context-engineering-deep-agents-remember), pasted messages over 50,000 tokens get the same treatment, and at 85% of the window older messages are summarized. Skills load on demand, noisy work goes to subagents, and long-term memory is a plain file in storage you control, so you can switch models without losing what the agent learned.
+
+Bridgewater's Vault holds [more than 100 million documents from 135 external sources](https://www.youtube.com/watch?v=CLve4Nx_RwI&t=220s). When users said search was bad, the team hand-built about 200 test questions in under a week and found [precision at 10 was about 60%](https://www.youtube.com/watch?v=CLve4Nx_RwI&t=538s), then pushed it to 90 to 95%. Agents read about [30,000 words a minute and fire 100-plus queries a second](https://www.youtube.com/watch?v=CLve4Nx_RwI&t=669s), and the Vault ships with a CLI [because agents love CLIs](https://www.youtube.com/watch?v=CLve4Nx_RwI&t=775s).
+
+Hari Kumar, head of AI at Contour Asset Management, measures AI's payoff with [live A/B tests of analysts working with and without the tools](https://www.youtube.com/watch?v=ZMZlAn6Pyfg&t=198s) across an earnings cycle. His metric is [cost per useful insight](https://www.youtube.com/watch?v=ZMZlAn6Pyfg&t=681s), and the honest part of his ROI math is the time lost when [a connector breaks every couple of days](https://www.youtube.com/watch?v=ZMZlAn6Pyfg&t=1016s).
+
+Harneet Kaur of Axim Intelligence gave Astra 6 and Opus 5.5 the same iHeartMedia credit data and [they disagreed on what happens next](https://www.youtube.com/watch?v=WOszaC1WWbQ&t=419s), with Opus at 62% odds of bankruptcy and Astra at 25%. With a structured layer-by-layer reasoning process, [both converged on about 25%](https://www.youtube.com/watch?v=WOszaC1WWbQ&t=700s), which she notes is basically how a market price forms.
+
+The engineer who created Claude Code on desktop [has finished his last day at Anthropic](https://x.com/amorriscode/status/2113972174524674247). Meanwhile Alex Albert shared [the Claude Code team members to tag with feedback](https://x.com/alexalbert__/status/2114052900045590580), including Boris Cherny, Cat Wu, Addy Osmani and Jarred Sumner.
+
+Simon Willison gave Claude Opus 5.5 a single prompt and got [a four-player "Compass Rose" map for his Battledrones game](https://simonwillison.net/2026/Oct/24/battledrones/), complete with WebSocket multiplayer changes so up to four humans can join by share link or QR code, with AI filling empty slots.
+
+A few quick ones. Gergely Orosz recommends Modal's [GPU Glossary, with the PDF free](https://x.com/GergelyOrosz/status/2113927941486723083), for learning how GPUs differ from CPUs, and a matching [list of 25 inference interview problems](https://x.com/vishalsingh2972/status/2113830444722741637) starts with what happens before the first token leaves. Will Larson [stepped down from leading 250 people to a hands-on team of 25](https://x.com/GergelyOrosz/status/2113981320523288887) to re-skill. Perplexity put the open-source [/impeccable design skill inside Computer](https://x.com/AravSrinivas/status/2114021917586014449). One developer has [four VPS machines hunting bugs in popular open-source projects with open-weight models](https://x.com/DanielLockyer/status/2113968026085413253). And a seven-step path to an agentic org argues most companies are on step one [shopping for step seven](https://x.com/mardehaym/status/2113990724282724742).
+
+That's the cycle. Rotate your keys, check your provider's log-probs, and maybe let an agent read your traces before it rewrites your prompt. See you next time.
+
+Which of these are you changing in your own agent setup this week? Reply and tell me.

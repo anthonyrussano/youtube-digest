@@ -82,7 +82,12 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
    reuse error and re-run. If it prints SKIP:, publish nothing.
 7. ./run.sh publish. Wait about 90 s, then confirm
    https://anthonyrussano.github.io/youtube-digest/reports/<EDITION>.html returns HTTP 200 and the index lists it.
-8. X ARTICLE FORMAT (every run, weekday and weekend, including 6:04 AM): pick "roundup" or "deep-dive" per
+8. X ARTICLE FORMAT (every run, weekday and weekend, including 6:04 AM). DEFAULT (since 2026-10-24): the CLASSIC
+   FULL ROUNDUP of docs/X_ARTICLE_STYLE.md "Winning formula": article.md = the whole edition (every story its own
+   linked paragraph, 10+ paragraphs, 1,000+ words, no ## sections, no bulleted Also list), title = three named
+   items with numbers (<=100 chars), tip-first caption ending "...", 1-3 [[IMG]] lines incl. >=1 cited video frame.
+   format.txt line 1 "roundup". The text below (four steps, lead-first roundup, deep-dive) applies only when
+   Anthony asks for a deep dive. Older rule, kept for reference: pick "roundup" or "deep-dive" per
    docs/X_ARTICLE_STYLE.md "Selection rule". Deep-dive only if the edition has ONE lead story with a genuinely
    overlooked angle, an actionable takeaway and enough primary-source material for ~400-600 words; otherwise
    roundup (always for thin editions with no strong lead). If both fit, alternate: look at the "format" of the
@@ -132,7 +137,9 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
    body, new NASA header not in state/x_posts.json, the caption (article.md front matter; roundup may fall back to
    format.txt line 3), read the live caption back, append the post to state/x_posts.json WITH
    "format": "roundup" | "deep-dive".
-   TIMING GATE (check right before posting; docs/HANDOFF.md "Article timing"):
+   TIMING GATE (check right before posting; docs/HANDOFF.md "Article timing"). HARD RULE (2026-10-24, overrides the
+   2-hour/9 PM items below): at most 2 Articles per PT day, >= 4 h apart, only 8:00 AM-3:00 PM PT; otherwise HOLD
+   for the next valid slot and report it (so a 17:04 run's Article is held for the next day).
    - 2-HOUR GAP: read the latest posted_at_utc in state/x_posts.json. If it is less than 2 hours ago, do NOT
      post now. The Article stays committed under articles/x/<EDITION>/; hold it for the next slot that is at least
      2 h after that last post, and put "X Article HELD: <EDITION>, next slot <h:mm AM/PM PT> (last post <h:mm PT>)"
