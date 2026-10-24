@@ -4,7 +4,7 @@ caption: "Claude Code tip: if you turn on the sandbox to stop the approval promp
 edition: "2026-10-23-1213"
 lead_source: "https://code.claude.com/docs/en/sandboxing"
 ---
-The Claude Code tip going around today is a good one: turn on the sandbox and the agent stops asking you to approve every shell command. The part nobody is screenshotting is the defaults table in Anthropic's own docs.
+The Claude Code tip going around this week is a good one: turn on the sandbox and the agent stops asking you to approve every shell command. The part nobody is screenshotting is the defaults table in Anthropic's own docs.
 
 ## What the trick actually does
 
