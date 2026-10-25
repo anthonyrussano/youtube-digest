@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (winning formula, docs/X_ARTICLE_STYLE.md "Winning formula"): the whole weekend edition as linked paragraphs, Laurie Voss's code-review bottleneck talk first with two slide frames, then Apollo, the opsec list and the X stories.
+caption: Tailscale tip: replace the default allow-all policy with restrictive grants, then look up your home IP on Shodan to see what's exposed. Meanwhile agents write 741% more code but ship only 30% faster...
