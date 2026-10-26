@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (winning formula, docs/X_ARTICLE_STYLE.md): the whole Sunday evening edition as linked paragraphs, led by the OpenAI fluid blow-up verdict, then Claude Code cross-session messaging and model splits, nutlope's app workflow, Lauren Tan's verification skill, Octopus OS, the breach-disclosure argument and the context engineering list. Thin weekend X-only edition, so it stays short rather than padded; no cited video, so no frame.
+caption: Claude Code tip: before merging an agent's PR, ask it for a quick screen recording proving each new feature works. Meanwhile mathematicians say an OpenAI fluid proof has no precedent...
