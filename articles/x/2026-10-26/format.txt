@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (winning formula, docs/X_ARTICLE_STYLE.md): the whole overnight edition as linked paragraphs, led by Tesco's VMware-to-Proxmox store migration (big brand, hard numbers), then the Claude/Codex refusal argument, Arize's first-eval workshop, LiveKit's interruptible voice agents, DNS quantum prep, China's AI export licences, Australia's datacenter wobble and the language-for-agents wish list. Thin Sunday-night window, so it stays near 1,100 words without padding; three still frames from the two cited videos.
+caption: Voice agent tip: make slow tool calls async so the agent keeps talking while the backend works, and measure time to first audio, not first byte. Plus Tesco's VMware exit...
