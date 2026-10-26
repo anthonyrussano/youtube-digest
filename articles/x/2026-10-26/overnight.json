@@ -1,40 +1,76 @@
 {
-  "edition": "2026-10-26",
-  "window_start": "2026-10-26T00:13:31Z",
-  "window_end": "2026-10-26T07:18:56Z",
-  "files": {
-    "draft_report": "articles/x/2026-10-26/draft-report.md",
-    "article": "articles/x/2026-10-26/article.md",
-    "format": "articles/x/2026-10-26/format.txt",
-    "research": "articles/x/2026-10-26/research.md",
-    "outline": "articles/x/2026-10-26/outline.md",
-    "check": "articles/x/2026-10-26/check.md"
+ "edition": "2026-10-26",
+ "window_start": "2026-10-26T00:13:31Z",
+ "window_end": "2026-10-26T07:18:56Z",
+ "files": {
+  "draft_report": "articles/x/2026-10-26/draft-report.md",
+  "article": "articles/x/2026-10-26/article.md",
+  "format": "articles/x/2026-10-26/format.txt",
+  "research": "articles/x/2026-10-26/research.md",
+  "outline": "articles/x/2026-10-26/outline.md",
+  "check": "articles/x/2026-10-26/check.md"
+ },
+ "images": [
+  {
+   "path": "/workspace/2026-10-26-1-arize-criteria.png",
+   "alt": "Slide from SallyAnn DeLucia's AI Engineer workshop 'How to Write Your First AI Eval' (Arize AI) at 19:20: vague criteria replaced by concrete ones",
+   "kind": "video-frame",
+   "source_url": "https://www.youtube.com/watch?v=gv4w23xYj-0&t=1160s",
+   "timestamp": 1160,
+   "license": "YouTube still frame, fair-use citation",
+   "numbers_checked": true
   },
-  "images": [
-    {"path": "/workspace/2026-10-26-1-arize-criteria.png", "alt": "Slide from SallyAnn DeLucia's AI Engineer workshop 'How to Write Your First AI Eval' (Arize AI) at 19:20: vague criteria replaced by concrete ones", "kind": "video-frame", "source_url": "https://www.youtube.com/watch?v=gv4w23xYj-0&t=1160s", "timestamp": 1160, "license": "YouTube still frame, fair-use citation", "numbers_checked": true},
-    {"path": "/workspace/2026-10-26-2-livekit-turns.png", "alt": "Slide from Jesse Hall's AI Engineer talk (LiveKit) at 13:15: best alternative 9.9% vs LiveKit turn detection 4.5% false cutoffs", "kind": "video-frame", "source_url": "https://www.youtube.com/watch?v=OmyqelTwpOo&t=795s", "timestamp": 795, "license": "YouTube still frame, fair-use citation", "numbers_checked": true},
-    {"path": "/workspace/2026-10-26-3-livekit-first-sentence.png", "alt": "Slide from Jesse Hall's AI Engineer talk (LiveKit) at 18:45: time to first sentence, Gemma 4 31B on LiveKit 381ms to GPT-5.5 1645ms", "kind": "video-frame", "source_url": "https://www.youtube.com/watch?v=OmyqelTwpOo&t=1125s", "timestamp": 1125, "license": "YouTube still frame, fair-use citation", "numbers_checked": true}
-  ],
-  "header": {"id": "iss072e451060", "description": "A red and green aurora borealis above Canada's Gulf of St. Lawrence, photographed from the ISS (Jan 4 2025)", "path": "/workspace/x-header-2026-10-26.jpg"},
-  "caption": "Voice agent tip: make slow tool calls async so the agent keeps talking while the backend works, and measure time to first audio, not first byte. Plus Tesco's VMware exit...",
-  "title": "Tesco drops VMware after a 175% quote, Gemma 4 hits 381ms on LiveKit, and Arize's 20-trace evals",
-  "format": "roundup",
-  "status": "ready",
-  "todo": [
-    "Fold in any morning delta (window_end onward) to draft-report.md and article.md, then publish the website edition as articles/2026-10-26.md via ./run.sh publish",
-    "Queue the X Article after the already-queued 2026-10-25-1707 Article (Monday ~9:30 AM PT); this one fits the 11 AM-3 PM PT window",
-    "Re-run ./run.sh x-article 2026-10-26 --dry-run after any edits"
-  ],
-  "notes": [
-    "Thin Sunday-night window: 2 videos, 3 feed picks, 3 X posts used, no AINews issue",
-    "Both videos transcribed with Whisper large-v3-turbo on the home GPU host; no fallback needed",
-    "Feeds: 5 new items, 3 picked (all The Register); X: 607 unique posts scanned, 10 selected, 3 used",
-    "Dropped as repeats of earlier editions: ARTEX follow-up, Hallmark design-skills post",
-    "Images are three still frames from the two cited AI Engineer videos; all numbers verified against the frames and transcripts"
-  ],
-  "post_ideas": [
-    {"url": "https://x.com/dewyashtwts/status/2114579021056893347", "angle": "Benchmark your own slowest CI job on two GitHub Actions runner alternatives and post the before/after minutes"},
-    {"url": "https://x.com/poteto/status/2114608724312752550", "angle": "What would a language designed for coding agents need? Strict types and a small design space beat clever syntax"},
-    {"url": "https://x.com/AndrewCurran_/status/2114537575620980868", "angle": "Model refusals on security work are often about phrasing; share how you scope reverse-engineering prompts so they go through"}
-  ]
+  {
+   "path": "/workspace/2026-10-26-2-livekit-turns.png",
+   "alt": "Slide from Jesse Hall's AI Engineer talk (LiveKit) at 13:15: best alternative 9.9% vs LiveKit turn detection 4.5% false cutoffs",
+   "kind": "video-frame",
+   "source_url": "https://www.youtube.com/watch?v=OmyqelTwpOo&t=795s",
+   "timestamp": 795,
+   "license": "YouTube still frame, fair-use citation",
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-10-26-3-livekit-first-sentence.png",
+   "alt": "Slide from Jesse Hall's AI Engineer talk (LiveKit) at 18:45: time to first sentence, Gemma 4 31B on LiveKit 381ms to GPT-5.5 1645ms",
+   "kind": "video-frame",
+   "source_url": "https://www.youtube.com/watch?v=OmyqelTwpOo&t=1125s",
+   "timestamp": 1125,
+   "license": "YouTube still frame, fair-use citation",
+   "numbers_checked": true
+  }
+ ],
+ "header": {
+  "id": "iss072e451060",
+  "description": "A red and green aurora borealis above Canada's Gulf of St. Lawrence, photographed from the ISS (Jan 4 2025)",
+  "path": "/workspace/x-header-2026-10-26.jpg"
+ },
+ "caption": "Voice agent tip: make slow tool calls async so the agent keeps talking while the backend works, and measure time to first audio, not first byte. Plus Tesco's VMware exit...",
+ "title": "Tesco drops VMware after a 175% quote, Gemma 4 hits 381ms on LiveKit, and Arize's 20-trace evals",
+ "format": "roundup",
+ "status": "ready",
+ "todo": [
+  "Queue the X Article after the already-queued 2026-10-25-1707 Article; this one fits the 11 AM-3 PM PT window"
+ ],
+ "notes": [
+  "Thin Sunday-night window: 2 videos, 3 feed picks, 3 X posts used, no AINews issue",
+  "Both videos transcribed with Whisper large-v3-turbo on the home GPU host; no fallback needed",
+  "Feeds: 5 new items, 3 picked (all The Register); X: 607 unique posts scanned, 10 selected, 3 used",
+  "Dropped as repeats of earlier editions: ARTEX follow-up, Hallmark design-skills post",
+  "Images are three still frames from the two cited AI Engineer videos; all numbers verified against the frames and transcripts",
+  "Morning delta (06:20 PT): +2 videos (IBM agentic engineering terms, UGREEN HA100), +2 tier-1 feeds (Microsoft PHP2Shell/Azure DevOps, CNCF kagent sandboxing), +5 X posts (Gheist GitHub Actions campaign, RAW-RAG paper x2, Minsky types-for-agents talk); 3 videos rate limited and queued for retry; Gheist and PHP2Shell paragraphs added to article.md"
+ ],
+ "post_ideas": [
+  {
+   "url": "https://x.com/dewyashtwts/status/2114579021056893347",
+   "angle": "Benchmark your own slowest CI job on two GitHub Actions runner alternatives and post the before/after minutes"
+  },
+  {
+   "url": "https://x.com/poteto/status/2114608724312752550",
+   "angle": "What would a language designed for coding agents need? Strict types and a small design space beat clever syntax"
+  },
+  {
+   "url": "https://x.com/AndrewCurran_/status/2114537575620980868",
+   "angle": "Model refusals on security work are often about phrasing; share how you scope reverse-engineering prompts so they go through"
+  }
+ ]
 }

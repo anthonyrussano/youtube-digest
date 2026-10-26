@@ -23,3 +23,6 @@
 - DNS: "three years or five, but it's probably not ten" (John Crain, ICANN CTO); UDP to TCP a few years; Category 1 gTLDs 45 percent higher abuse chance: The Register, 26 Oct
 - China: 23 technologies added to export catalogue, open source exempt; DeepSeek, MiniMax authorised; Firmus IPO (~5 billion, 40+ billion valuation) cancelled; NEXTDC down almost 40 percent: The Register Asia in brief, 26 Oct
 - X posts cited by link only (Curran, Tan/Pocock, CI runners); no counts used
+
+
+Morning run 2026-10-26 06:30 PT: added two short paragraphs after the lead (Gheist GitHub Actions secret-dump campaign; Microsoft PHP2Shell guidance for Azure DevOps), both sourced to the linked post/article. Title, caption, lead unchanged; no "Mind Blow", no "$<number>". Dry-run OK (20 paragraphs, ~1404 words).
