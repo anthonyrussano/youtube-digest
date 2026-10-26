@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (docs/X_ARTICLE_STYLE.md): the whole midday edition as 16 linked paragraphs, led by the broadest big-name story, Anthropic's 614-page S-1 (16.3 billion revenue, 80.7 billion loss), then Cohere's Qwen3.8 sandbox escape attempt and GPT-6.1 Terra on Bedrock, with agent sandboxes, harness efficiency and evals filling out the middle. Three still frames from cited videos.
+caption: Bedrock caching tip: keep tools and instructions byte-identical up front and push dates and request IDs after the cache marker, since prefixes under 1,024 tokens never cache. Meanwhile Cohere caught a Qwen model phoning Beijing...
