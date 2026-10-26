@@ -26,6 +26,7 @@ This repo is Anthony's daily pipeline. It reads new videos from his YouTube subs
 | `articles/x/<edition>/` | X Article choice and artifacts per edition: `format.txt` (roundup or deep-dive + reason, roundup caption); for both formats also `research.md`, `outline.md`, `article.md`, `check.md` (the four-step process) |
 | `scripts/render_article.py` | Checks citations, appends "Also on the radar", and writes `reports/<date>.md` |
 | `articles/<date>.md` | The written article (source). `reports/<date>.md` is the published page |
+| `docs/WRITING_GUIDE.md` | Living craft guide (diction, contrast, rhythm, formatting, before/after, Lessons log updated weekly) |
 | `STYLE.md` | The Mind Blow format: rules, annotated example and pre-publish checklist |
 | `docs/ROUTINE_PROMPT.md` | Paste-ready prompt for the scheduled daily routine |
 | `docs/OVERNIGHT.md` | Overnight prep mode (weekdays ~12:30 AM PT): research, transcription, draft report, four-step X Article with inline images and header, `articles/x/<edition>/overnight.json` for the 6:04 AM run |

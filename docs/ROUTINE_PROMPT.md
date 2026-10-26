@@ -7,7 +7,8 @@ Run one edition of Anthony's AI & DevOps digest (internal format name "Mind Blow
 bodies or captions). Repo: /home/box/youtube-digest
 (GitHub anthonyrussano/youtube-digest, site https://anthonyrussano.github.io/youtube-digest/).
 First read README.md (especially "Editions"), STYLE.md (website edition, always the roundup) and
-docs/X_ARTICLE_STYLE.md (the two X Article formats, how to pick one, the four steps for both) in full. They are the spec. Never commit
+docs/X_ARTICLE_STYLE.md (the two X Article formats, how to pick one, the four steps for both) and docs/WRITING_GUIDE.md
+(diction, contrast, rhythm, formatting, Lessons log) in full. They are the spec. Never commit
 subscriptions.csv, data/, state/, cookies or any secret, and never print the subscription list anywhere public.
 
 OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.json exists with "status" ready or
@@ -78,7 +79,7 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
    leads with the single most useful, actionable takeaway for developers/DevOps (a how-to, pattern or tip,
    preferably about agent/coding tools like Claude Code, Cursor, Codex), never with spec numbers or model sizes. Never mention trends or volumes in the article.
    Use only facts from the transcripts and posts, and never repeat stories from earlier editions.
-6. Run through the STYLE.md pre-publish checklist, then ./run.sh render. Fix any missing-citation or
+6. Run through the STYLE.md pre-publish checklist and the docs/WRITING_GUIDE.md section 6 craft checklist, then ./run.sh render. Fix any missing-citation or
    reuse error and re-run. If it prints SKIP:, publish nothing.
 7. ./run.sh publish. Wait about 90 s, then confirm
    https://anthonyrussano.github.io/youtube-digest/reports/<EDITION>.html returns HTTP 200 and the index lists it.
@@ -109,7 +110,7 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
    8b. outline.md: one core idea at a time, plain language, jargon dropped or defined at once, why it matters and
        what people are missing. Deep-dive: plus 4-6 "Also this cycle" picks. Roundup: the lead item's angle in
        a few plain points, then the order of the other items (one line each), then the closing question/CTA.
-   8c. article.md: front matter title, caption (one actionable dev/DevOps tip first, ends in "...", no
+   8c. article.md (classic roundup too; apply docs/WRITING_GUIDE.md title/caption shapes and ban list): front matter title, caption (one actionable dev/DevOps tip first, ends in "...", no
        "$<number>", never "Mind Blow"), edition, lead_source. Short direct sentences.
        Deep-dive: title names the lead idea (not three stories); hook on the overlooked angle; ~400-800 words for
        the lead; takeaway, then a question or call to action; then "## Also this cycle" with 4-6 linked one-liners.

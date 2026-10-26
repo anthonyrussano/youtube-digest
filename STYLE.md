@@ -6,6 +6,8 @@ This guide covers the **website edition**, which is always this roundup. The X A
 
 On weekdays the morning edition is drafted overnight as `articles/x/<EDITION>/draft-report.md` (same format; `docs/OVERNIGHT.md`) and the 6:04 AM run copies it to `articles/<EDITION>.md`, polishes and publishes it.
 
+**Craft guide:** read [`docs/WRITING_GUIDE.md`](docs/WRITING_GUIDE.md) (diction, contrast, rhythm, formatting, before/after examples, Lessons log) before drafting; it never overrides this file.
+
 "Mind Blow" is only the internal name of this format. **Never write "Mind Blow" in a title, dek, body or X caption.**
 
 ## Shape
@@ -68,7 +70,8 @@ On weekdays the morning edition is drafted overnight as `articles/x/<EDITION>/dr
 5. Nothing from an earlier edition is repeated. Every new transcribed video is linked, with key moments as `&t=<s>s` links (`./run.sh render` enforces this).
 6. Every X item is drawn from `data/x_selected.json` and written like a video item. `grep -niE 'on x\b|bookmark|saves?\b|saved|likes?\b|posted' articles/<date>.md` prints nothing (check any hit by hand).
 7. Every number and claim appears in a transcript or post and is attributed. Dubious claims are flagged, and there is no spam or crypto.
-8. After `./run.sh publish`, the report URL returns HTTP 200 (allow about 1–2 minutes for Pages).
+8. The craft checklist in `docs/WRITING_GUIDE.md` section 6 passes.
+9. After `./run.sh publish`, the report URL returns HTTP 200 (allow about 1–2 minutes for Pages).
 
 ## X share caption
 Applies to both X Article formats (`caption:` in `articles/x/<EDITION>/article.md`; for roundup also line 3 of `articles/x/<EDITION>/format.txt`; see `docs/X_ARTICLE_STYLE.md`). The rules:

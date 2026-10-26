@@ -135,6 +135,9 @@ def main():
                   f"{len(story_paras)} paragraphs; want 1,000+ words, 10+ story paragraphs, no ## or bullet list")
         if not any("[[IMG" in l for l in lines):
             print("  WARNING: no [[IMG]] line; at least one cited-video still frame is required")
+    banned = re.findall(r"\b(revolutionary|game.?chang\w*|groundbreaking|mind.?blowing|insane|unprecedented|cutting.edge|massive|huge|basically|essentially|incredibly|literally|leverag\w*|seamless\w*|robust|delve\w*|supercharg\w*)\b", plain(" ".join([title, caption] + lines)), re.I)
+    if banned:
+        print(f"  WARNING: banned words (docs/WRITING_GUIDE.md section 1): {', '.join(sorted(set(w.lower() for w in banned)))}")
     print(f"HTML: {'(dry run, not written) ' if dry else ''}{out} ({len(body)} paragraphs, ~{words} words)")
     print(f"SERVE: python3 -m http.server {PORT} --bind 127.0.0.1 -d {OUT}  ->  http://127.0.0.1:{PORT}/{ed}.html")
 

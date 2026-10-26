@@ -53,7 +53,7 @@ All of it is public-source material. Never put `data/`, `state/`, subscriptions 
 
 1. **`research.md`.** Gather the raw facts from the cited sources: transcripts, articles, X posts (read the full thread and author replies), AINews summaries (pointing to their original sources). Do a quick web/X search to see what most creators already covered and what they overlooked or under-explained. Prioritize overlooked technical details, implications and nuances. End with the chosen angle in one sentence (roundup: the lead item's angle, plus the facts for the other items). Keep a short candidates table (why lead / coverage / verdict).
 2. **`outline.md`.** A simple, logical structure that explains **one core idea at a time** in plain language. Drop jargon or define it right away. Focus on why it matters and what people are missing. Deep-dive: include the "Also this cycle" picks. Roundup: the lead item's angle in a few plain points, then the order of the other items (one line each), then the closing question/CTA.
-3. **`article.md`.** Write from the outline:
+3. **`article.md`.** Write from the outline (read `docs/WRITING_GUIDE.md` first):
    - Short, direct sentences.
    - Open with a strong hook built on the overlooked angle.
    - A technically curious non-expert can follow it without rereading.
@@ -74,6 +74,8 @@ Data (state/x_impressions.csv, 25 measured Articles, Oct 13-23): the only 1,000+
 4. **Images:** NASA header plus at least one cited-video still frame (`[[IMG: ...]]` on its own line right after the paragraph that cites it), 1-3 total. The winners had no inline images, so keep them few.
 5. **Timing:** prefer 11 AM-3 PM PT; weekend editions are the strongest slots. Hard limits below.
 6. The four-step artifacts are optional for the classic roundup: write `check.md` with the rules above ticked. Deep-dive only on Anthony's request or a truly exceptional single story.
+
+**Craft:** draft and check every Article against `docs/WRITING_GUIDE.md` (title/caption shapes, contrast, ban list; `x-article` warns on banned words). It never overrides the rules here.
 
 ## Hard rules (never change without Anthony)
 - No "Mind Blow" anywhere. Titles 100 characters or fewer. No `$` followed by a digit in title or caption. Fresh NASA header. At least one cited-video still frame. Caption never blank.

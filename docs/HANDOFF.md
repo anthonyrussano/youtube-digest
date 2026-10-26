@@ -81,6 +81,11 @@ reposts,bookmarks,replies,quotes,measured_at_pt,age_hours_at_measure,note). Note
 Then run ./run.sh x-stats (impressions by X Article format, roundup vs deep-dive) and compare by format,
 posting hour and caption type; if a pattern changed, update the "Engagement lessons" in
 docs/HANDOFF.md and commit it (pull --rebase first). Message Anthony only if something notable changed.
+MONDAYS: also append one dated entry to the "Lessons log" in docs/WRITING_GUIDE.md covering the last 7 days
+(aggregates only: counts and averages by title shape, caption shape, posting hour and format; never post ids,
+raw rows or private data) plus a "Proposed tweak" line. Apply low-risk craft tweaks (ban list, examples,
+transitions) to its sections 1-6 in the same commit; anything touching X_ARTICLE_STYLE.md Hard rules or the
+Winning formula is proposal-only and goes in the message to Anthony. Commit only docs/WRITING_GUIDE.md and docs/.
 Respect X limits: 30 reads/min, 1000/day across all routines.
 ```
 
@@ -133,6 +138,8 @@ The X API **cannot** create Articles, so this is done in the browser, which Anth
 
 ## 7. Quality bar
 X Articles: `docs/X_ARTICLE_STYLE.md` is the spec for both formats. Deep-dive models: `2026-10-15-1705` (single Claude Code idea), the worked sample `articles/x/2026-10-17-sample/` and the first live one `articles/x/2026-10-17-1644/`. Roundup models: the lead-item structure in `docs/X_ARTICLE_STYLE.md`; for the per-story paragraphs, the gold editions below.
+
+Craft for both: `docs/WRITING_GUIDE.md` (diction, contrast, before/after examples, Lessons log).
 
 Website editions: `STYLE.md` is the spec. Gold examples in `reports/` (source in `articles/`):
 - `2026-10-14-1211`: dense, number-led items (a million output tokens, Credit Karma's 90% cut); its number-led caption did well at the time, but tip-led captions now beat it (section 6).
