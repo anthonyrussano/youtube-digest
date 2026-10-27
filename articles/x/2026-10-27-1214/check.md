@@ -6,7 +6,7 @@
 - [x] Led by the broadest big-name story (Google Genie 4; lead_source is Sundar Pichai's announcement)
 - [x] Title names three items, each with a verb and a number, in "A, B, and C" form, 97 chars
 - [x] Caption is "Agent memory tip: ..." plus a "Meanwhile" surprise, 224 chars, ends with "..."
-- [x] No "$<digit>" anywhere in the folder (Parallel price written as "a tenth of a cent"; LangChain costs as "8 dollars" and "50 cents"); no "Mind Blow"
+- [x] No dollar sign before a digit anywhere in the folder (Parallel price written as "a tenth of a cent"; LangChain costs as "8 dollars" and "50 cents"); no banned brand phrase
 - [x] No platform framing or engagement counts (grep for on X / tweet / bookmark / likes / saves / posted / trend / viral / followers: no hits; "what each one saves" changed to "stores")
 - [x] Ban-list grep clean ("insane" from Mollick's post not used; "unlock" appears only inside the AWS URL)
 - [x] Cold open, intro line, items, sign-off ending in a closing question
