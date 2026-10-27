@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (winning formula, docs/X_ARTICLE_STYLE.md): the whole overnight edition as linked paragraphs, led by the Claude result refuting the Exponential Time Hypothesis (big name, concrete numbers, Lean-checked), then PSI's quantum proofs, Optiver's same-day model platform, the GMO virtual desktop breach, Oracle's database-level agent security, IBM's z/OS change mapping, Anthropic's music lawsuit and IPO, Qwen3.8 speculative decoding, Hermes webapp and two quick ones; three still frames from the two cited videos.
+caption: MCP tip: if a fresh agent session already holds 200K tokens, add tool search or wrap your MCPs in one CLI, as Optiver did. Meanwhile, a Claude model's Lean-checked proof says ETH is false...

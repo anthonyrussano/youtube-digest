@@ -1,0 +1,78 @@
+{
+ "edition": "2026-10-27",
+ "window_start": "2026-10-27T00:43:55Z",
+ "window_end": "2026-10-27T07:20:43Z",
+ "files": {
+  "draft_report": "articles/x/2026-10-27/draft-report.md",
+  "article": "articles/x/2026-10-27/article.md",
+  "format": "articles/x/2026-10-27/format.txt",
+  "research": "articles/x/2026-10-27/research.md",
+  "outline": "articles/x/2026-10-27/outline.md",
+  "check": "articles/x/2026-10-27/check.md"
+ },
+ "images": [
+  {
+   "path": "/workspace/2026-10-27-1-optiver-platform.png",
+   "alt": "Slide from Noyan Tokgozoglu's AI Engineer talk (Optiver) at 5:18: The Optiver AI Platform, with an agent gateway and an inference gateway handling routing, resilience, economics and budgets",
+   "kind": "video-frame",
+   "source_url": "https://www.youtube.com/watch?v=aGIUg8zKI8A&t=318s",
+   "timestamp": 318,
+   "license": "YouTube still frame, fair-use citation",
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-10-27-2-oracle-injection-leak.png",
+   "alt": "Demo frame from Oracle's AI World 2026 database spotlight at 12:57: the balloon-party prompt slips past the HR agent's guardrail and gets an answer computed from the employee dataset",
+   "kind": "video-frame",
+   "source_url": "https://www.youtube.com/watch?v=v9Y3Lw_I9o4&t=777s",
+   "timestamp": 777,
+   "license": "YouTube still frame, fair-use citation",
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-10-27-3-oracle-deep-data-security.png",
+   "alt": "Demo frame from Oracle's AI World 2026 database spotlight at 13:28: with deep data security on, the same prompt returns 0 for every employee and compensation for others is blocked",
+   "kind": "video-frame",
+   "source_url": "https://www.youtube.com/watch?v=v9Y3Lw_I9o4&t=808s",
+   "timestamp": 808,
+   "license": "YouTube still frame, fair-use citation",
+   "numbers_checked": true
+  }
+ ],
+ "header": {
+  "id": "PIA15630",
+  "description": "Pinwheel Galaxy (M101) combining data from four NASA space telescopes (Pinwheel Galaxy Rainbow, 2012)",
+  "path": "/workspace/x-header-2026-10-27.jpg"
+ },
+ "caption": "MCP tip: if a fresh agent session already holds 200K tokens, add tool search or wrap your MCPs in one CLI, as Optiver did. Meanwhile, a Claude model's Lean-checked proof says ETH is false...",
+ "title": "Claude refutes ETH in 14M tokens, Qwen3.8 hits 381 tok/s, and Optiver trims 200K-token sessions",
+ "format": "roundup",
+ "status": "ready",
+ "todo": [
+  "Morning run: add any delta items from the rest of the window, then publish the website edition",
+  "Post the X Article in the 11 AM-3 PM PT window",
+  "Optional: re-transcribe both videos with the large Whisper model on the home GPU host if it is back, and re-check quotes"
+ ],
+ "notes": [
+  "Home GPU host was unreachable overnight (no route), so captions, audio downloads and Whisper ran on the assistant's box with the smaller base.en model; both videos transcribed, nothing in the retry queue",
+  "yt-frame's local fallback hit a bot check, so the three still frames were captured from the public YouTube embed in a headless browser on the box (no cookies)",
+  "Thin Monday-night window: 2 videos, 3 feed picks, 8 X posts used, no AINews issue",
+  "Feeds: Register feed text was page chrome, so the three articles were read from the article pages directly",
+  "All image labels and numbers verified against the frames and transcripts (see check.md)",
+  "Overnight commit is by path only; if the push is blocked during quiet hours, the 6:04 run's publish will push it"
+ ],
+ "post_ideas": [
+  {
+   "url": "https://x.com/addyosmani/status/2114967833708732607",
+   "angle": "Before adding a subagent, measure your blank-session token count; a bloated system prompt is often the real problem"
+  },
+  {
+   "url": "https://x.com/Oluwaphilemon1/status/2114916110231359954",
+   "angle": "Speculative decoding on one consumer GPU: once drafting is cheap, verification becomes the bottleneck; share your own tok/s before and after"
+  },
+  {
+   "url": "https://x.com/shubh19/status/2114924794110255176",
+   "angle": "The cost formula most LLM system designs skip: cache reads, small-model routing and provider fallback, sketched for one real app"
+  }
+ ]
+}
