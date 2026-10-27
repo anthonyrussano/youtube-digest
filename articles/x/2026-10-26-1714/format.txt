@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (docs/X_ARTICLE_STYLE.md): the whole evening edition as linked story paragraphs, led by the broadest big-name story, OpenAI's three discoveries including a Lean-verified refutation of the Exponential Time Hypothesis, then Cloudflare's 155-response KV cache leak and Greptile's model-inversion code review, with agent observability, self-improving agents and evals filling out the middle. Three still frames from cited videos.
+caption: Codex tip: if Claude wrote the PR, have a GPT model review it, and vice versa. Greptile says flipping models catches 10% more bugs. Meanwhile OpenAI says its model proved the Exponential Time Hypothesis false...
