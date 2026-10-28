@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (docs/X_ARTICLE_STYLE.md): the whole 12:13 edition as 18 linked story paragraphs plus quick ones, led by Google DeepMind's Gemini 4 Carbon (broadest big-name story; gemini is today's top trend), then GitHub Universe and its 4 million new cores, Techno Tim's three-GPU home router, Octoverse, LangChain Schedules, EKS Gateway API, Nemotron 3.5 Transcribe and the rest; two frames from cited videos (Techno Tim's request-flow diagram, the Surf Clock OpenSCAD model).
+caption: VS Code tip: publish your extension with Trusted Publishing, and a 15-minute GitHub Actions credential replaces your stored token. Meanwhile, more than 40% of pull requests now start with an agent...
