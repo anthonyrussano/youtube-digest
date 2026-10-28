@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (docs/X_ARTICLE_STYLE.md): the whole 17:13 edition as 15 linked story paragraphs plus quick ones, led by Anthropic's new Claude Code variable that removes the last rm check (broadest big-name story; anthropic is a top trend), then Two Sigma's 900-million Revlon lesson, AWS spend limits, Oracle renting Google TPUs, Arize code mode, TypeSafe's Jev, Anthropic buying Mithril Medicine, and the rest; two frames from cited videos (AWS billing page, Arize results slide).
+caption: AWS tip: put a spend limit on each project, as low as 20 dollars, and AWS pauses it at the cap with your data kept. Meanwhile, a bank once wired 900 million instead of 8 million, and three people approved it...
