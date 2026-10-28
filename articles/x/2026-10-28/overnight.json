@@ -1,0 +1,62 @@
+{
+  "edition": "2026-10-28",
+  "window_start": "2026-10-28T00:46:38Z",
+  "window_end": "2026-10-28T07:18:06Z",
+  "files": {
+    "draft_report": "articles/x/2026-10-28/draft-report.md",
+    "article": "articles/x/2026-10-28/article.md",
+    "format": "articles/x/2026-10-28/format.txt",
+    "research": "articles/x/2026-10-28/research.md",
+    "outline": "articles/x/2026-10-28/outline.md",
+    "check": "articles/x/2026-10-28/check.md"
+  },
+  "images": [
+    {
+      "path": "/workspace/2026-10-28-1-chainguard-exploit-gap.png",
+      "alt": "Slide from Patrick Smyth's AI Engineer talk \"Exploits Now Beat Patches\" (Chainguard) at 3:38: Mandiant's average time-to-exploit moves from +63 days in 2018-19 to +44, +32 and +5, then -7 days in 2025, before the patch exists",
+      "kind": "video-frame",
+      "source_url": "https://www.youtube.com/watch?v=xZX3pmaB8Hk&t=218s",
+      "timestamp": 218,
+      "license": "YouTube still frame, fair-use citation",
+      "numbers_checked": true
+    },
+    {
+      "path": "/workspace/2026-10-28-3-ctf-scoreboard.png",
+      "alt": "Slide from Tingxuan Tang's USENIX Security '26 talk \"From Assistance to Autonomy\" at 10:22: agent scoreboard on the left peaking at 4,900, human scoreboard on the right peaking at 5,400, with the notes \"about 1/5 human solving-time\" and \"model capability ultimately sets the ceiling\"",
+      "kind": "video-frame",
+      "source_url": "https://www.youtube.com/watch?v=xPxlzzMB9O8&t=622s",
+      "timestamp": 622,
+      "license": "YouTube still frame, fair-use citation",
+      "numbers_checked": true
+    },
+    {
+      "path": "/workspace/2026-10-28-2-geedge-seed.png",
+      "alt": "Slide from Anna Ablove's USENIX Security '26 talk on the Geedge Networks firewall leak at 13:50: TCP RST injector fingerprints, where Geedge's TSG, GFW II and GFW III all show a stable key k = 13",
+      "kind": "video-frame",
+      "source_url": "https://www.youtube.com/watch?v=MaKRLgXzWp0&t=830s",
+      "timestamp": 830,
+      "license": "YouTube still frame, fair-use citation",
+      "numbers_checked": true
+    }
+  ],
+  "header": {
+    "id": "PIA15226",
+    "description": "Hubble Spies Spectacular Sombrero: the Sombrero Galaxy (Messier 104), Hubble Space Telescope, 2005",
+    "path": "/workspace/x-header-2026-10-28.jpg"
+  },
+  "caption": "Chainguard tip: give new npm and PyPI packages a cool-down period before installing them, on developer laptops as well as in CI. Meanwhile, a leaked firewall vendor's code uses the same reset key, 13, as the Great Firewall...",
+  "title": "Chainguard sees exploits 7 days early, Snort has 48 bad regexes, and Anthropic drops code tests",
+  "format": "roundup",
+  "status": "ready",
+  "todo": [
+    "Morning run: write the site edition from draft-report.md and publish it (this pushes the overnight commit if it is still local)",
+    "Post the X Article in the next X Article posting slot (11 AM-3 PM PT preferred)"
+  ],
+  "notes": [
+    "All YouTube work and Whisper (large-v3-turbo) ran on the home GPU host; 7 videos had transcripts from the transcripts step and the rate-limited Chainguard talk was transcribed by Whisper on the home host (1 tried, 1 ok); retry queue empty",
+    "Thin window: 8 videos (7 USENIX Security '26 talks plus one AI Engineer talk), no AINews issue, RSS feed text was index pages only, 10 X picks (7 from the filter plus 3 added by hand: Razenshteyn's guide, Artificial Analysis v5, Amazon's SDE memo)",
+    "Chainguard transcript says 'negative 70 days' but the slide reads -7 days; the article uses the slide",
+    "All image labels and numbers verified against frames and transcripts (see check.md)",
+    "Title compresses one Anthropic hiring manager's change to 'Anthropic drops code tests'; the body is precise"
+  ]
+}
