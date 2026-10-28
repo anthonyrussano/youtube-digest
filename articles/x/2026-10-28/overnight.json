@@ -49,14 +49,14 @@
   "format": "roundup",
   "status": "ready",
   "todo": [
-    "Morning run: write the site edition from draft-report.md and publish it (this pushes the overnight commit if it is still local)",
-    "Post the X Article in the next X Article posting slot (11 AM-3 PM PT preferred)"
+    "Post the X Article in the next X Article posting slot (about 9:30 AM PT)"
   ],
   "notes": [
     "All YouTube work and Whisper (large-v3-turbo) ran on the home GPU host; 7 videos had transcripts from the transcripts step and the rate-limited Chainguard talk was transcribed by Whisper on the home host (1 tried, 1 ok); retry queue empty",
     "Thin window: 8 videos (7 USENIX Security '26 talks plus one AI Engineer talk), no AINews issue, RSS feed text was index pages only, 10 X picks (7 from the filter plus 3 added by hand: Razenshteyn's guide, Artificial Analysis v5, Amazon's SDE memo)",
     "Chainguard transcript says 'negative 70 days' but the slide reads -7 days; the article uses the slide",
     "All image labels and numbers verified against frames and transcripts (see check.md)",
-    "Title compresses one Anthropic hiring manager's change to 'Anthropic drops code tests'; the body is precise"
+    "Title compresses one Anthropic hiring manager's change to 'Anthropic drops code tests'; the body is precise",
+    "Morning run: published the site edition at 6:24 AM PT; folded in the IBM Security Intelligence PHP to shell item (also one short paragraph in article.md after the Chainguard frame), the Azure Cosmos DB per-task database isolation post and Ilias Ism's agent firewall; two new AI Engineer talks (vLLM config, agent auth) were rate limited and queued for retry"
   ]
 }
