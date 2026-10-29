@@ -1,0 +1,63 @@
+{
+  "edition": "2026-10-29",
+  "window_start": "2026-10-29T00:23:26Z",
+  "window_end": "2026-10-29T07:26:35Z",
+  "files": {
+    "draft_report": "articles/x/2026-10-29/draft-report.md",
+    "article": "articles/x/2026-10-29/article.md",
+    "format": "articles/x/2026-10-29/format.txt",
+    "research": "articles/x/2026-10-29/research.md",
+    "outline": "articles/x/2026-10-29/outline.md",
+    "check": "articles/x/2026-10-29/check.md"
+  },
+  "images": [
+    {
+      "path": "/workspace/2026-10-29-2-circleci-merges.png",
+      "alt": "Slide from Sonar's AI Engineer New York leadership session \"How Anthropic Merges 30,000 Code Changes a Day\" (Manish Kapur and Addy Osmani) at 2:05: CircleCI 2026 data shows CI throughput up 59% while about 3 in 10 attempts to merge into production now fail",
+      "kind": "video-frame",
+      "source_url": "https://www.youtube.com/watch?v=AnsXWH2_EBU&t=125s",
+      "timestamp": 125,
+      "license": "YouTube still frame, fair-use citation",
+      "numbers_checked": true
+    },
+    {
+      "path": "/workspace/2026-10-29-1-github-git-writes.png",
+      "alt": "GitHub Universe 2026 opening keynote at 37:35: the new Git architecture slide shows 7,200 writes per second sustained, 5,000 concurrent agent sessions and 180x throughput",
+      "kind": "video-frame",
+      "source_url": "https://www.youtube.com/watch?v=AArI948SDz8&t=2255s",
+      "timestamp": 2255,
+      "license": "YouTube still frame, fair-use citation",
+      "numbers_checked": true
+    },
+    {
+      "path": "/workspace/2026-10-29-3-hunter-46.png",
+      "alt": "Demo from Sonar's AI Engineer New York session \"AI That Hunts Logic Bugs Before Attackers Do\" (Taylor Luttrell-Williams) at 8:40: SonarQube Cloud Hunter Agent scan results with 46 open issues, 14 broken access control, 5 business logic and 27 authentication and session",
+      "kind": "video-frame",
+      "source_url": "https://www.youtube.com/watch?v=UW8Qkk7MG8A&t=520s",
+      "timestamp": 520,
+      "license": "YouTube still frame, fair-use citation",
+      "numbers_checked": true
+    }
+  ],
+  "header": {
+    "id": "GSFC_20171208_Archive_e001935",
+    "description": "The Two-faced Whirlpool Galaxy: Hubble view of M51's dust lanes, released 2011 (portrait image, crop at post time)",
+    "path": "/workspace/x-header-2026-10-29.jpg"
+  },
+  "caption": "Claude Code tip: block background agent status summaries with an 80-line Bun preload hook; one developer measured them at 16.4% of spend. Meanwhile, someone compiled a working RISC-V CPU into Qwen's weights...",
+  "title": "Claude Code burns 16% on status lines, GitHub takes 7,200 Git writes/s, and Sonar finds 46 bugs",
+  "format": "roundup",
+  "status": "ready",
+  "todo": [
+    "Morning run: publish the website edition from draft-report.md",
+    "Post the X Article in the next X Article posting slot (about 9:30 AM PT)"
+  ],
+  "notes": [
+    "All YouTube work and Whisper (large-v3-turbo) ran on the home GPU host: 9 videos transcribed overnight (9 tried, 9 ok), 1 already had a transcript; nothing fell back to the box",
+    "No newsletter issue in the window; picks came from YouTube, RSS and the X filter",
+    "Dropped the uzu benchmark (published 2026-10-27) and GitHub keynote items already covered on 2026-10-28; GitHub paragraphs keep only new details",
+    "GitHub transcript's dollar figure for pushes looks mis-transcribed and is not used",
+    "All image labels and numbers verified against frames and transcripts (see check.md)",
+    "The user's computer was offline, so browsing used the box's own network; no material effect"
+  ]
+}
