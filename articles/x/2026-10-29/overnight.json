@@ -49,7 +49,6 @@
   "format": "roundup",
   "status": "ready",
   "todo": [
-    "Morning run: publish the website edition from draft-report.md",
     "Post the X Article in the next X Article posting slot (about 9:30 AM PT)"
   ],
   "notes": [
@@ -58,6 +57,7 @@
     "Dropped the uzu benchmark (published 2026-10-27) and GitHub keynote items already covered on 2026-10-28; GitHub paragraphs keep only new details",
     "GitHub transcript's dollar figure for pushes looks mis-transcribed and is not used",
     "All image labels and numbers verified against frames and transcripts (see check.md)",
-    "The user's computer was offline, so browsing used the box's own network; no material effect"
+    "The user's computer was offline, so browsing used the box's own network; no material effect",
+    "Morning run: published the website edition at 6:19 AM PT with two new items folded in (Docker's fabricated-CVE reviewer story, Cloudflare's Q3 DDoS report); 3 new videos (Revolut, Temporal, Serval) were rate limited and queued for retry; article.md unchanged"
   ]
 }
