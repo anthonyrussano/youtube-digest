@@ -1,0 +1,14 @@
+# Check: 2026-10-29-1205 X Article
+- [x] format.txt line 1 "roundup", line 2 reason, line 3 caption (matches article.md front matter)
+- [x] Classic full roundup: 18 linked story paragraphs, ~1,448 words in the dry run (24 paragraphs), no headings, bullets or tables
+- [x] Title names three brands with numbers in "A, B, and C" form, 94 characters (Mistral 1T, Revolut 30 cents, Spawn hourly)
+- [x] Caption "GLM tip: ..." + "Meanwhile" surprise, 216 characters, ends with "..."
+- [x] No "$<digit>" and no sibling-bot name anywhere in the folder
+- [x] Platform-word grep: no hits (literal "like"s reworded)
+- [x] Ban-list grep: no hits ("robustness" reworded)
+- [x] No two consecutive paragraphs open with the same word
+- [x] Cold open, intro line, items, closing question with three choices, sign-off
+- [x] Every transcribed video (9) cited with timestamped links except the dropped GitHub Universe recap (repeat of 2026-10-28 Article)
+- [x] 2 images, both slide frames from cited videos, each right after its paragraph; viewed and verified
+- [x] `./run.sh x-article 2026-10-29-1205 --dry-run` prints FORMAT roundup and SOURCE: articles/x/2026-10-29-1205/article.md
+- [x] Not posted to X in this run; queued for the next posting slot

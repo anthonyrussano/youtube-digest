@@ -1,0 +1,2 @@
+# Outline
+Cold open (Mistral 1T open weights + Spawn 30x payroll), intro line, then: Mistral Large 4; Revolut self-hosted GLM (+frame); Spawn; Sonar cognitive surrender (+frame); Temporal; software factory must-haves; Serval; LangChain Deep Agents v0.10; Google agent security skills and Mantis; 29 guardrails; OpenAI Model Spec; decision models (paper, Granite Switch, Ollama); STH Strix Halo; Fish Audio Drama 3; Grafana 13.3; dbt Charts; Gergely Orosz and Titus Winters; Nana on URLs. Closing question with three choices, sign-off.
