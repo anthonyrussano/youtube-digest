@@ -43,3 +43,5 @@ Jitendra Malik's Berkeley course Robots That Learn is [free online as 15 lecture
 Google's Sprout team took two weeks to build a houseplant that drives itself to the window. It's a [TurtleBot 4 base, a Pixel 11 for a face and a real Monstera](https://www.youtube.com/watch?v=ID6vEy94j7c&t=19s), using Gemini Flash for vision, Gemini Live for its voice and Nano Banana to sketch the casing. A sensor in the pot tells it when it's thirsty, and it [tells plant jokes on request](https://www.youtube.com/watch?v=ID6vEy94j7c&t=106s).
 
 That's the cycle. Go water something before it learns to drive off and find someone who will.
+
+So what would you point those Pro API credits at first: Codex, an agent, or a side project? Tell me in the replies.
