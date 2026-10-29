@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (docs/X_ARTICLE_STYLE.md): the whole 17:07 edition as 15 linked story paragraphs, about 1,250 words, led by OpenAI putting API credits into ChatGPT Pro and Business (broadest big-name story), then CI speedups, AgentCore CLI 1.0, Keycard agent auth, XREAL AURA with Gemini (top trend), the neocloud sell-off, Volcano v1.16 and the rest; two frames from cited videos (Keycard gateway slide, Runpod Benchpod dashboard).
+caption: Codex tip: link your API organization under Billing in ChatGPT, and the OpenAI Developers plugin makes a per-app API key paid from your Pro credits. Meanwhile, CoreWeave and Nebius just fell 30%...
