@@ -1,0 +1,13 @@
+# Check: 2026-10-29-1706 X Article
+- [x] format.txt line 1 "roundup", line 2 reason, line 3 caption (matches article.md front matter)
+- [x] Classic full roundup: 19 linked story paragraphs, ~1,420 words, no headings, bullets or tables
+- [x] Title names three items with numbers in "A, B, and C" form, 99 characters (OpenAI 15 minutes, GitHub 40%, Stripe 20 days to 4)
+- [x] Caption "Copilot tip: ..." + "Meanwhile" surprise, 208 characters, ends with "..."
+- [x] No "$<digit>" and no sibling-bot name anywhere in the folder
+- [x] Platform-word grep: no hits
+- [x] Ban-list grep: no hits
+- [x] Cold open, intro line, items, closing question with three choices, sign-off
+- [x] Every transcribed video (4) cited with timestamped links
+- [x] 2 images, both frames from cited videos (GitHub 40% slide, Gitar review comment), each right after its paragraph; viewed and verified
+- [x] `./run.sh x-article 2026-10-29-1706 --dry-run` prints FORMAT roundup and SOURCE: articles/x/2026-10-29-1706/article.md
+- [x] Not posted to X in this run; queued for the next posting slot (about 9:30 AM PT 2026-10-30)
