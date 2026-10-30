@@ -1,0 +1,35 @@
+{
+  "edition": "2026-10-30",
+  "window_start": "2026-10-30T00:12:39Z",
+  "window_end": "2026-10-30T07:26:53Z",
+  "files": {
+    "draft_report": "articles/x/2026-10-30/draft-report.md",
+    "article": "articles/x/2026-10-30/article.md",
+    "format": "articles/x/2026-10-30/format.txt",
+    "research": "articles/x/2026-10-30/research.md",
+    "outline": "articles/x/2026-10-30/outline.md",
+    "check": "articles/x/2026-10-30/check.md"
+  },
+  "images": [
+    {"path": "/workspace/2026-10-30-1-token-vs-task-price.png", "alt": "Slide from \"The Cheaper AI Model That Costs You More\" (AI Engineer, YouTube): Opus 5.5 is 40% cheaper on paper than Fable 5.1 but 14% more expensive per task on Tax Agent Bench, 15.09 vs 13.18 dollars, and scores 45.60% vs 49.22%", "kind": "video-frame", "source_url": "https://www.youtube.com/watch?v=rWtbOgl5FTU&t=240s", "timestamp": 240, "license": "YouTube still frame, fair-use citation", "numbers_checked": true},
+    {"path": "/workspace/2026-10-30-2-vals-smith-comparison.png", "alt": "Slide from \"The Cheaper AI Model That Costs You More\" (AI Engineer, YouTube): Vals Smith replays merged PRs as tasks; GPT-5.6 Sol scores 74.32% vs 72.97% for Kimi K3 at 2.51 vs 11.73 dollars per task and 8m28s vs 16m44s", "kind": "video-frame", "source_url": "https://www.youtube.com/watch?v=rWtbOgl5FTU&t=757s", "timestamp": 757, "license": "YouTube still frame, fair-use citation", "numbers_checked": true}
+  ],
+  "header": {"id": "PIA16008", "description": "Hubble Sees a Horsehead of a Different Color (Horsehead Nebula in infrared), 2704x2826 original", "path": "/workspace/x-header-2026-10-30.jpg"},
+  "caption": "Coding agent tip: replay your own merged PRs through two models and compare cost per finished task, not price per token. Meanwhile AWS now installs an AI accelerator about every 14 seconds...",
+  "title": "Opus 5.5 costs 14% more per task, AWS adds an AI chip every 14 seconds, and Intel sinks 23.7%",
+  "format": "roundup",
+  "status": "ready",
+  "todo": [
+    "Collect from window_end to now (deltas), fold in any big new items briefly",
+    "Copy draft-report.md to articles/2026-10-30.md, polish, STYLE.md checklist, render, publish, check HTTP 200",
+    "Header is portrait (2704x2826): crop to the X header ratio at post time",
+    "Leave the Article for the late-morning post slot (11 AM-3 PM PT preferred)"
+  ],
+  "notes": [
+    "Thin window (about 7.2 hours): 1 relevant video, 4 articles, 9 X items used; no AINews issue in the window.",
+    "The only relevant video's captions were rate-limited; it was transcribed on the home GPU host with large-v3-turbo (retry succeeded).",
+    "Model names in the Vals talk follow the slides; the transcript mishears them.",
+    "One filter-selected post (power grid, off topic) was dropped.",
+    "The user's computer was offline, so browsing and fetches used the box's own network."
+  ]
+}
