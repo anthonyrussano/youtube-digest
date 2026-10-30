@@ -1,0 +1,3 @@
+roundup
+classic full roundup default: whole edition, 20 story paragraphs led by the GKE kernel-patch mystery after the eMudhra cold open; no deep dive requested
+caption: Cloudflare tip: point a proxied DNS record at a private IP and your internal APIs and MCP servers get WAF, caching and Workers with no open firewall port. Meanwhile a certificate authority picked the number 4 as its secret key...
