@@ -1,3 +1,3 @@
 roundup
-Classic full roundup (winning formula default): 16 stories led by the Vals AI cost-per-task talk; no single story warrants a deep dive.
+Classic full roundup (winning formula default): 22 stories led by the Vals AI cost-per-task talk, with the Claude Code extension backdoor folded in from the morning delta; no single story warrants a deep dive.
 caption: Coding agent tip: replay your own merged PRs through two models and compare cost per finished task, not price per token. Meanwhile AWS now installs an AI accelerator about every 14 seconds...
