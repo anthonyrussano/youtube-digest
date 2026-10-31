@@ -135,7 +135,7 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
 8e. X ARTICLE POST (skip only on the weekday 6:04 AM run: the 10:37 routine posts it; every other run, including
    both weekend runs, posts right after publish, subject to the TIMING GATE below). Follow docs/HANDOFF.md "X Article
    playbook" exactly: localhost http server, copy via right-click menu, paste with real keystrokes, verify the
-   body, new NASA header not in state/x_posts.json, the caption (article.md front matter; roundup may fall back to
+   body, new NASA Earth-photo header not in state/x_posts.json, the caption (article.md front matter; roundup may fall back to
    format.txt line 3), read the live caption back, append the post to state/x_posts.json WITH
    "format": "roundup" | "deep-dive".
    TIMING GATE (check right before posting; docs/HANDOFF.md "Article timing"). HARD RULE (2026-10-24, overrides the
