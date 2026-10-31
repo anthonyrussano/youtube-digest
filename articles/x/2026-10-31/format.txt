@@ -1,0 +1,3 @@
+roundup
+classic full roundup default: whole edition, 16 story paragraphs led by the one-link ChatGPT account takeover and the RTX Spark Linux slowdown; no deep dive requested
+caption: WSL tip: on Nvidia's RTX Spark laptops, run local models in WSL, not native Linux. Same machine, same model: 65.1 tokens per second versus 13.9. Meanwhile one shared ChatGPT link was enough to take over an account...
