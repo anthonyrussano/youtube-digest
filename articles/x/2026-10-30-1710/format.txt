@@ -1,0 +1,3 @@
+roundup
+classic full roundup default: whole edition, 22 story paragraphs led by the Opus 5.5 effort-setting result on Slop Code Bench after the n0n ransomware cold open; no deep dive requested
+caption: Opus tip: try medium effort before paying for extra-high. On a benchmark where models maintain their own code, medium scored about 3 points higher. Meanwhile a ransomware crew ran 154 AI models and still got in with stolen passwords...
