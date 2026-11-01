@@ -1,0 +1,3 @@
+roundup
+classic full roundup default: whole edition (15 stories plus 2 quick ones), led by Karpathy's HackerTube paired with the Brazilian court prompt-injection fine; no deep dive requested
+caption: Claude Code tip: try medium effort before you pay for high; Karpathy built HackerTube on medium in about two hours. Meanwhile a Brazilian court's AI caught two lawyers hiding instructions meant for it...
