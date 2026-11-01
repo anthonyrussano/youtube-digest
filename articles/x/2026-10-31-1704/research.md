@@ -1,0 +1,24 @@
+# Research: edition 2026-10-31-1704 (Saturday evening)
+
+Thin evening window (about 4 hours). No new transcribed video (the one relevant AI Engineer upload hit a caption rate limit and is queued for the next edition). Sources: one tier-2 feed article, five X posts. The ChatGPT HTML-preview account takeover already ran in the noon edition, so it is excluded here.
+
+## Raw facts
+- **CI audit (Vox, https://x.com/Voxyz_ai/status/2116636332344889391):** Claude Code and Codex push dozens of PRs a day; the time now goes to CI. Nine changes took each PR's CI from up to 40 minutes to 2. Step one: an agent pulls the last 150 CI runs with `gh` and splits each job into queue wait, setup (checkout, deps, cache restore) and run. That showed half the test jobs were not using the dependency cache, a bug a year old. The nine checks: default-runner queueing, slow lint, slow typecheck, unsharded tests or small machines, every test file reloading the app, slow setup (cache misses, non-blobless clones, more parallel tasks than cores), jobs not in parallel, every PR running the full suite, no local pre-push checks. The prompt asks for seconds lost, file and line to change, estimated savings, a separate list for anything costing money or running fewer tests, and "Give me the report first. Don't change anything."
+- **Lakebase branching (Databricks, https://www.databricks.com/blog/lakebase-branching-cicd-lessons-100-pr-databases):** Snorkel AI gives each PR an ephemeral Kubernetes namespace. Restoring an Aurora Postgres copy took about 20 minutes per environment. AWS DMS replicates production into Lakebase main (full load, then CDC, within about 2 minutes of production; full LOB mode for 10-20 MB JSONB values). CI creates a copy-on-write branch from main per PR via API, ready in under a minute, with a TTL. About 5-10 GB per PR branch; compute scales to zero. Branching a ~1 TB copy takes about as long as 1 GB: seconds. Same pattern proposed for AI agents: one branch per agent task, review or delete.
+- **Elephant-Goldfish Model (Prasenjit Sarkar, https://x.com/stretchcloud/status/2116625003277881615):** Google tool, open-sourced per the post. Elephant agent lives for the whole feature, never writes code, argues about the plan. Stages: egm-brainstorm (no code), egm-draft (markdown design naming files and function signatures), egm-review (fresh Goldfish agents with no memory). One Goldfish explains the plan back before critiquing, others hunt edge cases, a final one makes go/no-go. Claimed: thousands of engineers daily inside Antigravity. Attribute adoption claim to him.
+- **AnyScene (Apek, https://x.com/apekshik/status/2116638903923073290, repo github.com/apekshik/anyscene):** one or more reference images plus optional text; an agent builds the set in Blender, placed, lit, color-graded, each asset its own file.
+- **SDPO (summary by Pyuyi, https://x.com/Pyuyi2333/status/2116622177805980065; paper https://arxiv.org/abs/2601.20802):** ICML 2026. Model revisits its failed attempt with environment feedback and distills the feedback-informed next-token distribution into the original policy; no external teacher. Olmo3-7B chemistry: reaches GRPO accuracy about 6x faster wall-clock. Hard LiveCodeBench: comparable discovery with up to 3x fewer attempts (test-time self-distillation). Limits: reliable feedback, capable self-teacher, extra compute, OOD generalization open.
+- **Inference margins (Quinten Farmer, https://x.com/quintendf/status/2116626710007566673):** responds to an essay by Will Manidis and Joe Roberts (https://commanding-heights.com/). Estimates US providers serve open models at about 45-60% gross margin (B200 about 5.70 dollars/hr spot, GLM-5 throughput at 80% utilization). Zhipu reported 24.6% gross margin for open-platform/API in H1 2026, up from -0.4%. Z.ai and Together list GLM-5.3 at 1.40 dollars per million uncached input and 4.40 per million output; he notes those prices postdate the period. Argues low Chinese margins come from worse hardware and smaller buildout, not deliberate price war.
+
+## Coverage check
+Most posts in the window about agent coding were hype threads about model-routing setups (several unverifiable, excluded). Almost nobody connected the two waiting problems: when agents write code in minutes, CI queues and test databases become the slow part. That is the overlooked angle.
+
+## Candidates
+| Story | Why lead | Coverage | Verdict |
+|---|---|---|---|
+| CI audit prompt | Actionable today, agent tooling, concrete 40 to 2 min | One post, practical, not picked up | **Lead** |
+| Lakebase branching | Same bottleneck from the database side | Vendor blog | Second, paired with lead |
+| Elephant-Goldfish | Agent planning pattern | Second-hand summary | Item |
+| SDPO, AnyScene, margins | Research, tool, economics | Low | Items |
+
+**Angle:** agents moved the bottleneck from writing code to waiting on CI and test data; measure where the wait goes before buying bigger runners.

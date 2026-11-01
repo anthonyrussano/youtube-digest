@@ -1,0 +1,3 @@
+roundup
+classic full roundup default: whole edition (thin evening window, 6 stories), led by the CI wait audit paired with Lakebase per-PR database branches; no deep dive requested
+caption: Claude Code tip: before you touch CI, have the agent pull your last 150 runs and split every job into queue, setup and run time, report only. Meanwhile Google open-sourced an agent that argues with you before any code gets written...
