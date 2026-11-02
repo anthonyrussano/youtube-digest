@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (winning formula default): about 20 stories, ~1,750 words, led by Anthropic's amended S-1 (17B quarter, 23.29B loss, RSI-threshold language) and the Speakeasy valid-key incident talk.
+caption: Hermes tip: tell your home-server agent to prove the app actually loads in a browser, not just that the container says running. Meanwhile a valid key deleted a production database in about 10 seconds...
