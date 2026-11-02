@@ -26,3 +26,7 @@
 - 7 stories, below the 10+ target.
 - X collection incomplete: 17 of 33 search queries and 0 of 3 account queries (X reads became temporarily unavailable).
 - The Bach video (97 min) is untranscribed.
+
+
+## Morning update 2026-11-02
+Folded in 9 brief items from the morning delta; reran ban-list grep (clean), no headings/bullets, no platform framing, no 'Mind Blow'. Claims from X summaries (NVIDIA/MIT harness, RTX 3090 throughput) are framed as reported. Word count ~1,990.

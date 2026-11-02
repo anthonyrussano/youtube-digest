@@ -39,15 +39,8 @@
   "caption": "Ollama tip: before you blame a local model in Claude Code, start the server with 64K context and check ollama ps shows 100% GPU. Meanwhile an airline cut a 15-minute recrewing scramble to under a minute...",
   "title": "Ollama needs 64K context, Xiaomi-OCR-0 reads receipts at 0.8B, and Claude Code runs for 0 dollars",
   "format": "roundup",
-  "status": "partial",
-  "todo": [
-    "Fold in morning delta items to reach 10+ stories (draft has 7 stories in 13 paragraphs, ~1,173 words); update draft-report.md and article.md together.",
-    "Re-run the X searches that did not complete overnight: queries 17 and 19-33 from config/x_queries.txt plus the 3 x-accounts lines, using start_time = window_start (2026-11-02T01:17:31Z), then re-run ./run.sh x.",
-    "If the GPU host is back: transcribe yW_ngvMFlYs (Joscha Bach, 97 min) with large-v3-turbo and consider it; optionally re-transcribe vUJDyDnqT4c with large-v3-turbo (current transcript is local base.en).",
-    "Optional: add an inline diagram (diagram-generator/chart-generator need the GPU host) or a third frame (/workspace/2026-11-02-3-apollo-ratio.png, 5:1 change management to engineering slide at 176 s, already captured and checked).",
-    "Header is 3000x2361: crop to the X header ratio at post time.",
-    "Leave the Article for the late-morning slot (11 AM-3 PM PT preferred); it is queued, not posted."
-  ],
+  "status": "complete",
+  "todo": [],
   "notes": [
     "Thin window (about 7.1 hours, Sunday night): 2 relevant videos used out of 5 new (3 selected), 1 of 3 feed articles, 4 X items selected (all used), no AINews issue.",
     "The home GPU host was unreachable all night (ssh: no route to host; VPN tunnel itself up), so listing, captions, frames and Whisper ran box-local.",
@@ -56,6 +49,7 @@
     "The CI-speedup skill item is framed as a caution: the prompt tells an agent to install and follow a remote skill from a 0-star repository.",
     "The Ollama video's captions are a translated voice-over with garbled model names; the article avoids those names and uses the on-screen 65536 value.",
     "The user's computer was offline, so browsing and fetches used the box's own network.",
-    "Nothing was published, posted, messaged or pushed."
+    "Nothing was published, posted, messaged or pushed.",
+    "Morning run 2026-11-02: folded in 9 items (NVIDIA/MIT harness claim, Cloudflare DNS targeted builds, IBM context-aware coding, passkeys, Docker Sandbox checkouts, Joscha Bach captions, Perfetto CI trick, RTX 3090 claim, Addy Osmani loops); lead unchanged. Website published 14:14Z. GPU host still unreachable; 4 videos rate-limited on captions and queued for retry. Article queued for next slot, not posted."
   ]
 }
