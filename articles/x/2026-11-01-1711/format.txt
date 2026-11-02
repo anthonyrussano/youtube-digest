@@ -1,0 +1,3 @@
+roundup
+classic full roundup default: whole edition (thin Sunday evening window, 7 stories), led by Zack Proser's WorkOS Blogbot talk with two cited slide frames; no deep dive requested
+caption: Agent tip: put your team's writing rules behind a Slack bot that drafts 85-90% of a post, then make a human sign every line. Meanwhile one dad built his toddlers a story app in four hours...
