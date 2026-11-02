@@ -1,0 +1,61 @@
+{
+  "edition": "2026-11-02",
+  "window_start": "2026-11-02T01:17:31Z",
+  "window_end": "2026-11-02T08:23:21Z",
+  "files": {
+    "draft_report": "articles/x/2026-11-02/draft-report.md",
+    "article": "articles/x/2026-11-02/article.md",
+    "format": "articles/x/2026-11-02/format.txt",
+    "research": "articles/x/2026-11-02/research.md",
+    "outline": "articles/x/2026-11-02/outline.md",
+    "check": "articles/x/2026-11-02/check.md"
+  },
+  "images": [
+    {
+      "path": "/workspace/2026-11-02-1-ollama-context.png",
+      "alt": "Frame from \"Unlimited Claude Code For Free (Runs On Your Computer)\" (Thetips4you, YouTube), chapter 04/06 \"The Context Trap\": a terminal titled \"the fix\" showing OLLAMA_CONTEXT_LENGTH=65536 ollama serve",
+      "kind": "video-frame",
+      "source_url": "https://www.youtube.com/watch?v=-Qvf9Y3RT_M&t=322s",
+      "timestamp": 322,
+      "license": "YouTube still frame, fair-use citation",
+      "numbers_checked": true
+    },
+    {
+      "path": "/workspace/2026-11-02-2-apollo-ebit.png",
+      "alt": "Slide from \"Your AI Pilots Won't Move the P&L. Here's What Will\" (Adam Nahari, Apollo; AI Engineer, YouTube): 55% of US adults used generative AI within three years of launch versus 20% for the PC and 30% for the internet; 6% of companies attribute 5% or more of EBIT to AI, while 88% use AI in at least one business function",
+      "kind": "video-frame",
+      "source_url": "https://www.youtube.com/watch?v=vUJDyDnqT4c&t=110s",
+      "timestamp": 110,
+      "license": "YouTube still frame, fair-use citation",
+      "numbers_checked": true
+    }
+  ],
+  "header": {
+    "id": "sts066-158-181",
+    "description": "Himalayas as seen from STS-66 shuttle Atlantis (1994): view southeastward across Tibet, Nepal and India, central Himalaya from Everest to Annapurna; 3000x2361 original",
+    "path": "/workspace/x-header-2026-11-02.jpg",
+    "source_url": "https://images.nasa.gov/details/sts066-158-181"
+  },
+  "caption": "Ollama tip: before you blame a local model in Claude Code, start the server with 64K context and check ollama ps shows 100% GPU. Meanwhile an airline cut a 15-minute recrewing scramble to under a minute...",
+  "title": "Ollama needs 64K context, Xiaomi-OCR-0 reads receipts at 0.8B, and Claude Code runs for 0 dollars",
+  "format": "roundup",
+  "status": "partial",
+  "todo": [
+    "Fold in morning delta items to reach 10+ stories (draft has 7 stories in 13 paragraphs, ~1,173 words); update draft-report.md and article.md together.",
+    "Re-run the X searches that did not complete overnight: queries 17 and 19-33 from config/x_queries.txt plus the 3 x-accounts lines, using start_time = window_start (2026-11-02T01:17:31Z), then re-run ./run.sh x.",
+    "If the GPU host is back: transcribe yW_ngvMFlYs (Joscha Bach, 97 min) with large-v3-turbo and consider it; optionally re-transcribe vUJDyDnqT4c with large-v3-turbo (current transcript is local base.en).",
+    "Optional: add an inline diagram (diagram-generator/chart-generator need the GPU host) or a third frame (/workspace/2026-11-02-3-apollo-ratio.png, 5:1 change management to engineering slide at 176 s, already captured and checked).",
+    "Header is 3000x2361: crop to the X header ratio at post time.",
+    "Leave the Article for the late-morning slot (11 AM-3 PM PT preferred); it is queued, not posted."
+  ],
+  "notes": [
+    "Thin window (about 7.1 hours, Sunday night): 2 relevant videos used out of 5 new (3 selected), 1 of 3 feed articles, 4 X items selected (all used), no AINews issue.",
+    "The home GPU host was unreachable all night (ssh: no route to host; VPN tunnel itself up), so listing, captions, frames and Whisper ran box-local.",
+    "Captions: -Qvf9Y3RT_M ok; vUJDyDnqT4c and yW_ngvMFlYs rate-limited. vUJDyDnqT4c transcribed with local faster-whisper base.en (29 s); yW_ngvMFlYs skipped (97 min exceeds the 45-minute local cap).",
+    "X reads became temporarily unavailable partway through the searches: 27 trend reads and 17 of 33 search queries completed; account queries not run.",
+    "The CI-speedup skill item is framed as a caution: the prompt tells an agent to install and follow a remote skill from a 0-star repository.",
+    "The Ollama video's captions are a translated voice-over with garbled model names; the article avoids those names and uses the on-screen 65536 value.",
+    "The user's computer was offline, so browsing and fetches used the box's own network.",
+    "Nothing was published, posted, messaged or pushed."
+  ]
+}
