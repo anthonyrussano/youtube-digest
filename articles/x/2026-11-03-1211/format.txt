@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (winning formula default): 23 stories, ~1,600 words, led by Artificial Analysis's agent cost breakdown (21 dollars cached vs 200+ uncached) and Postman's self-installing agent plugins.
+caption: Agent cost tip: before you switch to a cheaper model, check your prompt cache hit rate and reasoning effort. One Opus task runs 21 dollars cached, 200+ uncached. Meanwhile Postman quietly installed itself into Codex and Claude Code...
