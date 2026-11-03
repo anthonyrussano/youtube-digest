@@ -5,16 +5,18 @@
 
 * Mail comes from the private mail bridge on this box (/home/box/mail-bridge, env ~/.config/mail-bridge/env.sh,
   Vault AppRole). Strictly read-only: the folder is SELECTed read-only and bodies are fetched with BODY.PEEK[],
-  so nothing is marked read and no flags/folders change. Only messages From swyx+ainews@substack.com with
-  "[AINews]" in the subject are fetched. Nothing is ever sent.
+  so nothing is marked read and no flags/folders change. Only messages From lspace@mail.beehiiv.com
+  (Latent Space on Beehiiv) or swyx+ainews@substack.com (older issues) with "[AINews]" in the subject
+  are fetched. Nothing is ever sent.
 * Window: --since, else state/current_edition.json start_utc (same as feeds/fetch), else --hours (default 24),
   matched on the email Date. --latest N ignores the window and takes the N newest issues (testing).
 * Parses each issue into stories: the lead (title story), every bold story heading + bullet list in the
   "AI Twitter Recap", and every top-level item in the Reddit recaps. Each story gets a title, a summary and
-  the source URLs it cites. substack.com/redirect links are unwrapped (one GET without the personal ?j= token,
-  Location header only) and cached in data/ainews_cache/redirects.json; t.co/bit.ly-style hops are followed too.
-  Primary sources (X posts, papers, GitHub, HF, official blogs) rank first; substack/latent.space/image links
-  are dropped, so items never point at the email.
+  the source URLs it cites. substack.com/redirect and Beehiiv link.mail.beehiiv.com/ss links are unwrapped
+  (one GET, Location header only; Substack drops the personal ?j= token) and cached in
+  data/ainews_cache/redirects.json; t.co/bit.ly-style hops are followed too. Unresolved hops are not cached.
+  Primary sources (X posts, papers, GitHub, HF, official blogs) rank first; substack/beehiiv/latent.space/image
+  links are dropped, so items never point at the email.
 * Dedup: issues whose Message-ID is in state/ainews_seen.json "issues" are skipped; URLs in ainews_seen "urls",
   feeds_seen.json, published.json "articles" and X ids in published.json "x" are removed from stories (a story
   with no fresh source left is dropped). Never writes state/: `edition.py published` marks everything in
@@ -28,10 +30,26 @@ import urllib.request, urllib.error
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from feeds_canon import canon
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BRIDGE = os.environ.get("AINEWS_BRIDGE", "/home/box/mail-bridge/examples")
-SENDER, TAG = "swyx+ainews@substack.com", "[AINews]"
+# Beehiiv (Latent Space) is the current sender; Substack still matches older issues in the mailbox.
+SENDERS, TAG = ("lspace@mail.beehiiv.com", "swyx+ainews@substack.com"), "[AINews]"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
-SHORTENERS = {"t.co", "bit.ly", "buff.ly", "lnkd.in", "ow.ly", "tinyurl.com", "dlvr.it", "substack.com", "email.mg.substack.com"}
-DROP_HOST = re.compile(r"(^|\.)(substack\.com|latent\.space|substackcdn\.com|substack-post-media\.s3\.amazonaws\.com)$|^preview\.redd\.it$|^i\.redd\.it$")
+SHORTENERS = {"t.co", "bit.ly", "buff.ly", "lnkd.in", "ow.ly", "tinyurl.com", "dlvr.it", "substack.com", "email.mg.substack.com", "link.mail.beehiiv.com"}
+DROP_HOST = re.compile(r"(^|\.)(substack\.com|latent\.space|beehiiv\.com|beehiivstatus\.com|news\.smol\.ai|substackcdn\.com|substack-post-media\.s3\.amazonaws\.com)$|^preview\.redd\.it$|^i\.redd\.it$")
+def from_ok(frm):
+    low = str(frm or "").lower()
+    return any(s in low for s in SENDERS)
+def host_is(host, domain):
+    return host == domain or host.endswith("." + domain)
+def is_hop(url):
+    s = urlsplit(url); host = s.netloc.lower()
+    if host in SHORTENERS: return True
+    if host_is(host, "substack.com") and "/redirect/" in s.path: return True
+    return host_is(host, "beehiiv.com") and s.path.startswith("/ss/")
+def cache_resolved(url):
+    # substack.com is listed as a shortener so /redirect/ matches; a landed article is done.
+    s = urlsplit(url); host = s.netloc.lower()
+    if host == "substack.com" and "/redirect/" not in s.path: return True
+    return not is_hop(url)
 def load(p, d):
     try: return json.load(open(p))
     except Exception: return d
@@ -48,13 +66,16 @@ def fetch_issues(cutoff, latest):
         im.select("INBOX", readonly=True)                       # read-only: no \Seen, no expunge
         since = (cutoff - timedelta(days=1)).strftime("%d-%b-%Y") if not latest else \
             (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%d-%b-%Y")
-        _, d = im.uid("search", None, "FROM", f'"{SENDER}"', "SUBJECT", f'"{TAG}"', "SINCE", since)
-        uids = d[0].split()
+        uids, seen = [], set()
+        for sender in SENDERS:  # either From, same [AINews] subject; union keeps history and the Beehiiv issues
+            _, d = im.uid("search", None, "FROM", f'"{sender}"', "SUBJECT", f'"{TAG}"', "SINCE", since)
+            for uid in (d[0] or b"").split():
+                if uid not in seen: seen.add(uid); uids.append(uid)
         hdrs = []
         for uid in uids:
             _, m = im.uid("fetch", uid, "(BODY.PEEK[HEADER.FIELDS (FROM SUBJECT DATE MESSAGE-ID)])")
             hd = email.message_from_bytes(m[0][1], policy=email.policy.default)
-            if SENDER not in str(hd["From"]).lower() or TAG not in str(hd["Subject"]): continue
+            if not from_ok(hd["From"]) or TAG not in str(hd["Subject"]): continue
             dt = email.utils.parsedate_to_datetime(str(hd["Date"])).astimezone(timezone.utc)
             hdrs.append((dt, uid, hd))
         hdrs.sort(key=lambda x: x[0], reverse=True)
@@ -142,9 +163,10 @@ def resolve(u, cache, timeout):
     if u in cache: return cache[u]
     cur = u
     for _ in range(5):
-        s = urlsplit(cur); host = s.netloc.lower()
-        if host not in SHORTENERS and not (host.endswith("substack.com") and "/redirect/" in s.path): break
-        if "/redirect/" in s.path: cur = urlunsplit((s.scheme, s.netloc, s.path, "", ""))  # drop personal ?j= token
+        if not is_hop(cur): break
+        s = urlsplit(cur)
+        if "/redirect/" in s.path and host_is(s.netloc.lower(), "substack.com"):
+            cur = urlunsplit((s.scheme, s.netloc, s.path, "", ""))  # drop personal ?j= token; Beehiiv token is the path, keep it
         try:
             req = urllib.request.Request(cur, method="GET", headers={"User-Agent": "Mozilla/5.0"})  # full browser UA gets a 200 interstitial
             class NR(urllib.request.HTTPRedirectHandler):
@@ -155,7 +177,7 @@ def resolve(u, cache, timeout):
             if not loc: break
             cur = urllib.parse.urljoin(cur, loc)
         except Exception: break
-    if "/redirect/" not in cur: cache[u] = cur  # do not cache failures
+    if cache_resolved(cur): cache[u] = cur  # do not cache unresolved Substack /redirect/ or Beehiiv /ss/ hops
     return cur
 def clean_url(u):
     s = urlsplit(u); host = s.netloc.lower().removeprefix("www.").removeprefix("mobile.")
@@ -185,7 +207,8 @@ def main():
     a = ap.parse_args(); t0 = time.time(); now = datetime.now(timezone.utc)
     since = a.since or (None if "--hours" in sys.argv else load(f"{ROOT}/state/current_edition.json", {}).get("start_utc"))
     cutoff = datetime.fromisoformat(since.replace("Z", "+00:00")) if since else now - timedelta(hours=a.hours)
-    base = {"run_at": now.isoformat(), "since_utc": cutoff.strftime("%Y-%m-%dT%H:%M:%SZ"), "source": "AINews (swyx+ainews@substack.com)"}
+    base = {"run_at": now.isoformat(), "since_utc": cutoff.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "source": "AINews (lspace@mail.beehiiv.com or swyx+ainews@substack.com)"}
     try:
         issues = fetch_issues(cutoff, a.latest)
     except BaseException as e:  # bridge down, VPN down, Vault error, SystemExit from the client: soft failure
