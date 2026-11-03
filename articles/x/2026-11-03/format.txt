@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (winning formula default): 17 stories in 18 paragraphs, ~1,700 words, led by OpenAI's Pando Git backend and how agents built it, then GhostAction, Mixedbread and the Battlefield 1942 port.
+caption: Codex tip: give agents a conformance test suite and a deterministic simulator before they write code; OpenAI built its new Git backend that way in 10 weeks. Meanwhile Claude Code turned Battlefield 1942 into 100,000 lines of C...

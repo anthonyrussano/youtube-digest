@@ -1,0 +1,40 @@
+{
+  "edition": "2026-11-03",
+  "window_start": "2026-11-02T20:33:01Z",
+  "window_end": "2026-11-03T08:38:28Z",
+  "files": {
+    "draft_report": "articles/x/2026-11-03/draft-report.md",
+    "article": "articles/x/2026-11-03/article.md",
+    "format": "articles/x/2026-11-03/format.txt",
+    "research": "articles/x/2026-11-03/research.md",
+    "outline": "articles/x/2026-11-03/outline.md",
+    "check": "articles/x/2026-11-03/check.md"
+  },
+  "images": [
+    {"path": "/workspace/2026-11-03-1-pando-flow.png", "alt": "Diagram: how OpenAI's Pando handles a git push and a git fetch", "kind": "diagram",
+     "source": "https://openai.com/index/scaling-git-at-openai/", "license": "own diagram from public post", "numbers_checked": true},
+    {"path": "/workspace/2026-11-03-2-mixedbread-accuracy.png", "alt": "Slide from \"Better Search Took This AI Agent From 36% to 98% Accuracy\" (AI Engineer, YouTube)", "kind": "video-frame",
+     "source_url": "https://www.youtube.com/watch?v=3Ad73Onx3Aw&t=904s", "timestamp": 904, "numbers_checked": true},
+    {"path": "/workspace/2026-11-03-3-aws-failures.png", "alt": "Slide from \"Agentic Operations Foundations - Module 1 - What is AIOps\" (Amazon Web Services, YouTube)", "kind": "video-frame",
+     "source_url": "https://www.youtube.com/watch?v=WD0caEH76og&t=185s", "timestamp": 185, "numbers_checked": true}
+  ],
+  "header": {"id": "iss071e439624", "description": "Orbital sunrise lighting Earth's atmosphere over the Pacific, photographed from the ISS (Aug 6, 2024)", "path": "/workspace/x-header-2026-11-03.jpg"},
+  "caption": "Codex tip: give agents a conformance test suite and a deterministic simulator before they write code; OpenAI built its new Git backend that way in 10 weeks. Meanwhile Claude Code turned Battlefield 1942 into 100,000 lines of C...",
+  "title": "OpenAI cuts Git push latency 80%, Mixedbread lifts an agent to 98%, and GhostAction hits 30K repos",
+  "format": "roundup",
+  "status": "ready",
+  "todo": [
+    "6:04 run: collect only after window_end, fold in big new items briefly, copy draft-report.md to articles/2026-11-03.md, render, publish",
+    "6:04 run: the box's private state was reset before this run (no seen/published/retry/post-log files), so publish will record IDs from scratch; check the last few reports by hand for repeats of any new items",
+    "10:37 poster: re-check the header id against the post log if one exists by then (no post log was available overnight)"
+  ],
+  "notes": [
+    "Private state on the box was missing at start (fresh clone around 10:49 PM PT Nov 2): no last-edition time, seen, published, retry queue or post log. Window start was set by hand to the previous edition's publish time (12:33 PM PT Nov 2) instead of the default now-24h; repeats were checked by hand against the 2026-11-01 and 2026-11-02 reports.",
+    "The subscriptions list on the box is the 70-channel public starter list, not the full export.",
+    "Remote yt-dlp host was unreachable for the first fetch (ssh key not matched to the configured host name); fetch fell back to box-local listing and succeeded (70/70 channels). Fixed the box ssh config alias, then transcripts, Whisper and frames ran on the remote host.",
+    "Captions: all 8 selected videos were rate limited (429). Whisper large-v3-turbo on the remote GPU transcribed all 8 (one needed a second run after a remote miss fell through to the local backend and hit the memory cap). Retry queue file did not exist, so nothing else to retry.",
+    "AINews unavailable: mail bridge credentials missing on the box (non-fatal).",
+    "One feed failed (Databricks Blog, connection refused). X: 27 trend reads + 36 search reads; 15 posts qualified; top trends context-eng, iac-cicd.",
+    "Dropped image: a GhostAction video frame (title card only)."
+  ]
+}
