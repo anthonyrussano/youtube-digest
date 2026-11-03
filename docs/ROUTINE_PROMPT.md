@@ -38,7 +38,7 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
    of one story) and pick the stories genuinely about AI/ML or DevOps that are big, concrete and new (usually 3-8).
    Write data/ainews_selected.json as {"<item id>": "AI" | "DevOps"} ({} if none). Use only facts in the item's
    summary. Link the claim to the item's original sources (prefer primary_url: the X post, paper, repo or blog),
-   NEVER to the newsletter, substack, latent.space or the email, and never say "AINews" or "newsletter".
+   NEVER to the newsletter, substack, beehiiv, latent.space or the email, and never say "AINews" or "newsletter".
    Group: one story covered by AINews and by a feed article, X post or video is ONE item, cited to the primary
    source (and merge several AINews bullets with the same "theme" into one item).
 3. ./run.sh transcripts    (429s get status "rate limited (retry later)"; at publish they go to state/retry.json and are
