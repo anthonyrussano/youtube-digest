@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (default winning formula): 18 linked story paragraphs from the 5:11 PM PT edition.
+caption: Claude Code tip: launch with CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 so Opus plans and reviews while Sonnet teammates build in parallel. Meanwhile one dev swapped a 9,000-dollar-a-month CI bill for machines he owns...
