@@ -64,9 +64,8 @@
   "format": "roundup",
   "status": "ready",
   "todo": [
-    "Collect only after window_end, fold in big new items briefly, copy draft-report.md to articles/2026-11-04.md, run the STYLE.md checklist, render and publish (render could not run on the draft path).",
     "Leave the Article for the 10:37 post; re-check that header s44-94-051 is still unused before posting.",
-    "If the GPU host is back, optionally re-run Whisper with large-v3-turbo on 5UgnatzpZ9E (overnight transcript is local base.en; facts used were cross-checked against slide frames)."
+    "If the GPU host is back, optionally re-run Whisper with large-v3-turbo on 5UgnatzpZ9E, -uBABM2AuFg and 0PqGT2L6cZM (all transcribed with local base.en)."
   ],
   "notes": [
     "GPU host unreachable all night (ssh: no route to host; the box's VPN tunnel itself was up). Every yt-dlp call fell back to the box and worked: fetch listed all 70 channels, captions came through for v489tFAlrHY, and 5 video frames were grabbed box-side.",
@@ -75,6 +74,7 @@
     "Video frames are native 1024 px wide (best format available to the box fallback), not 2400.",
     "Thin overnight window (about 7 hours): 2 videos (both transcribed), feeds 43 of 44 ok (Databricks connection refused), 1 feed article used, AINews ok with 0 issues in window, X 36 search reads plus 27 trend reads, 14 posts qualified, 8 used.",
     "Dropped as repeats of published editions: Hindsight Models and the Qwen3.8-27B 367.9 tokens/s item.",
-    "Retry queue was empty. The subscription list is still the 70-channel starter list after the Nov 2 wipe; channel coverage is incomplete until the full export is restored."
+    "Retry queue was empty. The subscription list is still the 70-channel starter list after the Nov 2 wipe; channel coverage is incomplete until the full export is restored.",
+    "6:04 run: collected 08:40Z to about 14:15Z. Added 2 videos (Langfuse bank evals, Datasite and Reducto parsing; captions rate-limited, transcribed with local base.en), 3 feed articles (Cloudflare personal agents, CNCF OpenShell on Kubernetes, RTX Spark on Linux) and 1 X post (NVIDIA compaction paper) to the website edition; one short Langfuse paragraph added to article.md after the Devin item. Dropped the Qwen3.8-27B LSA item because its post did not pass the X filter. GPU host still unreachable."
   ]
 }

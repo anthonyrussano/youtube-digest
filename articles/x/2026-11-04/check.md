@@ -41,3 +41,8 @@ Five inline images is above the winning formula's 1-3; kept on purpose per Antho
 - Added "at 10 million tokens" to the LSA speedup (the 72.4x is a 10M-token figure).
 - Replaced the Hindsight cost chart with the AMD chart after finding Hindsight was already published.
 - format.txt caption synced to article.md ("not only", "iPhone Duo").
+
+
+## 6:04 run update
+- Added one Langfuse paragraph (top-five bank: 60% to about 95% numeric accuracy with a calculate tool, compliance zero shuts the gate; transcript t=181, 664, 919) after the Devin item. Numbers checked against the transcript.
+- Removed nothing else; images, title and caption unchanged. `x-article --dry-run` re-run: FORMAT roundup, SOURCE article.md, ~1276 words.

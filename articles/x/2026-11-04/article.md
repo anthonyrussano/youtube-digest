@@ -32,6 +32,8 @@ AMD grew Q3 revenue 45% to 13.4 billion dollars, with [data center sales up 97% 
 
 Nader Dabit of Cognition calls [Devin "Lambda for engineering work"](https://x.com/dabit3/status/2117817857706746223): you send a task, and an agent plus its computer exist only while the job runs. With your own AWS credentials, those cloud agents run in your account, on EC2 for builds or GPU boxes for games and ML. He works on Devin, so read it as a pitch, but nine iPhone apps tested with zero Macs on the desk is a real shift in what a laptop is for.
 
+Langfuse's Doneyli De Jesus saw the same lesson at one of the top five banks, which told him [it certifies applications, not models](https://www.youtube.com/watch?v=-uBABM2AuFg&t=181s). Its earnings-call agent grounded 97% of its answers but got numbers right only about 60% of the time, until the team [gave it a Python calculate tool and accuracy rose to about 95%](https://www.youtube.com/watch?v=-uBABM2AuFg&t=664s). And [a zero on regulatory compliance shuts the gate](https://www.youtube.com/watch?v=-uBABM2AuFg&t=919s) no matter how good the average looks.
+
 Anthropic's Addy Osmani says a two-sentence rule in Claude Code's Opus 5.5 prompt, meant to stop copies of existing games, [also blocked people who named a game to describe the mechanics they wanted](https://x.com/addyosmani/status/2117848568535106001). Version 2.1.317 fixes it: name a game and Claude builds an original one in that genre, ask for a copy and it offers something similar. If Claude turns down your own project, the team wants to hear about it.
 
 Vercel CLI now ships [`vercel doctor`](https://vercel.com/changelog/vercel-cli-now-diagnoses-setup-problems-with-vercel-doctor), which checks five things: your CLI install, login and team, project link, `vercel.json` and active incidents, and prints the fix command for each problem. It never prompts or logs in, so a coding agent can run it before guessing, and `--json` gives the results as data. Guillermo Rauch's advice to every tool builder: [ship doctor subcommands in your CLIs](https://x.com/rauchg/status/2117802827519250568).
@@ -43,8 +45,6 @@ Vercel Labs' agent-desktop gives a coding agent [computer use without screenshot
 A few quick ones.
 
 Georges Petrov's Screenplay lets your agent [film a polished product demo from one prompt](https://x.com/RoundtableSpace/status/2117802763262591481). The agent writes a JSON scenario, a dry run catches broken selectors before filming, and [the default output is 1920x1080 at 30 frames per second](https://github.com/gmpetrov/agent-screenplay), with no model key needed.
-
-Prefrontal AI says that at 10 million tokens, [98% of sparse attention's time goes to choosing which tokens to look at](https://prefrontal.ai/news/lsa/). Its Latent Sparse Attention, [distilled onto Qwen-3.8-27B](https://x.com/Oluwaphilemon1/status/2117812727301259642), reports 72.4x faster attention-layer prefill at 10 million tokens on one H200 and 9.2x faster time to first token end to end, though LongBench v2 slipped from 70.0 to 65.0.
 
 Which one are you trying first: a correlation check on your LLM judge, an OpenShell-style sandbox for agent tool calls, or a doctor command your agents can run? Tell me in the replies.
 
