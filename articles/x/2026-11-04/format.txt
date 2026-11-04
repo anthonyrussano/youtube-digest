@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (winning formula default): 10 stories in 13 story paragraphs, about 1,100 words, led by NatWest's lesson that a broken LLM judge looks like a good one, then OpenShell's agent trust zones, AMD vs Intel and Devin's nine cloud Macs.
+caption: Agent eval tip: check your LLM judge's correlation with human scores, not only its average error, and pick a judge from another model family. Meanwhile Devin built and tested nine iPhone Duo apps on nine cloud Macs at once...

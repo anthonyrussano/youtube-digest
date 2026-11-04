@@ -1,0 +1,80 @@
+{
+  "edition": "2026-11-04",
+  "window_start": "2026-11-04T01:24:32Z",
+  "window_end": "2026-11-04T08:40:14Z",
+  "files": {
+    "draft_report": "articles/x/2026-11-04/draft-report.md",
+    "article": "articles/x/2026-11-04/article.md",
+    "format": "articles/x/2026-11-04/format.txt",
+    "research": "articles/x/2026-11-04/research.md",
+    "outline": "articles/x/2026-11-04/outline.md",
+    "check": "articles/x/2026-11-04/check.md"
+  },
+  "images": [
+    {
+      "path": "/workspace/2026-11-04-1-natwest-funnel.png",
+      "alt": "Slide from \"Building the AI Agent Is Easy. Proving It's Safe Isn't\" (AI Engineer, YouTube): NatWest's routing funnel, where fewer than half of customer turns reach a model",
+      "kind": "video-frame",
+      "source": "https://www.youtube.com/watch?v=5UgnatzpZ9E&t=300s",
+      "source_url": "https://www.youtube.com/watch?v=5UgnatzpZ9E&t=300s",
+      "timestamp": 300,
+      "numbers_checked": true
+    },
+    {
+      "path": "/workspace/2026-11-04-2-natwest-broken-judge.png",
+      "alt": "Slide from \"Building the AI Agent Is Easy. Proving It's Safe Isn't\" (AI Engineer, YouTube): an LLM judge pinned near 0.97 versus wider human scores, correlation 0.04",
+      "kind": "video-frame",
+      "source": "https://www.youtube.com/watch?v=5UgnatzpZ9E&t=600s",
+      "source_url": "https://www.youtube.com/watch?v=5UgnatzpZ9E&t=600s",
+      "timestamp": 600,
+      "numbers_checked": true
+    },
+    {
+      "path": "/workspace/2026-11-04-3-natwest-safety-spine.png",
+      "alt": "Diagram: NatWest's route, score and ship steps for customer-facing agents, drawn from the talk's slides",
+      "kind": "diagram",
+      "source": "https://www.youtube.com/watch?v=5UgnatzpZ9E (slides at t=300, 705, 900)",
+      "tool": "pele",
+      "numbers_checked": true
+    },
+    {
+      "path": "/workspace/2026-11-04-4-openshell-trust-zones.png",
+      "alt": "Diagram: trusted gateway and harness versus an OpenShell sandbox that denies egress by default and turns denials into proposed rules, from Red Hat's video and NVIDIA's OpenShell docs",
+      "kind": "diagram",
+      "source": "https://www.youtube.com/watch?v=v489tFAlrHY&t=716s ; https://docs.nvidia.com/openshell/how-it-works/policies/advisor ; https://www.redhat.com/en/blog/bringing-claude-self-hosted-sandboxes-to-openshell-on-red-hat-ai",
+      "tool": "pele",
+      "numbers_checked": true
+    },
+    {
+      "path": "/workspace/2026-11-04-5-amd-intel-guidance.png",
+      "alt": "Chart: AMD's Q3 2026 revenue of 13.4 billion dollars and next-quarter guidance of about 17 billion, against Intel's 15 to 16 billion guidance, per The Register",
+      "kind": "chart",
+      "source": "https://www.theregister.com/systems/2026/11/04/amd-on-track-to-overtake-intel-as-biggest-x86-outfit/5307448",
+      "tool": "chart-generator",
+      "numbers_checked": true
+    }
+  ],
+  "header": {
+    "id": "s44-94-051",
+    "description": "Supertyphoon Yuri's eye over the Western Pacific, photographed from Space Shuttle mission STS-44 (Dec 1991)",
+    "path": "/workspace/x-header-2026-11-04.jpg"
+  },
+  "caption": "Agent eval tip: check your LLM judge's correlation with human scores, not only its average error, and pick a judge from another model family. Meanwhile Devin built and tested nine iPhone Duo apps on nine cloud Macs at once...",
+  "title": "NatWest's AI judge correlates 0.04, AMD eyes 17 billion dollars, and Devin runs 9 cloud Macs",
+  "format": "roundup",
+  "status": "ready",
+  "todo": [
+    "Collect only after window_end, fold in big new items briefly, copy draft-report.md to articles/2026-11-04.md, run the STYLE.md checklist, render and publish (render could not run on the draft path).",
+    "Leave the Article for the 10:37 post; re-check that header s44-94-051 is still unused before posting.",
+    "If the GPU host is back, optionally re-run Whisper with large-v3-turbo on 5UgnatzpZ9E (overnight transcript is local base.en; facts used were cross-checked against slide frames)."
+  ],
+  "notes": [
+    "GPU host unreachable all night (ssh: no route to host; the box's VPN tunnel itself was up). Every yt-dlp call fell back to the box and worked: fetch listed all 70 channels, captions came through for v489tFAlrHY, and 5 video frames were grabbed box-side.",
+    "Whisper: remote backend skipped; local large-v3-turbo was killed by the 1.5 GB memory cap, so 5UgnatzpZ9E (18 min) was transcribed with local base.en. It mishears some names (Cora, Comet Opik); all numbers in the drafts were checked against slide frames.",
+    "Images rendered on the box (pele and chart-generator cloned from their public repos) instead of the GPU host. Five inline images, above the winning formula's 1-3, per the Nov 3 ask for more diagrams and frames; the poster may drop the diagram or chart if needed.",
+    "Video frames are native 1024 px wide (best format available to the box fallback), not 2400.",
+    "Thin overnight window (about 7 hours): 2 videos (both transcribed), feeds 43 of 44 ok (Databricks connection refused), 1 feed article used, AINews ok with 0 issues in window, X 36 search reads plus 27 trend reads, 14 posts qualified, 8 used.",
+    "Dropped as repeats of published editions: Hindsight Models and the Qwen3.8-27B 367.9 tokens/s item.",
+    "Retry queue was empty. The subscription list is still the 70-channel starter list after the Nov 2 wipe; channel coverage is incomplete until the full export is restored."
+  ]
+}
