@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (winning formula default): 20 story paragraphs plus a quick-ones paragraph, about 1,900 words, led by Kimi K3.1 Pro's open 2.8T weights (a big named brand with a hard number), then OpenAI buying Pierre, Warp's factories-as-code and the APT signature bypass.
+caption: Amp tip: give agent tool arguments plain names before you swap models. Renaming one from "format" to "kind" took correct picks from 53% to 79%. Meanwhile an open 2.8-trillion-parameter Kimi model beats Opus 5.5 on a marathon coding test...
