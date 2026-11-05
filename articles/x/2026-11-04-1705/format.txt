@@ -1,0 +1,3 @@
+roundup
+Classic full roundup (winning formula default): 15 story paragraphs plus a quick-ones paragraph, led by Anthropic using Claude to map the first prokaryotic vault structure, then the Claude Code advisor pattern, the passkey audit and Microsoft's local 53 GB coding model.
+caption: Claude Code tip: launch with claude --model sonnet --advisor opus, so Opus only weighs in before a plan locks, after a repeated error and before done. Meanwhile an inaudible tone got voice AI to stop refusing 94% of the time...
