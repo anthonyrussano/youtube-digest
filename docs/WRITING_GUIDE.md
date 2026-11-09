@@ -91,3 +91,10 @@ Contrast is the engine of the wonder. Use at least three of these per edition:
   - Narrow deep dives (one security or eval angle) mostly landed 50-200.
   - Hype/filler words are rare already (a handful of "huge", "basically" across all editions); keep them out.
   - Proposed tweak: try "tip + Meanwhile" as the default caption shape for 2 weeks and compare.
+
+- **2026-11-09 (5 measured X Articles, Nov 3-4; very small sample, leans not laws):**
+  - All five were classic roundups with tip + "Meanwhile" captions. Lifetime impressions averaged about 835 (median about 600, range about 550-1,460), well above the Oct baseline of about 550 for that caption shape.
+  - Morning (8-10 AM PT) and early-afternoon posts both landed in the 550-900 range; the best performer was a late-afternoon (3 PM PT) post at about 1,460, so hour alone does not explain results.
+  - Likes stayed in single digits to low teens, replies ran higher than likes (about 10 vs 6 on average), and bookmarks were near zero: the "Your turn" question closers seem to draw replies, not saves.
+  - Only one post had a true ~24h read; later reads are lifetime totals, so compare formats carefully.
+  - Proposed tweak: keep tip + Meanwhile as the default caption and keep the reply-bait closing question; test one edition with a save-worthy checklist-style tip to see whether bookmarks move.
