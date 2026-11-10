@@ -41,3 +41,8 @@ NASA iss042e013697 (Expedition 42 Earth observation from the ISS, blue Earth lim
 - Caption moved off tip-first (the previous post, 2026-11-09, was tip + Meanwhile) to the **number** shape: leads with Harvey's 900 agents in about four hours, then the fix (repeat alerts join the open investigation, t=500s). Ends in `...`, no `$`, no "Mind Blow". Record `"caption_shape": "number"` in state/x_posts.json.
 - Close now: one first-person take (limit what one alert or one person can start; grounded in Harvey's talk), the reply question, a share prompt (send to the teammate who owns the alert-to-agent pipeline), and a follow line. Dropped the old "That's the cycle" sign-off.
 - Dry run re-run: passes, FORMAT roundup, SOURCE article.md.
+
+## 9:20 AM Plain English pass (`./run.sh plain-lint 2026-11-10`)
+- Before: 21 sentences over 25 words, 3 semicolons, 1 perfect tense ("had been through it"); longest 45 words, mean 18.3.
+- After: 0 real hits. One remaining "over 25" hit is the quoted Anthropic prompt line (the linter reads the closing quote as part of the next sentence); quoted text stays as is. Longest prose sentence now 25 words or fewer, mean 13.7.
+- Wording only: split long sentences, replaced semicolons with full stops, "had been through it" -> "went through it". Every fact, link (same URLs, same order), [[IMG]] marker, the title and the caption unchanged. x-article dry run passes.
