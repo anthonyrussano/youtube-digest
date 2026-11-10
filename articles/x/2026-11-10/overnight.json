@@ -1,0 +1,96 @@
+{
+ "edition": "2026-11-10",
+ "window_start": "2026-11-10T01:47:15Z",
+ "window_end": "2026-11-10T08:32:55Z",
+ "files": {
+  "draft_report": "articles/x/2026-11-10/draft-report.md",
+  "article": "articles/x/2026-11-10/article.md",
+  "format": "articles/x/2026-11-10/format.txt",
+  "research": "articles/x/2026-11-10/research.md",
+  "outline": "articles/x/2026-11-10/outline.md",
+  "check": "articles/x/2026-11-10/check.md"
+ },
+ "images": [
+  {
+   "path": "/workspace/2026-11-10-1-cloudflare-audit-phases.png",
+   "alt": "Diagram: the six phases of Cloudflare's open-source security-audit skill, from reconnaissance to a findings file with confirmed, needs_validation and rejected verdicts, then independent verification and REPORT.md",
+   "kind": "diagram",
+   "source": "https://github.com/cloudflare/security-audit-skill",
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-11-10-2-harvey-900-agents.png",
+   "alt": "Slide from \"The Agents Were Fine. Everything Around Them Broke.\" (AI Engineer, YouTube): one alert, nine hundred agents, 0 of 27 nodes free at the peak",
+   "kind": "video-frame",
+   "source": "https://www.youtube.com/watch?v=ktbAVYsAxpk&t=486s",
+   "source_url": "https://www.youtube.com/watch?v=ktbAVYsAxpk&t=486s",
+   "timestamp": 486,
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-11-10-3-harvey-fair-queue.png",
+   "alt": "Slide from \"The Agents Were Fine. Everything Around Them Broke.\" (AI Engineer, YouTube): the fair launch queue and its 300-task burst load test",
+   "kind": "video-frame",
+   "source": "https://www.youtube.com/watch?v=ktbAVYsAxpk&t=567s",
+   "source_url": "https://www.youtube.com/watch?v=ktbAVYsAxpk&t=567s",
+   "timestamp": 567,
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-11-10-4-k8s-incident-agent.png",
+   "alt": "Blueprint diagram: a Kubernetes incident agent design, Prometheus Alertmanager to SNS, SQS, a Lambda trigger and an AgentCore agent with read-only EKS, Grafana and CloudWatch MCP servers behind an OIDC gateway",
+   "kind": "diagram",
+   "source": "https://x.com/livingdevops/status/2120003767277945070",
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-11-10-5-modal-sparse-rl.png",
+   "alt": "Diagram: Modal's agent RL setup, a trainer cluster in one cloud sending sparse compressed weight deltas to a rollout fleet of mixed GPUs across clouds",
+   "kind": "diagram",
+   "source": "https://www.youtube.com/watch?v=3nDMYV-QHLs&t=933s",
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-11-10-6-medal-clips.png",
+   "alt": "Slide from \"Robots Will Be Trained on Video Games - Pim de Witte, General Intuition\" (AI Engineer, YouTube): Medal clips uploaded per month, on track for 3 billion uploaded videos per year",
+   "kind": "video-frame",
+   "source": "https://www.youtube.com/watch?v=MpkARD5pq-M&t=389s",
+   "source_url": "https://www.youtube.com/watch?v=MpkARD5pq-M&t=389s",
+   "timestamp": 389,
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-11-10-7-gemini-live-pipeline.png",
+   "alt": "Slide from \"Real time vision for AI agents: Snapshots, streams & Gemini Live API\" (Google Cloud Tech, YouTube): the camera, canvas, JPEG, blob, model pipeline",
+   "kind": "video-frame",
+   "source": "https://www.youtube.com/watch?v=dNGchf4InU0&t=89s",
+   "source_url": "https://www.youtube.com/watch?v=dNGchf4InU0&t=89s",
+   "timestamp": 89,
+   "numbers_checked": true
+  }
+ ],
+ "header": {
+  "id": "iss042e013697",
+  "description": "Expedition 42 Earth observation from the ISS: blue Earth limb with clouds (public domain, original 4928x3280)",
+  "path": "/workspace/x-header-2026-11-10.jpg"
+ },
+ "caption": "Claude Code tip: on a repo your agent owns, add “This codebase is yours” to the system prompt so Fable 5.2 merges duplicate code, then review the diff, not the summary. Meanwhile one alert storm at Harvey spawned 900 agents...",
+ "title": "Harvey hit 900 agents on one bug, Muse Ember costs 80x less than Fable, and Modal cuts RL sync 1000x",
+ "format": "roundup",
+ "status": "ready",
+ "todo": [
+  "Collect only after window_end (fetch, feeds, ainews, X d-files, ./run.sh x), fold in big new items briefly, then copy draft-report.md to articles/2026-11-10.md, run the STYLE.md checklist, ./run.sh render and ./run.sh publish (render could not run on the draft path; a scratch render passed and was deleted).",
+  "Leave the Article for the 10:37 post; re-check that header iss042e013697 is still unused before posting.",
+  "Seven inline images (above the winning formula's 1-3, per the Nov 3 ask for more diagrams and frames); the poster may drop the Modal diagram or the second Harvey slide if the editor struggles.",
+  "Skip-don't-stack: the held 2026-11-09-1710 Article should not take the 10:37 slot; this edition is newer."
+ ],
+ "notes": [
+  "GPU host reachable all night: fetch, captions and all Whisper jobs ran there; the box fallback was not needed.",
+  "Captions were rate limited for all 6 videos (3 new, 3 carried over from earlier editions); all 6 were transcribed with remote Whisper large-v3-turbo (0 failures). The Kuken Industries video is mostly Japanese and its first minute transcribed as garbled English; only the clean lines were used.",
+  "Thin overnight window (about 7 hours): 70 of 70 channels listed, 3 new videos plus 3 retries (one premiere skipped); feeds 43 of 44 ok (Databricks connection refused), 5 articles used; AINews 1 issue, 0 new stories; X 36 search reads plus 27 trend reads, 13 posts qualified, 7 used. Top trends: anthropic, context-eng, gpu-inference.",
+  "Fable 5.2 itself was covered in the 2026-11-09 editions; this edition uses only new angles (the prompting guide, benchmark trendline, Muse Ember pricing comparison, Yonkers demo).",
+  "Images rendered on the GPU host (pele, ferroprint) plus 4 video frames via yt-frame; frames are native 1920 px (best format at or under 1080p). A Harvey flow diagram and a Modal sparse-update frame were made but not used.",
+  "Last night's 2026-11-09 overnight run left no overnight.json and no logs; no cause found on the box. This run wrote and committed its files by path.",
+  "The subscription list is still the 70-channel starter list; channel coverage is incomplete until the full export is restored."
+ ]
+}
