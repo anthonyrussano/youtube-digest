@@ -18,6 +18,8 @@ Cloudflare open-sourced the [security-audit skill](https://github.com/cloudflare
 
 [[IMG: /workspace/2026-11-10-1-cloudflare-audit-phases.png | Diagram: the six phases of Cloudflare's open-source security-audit skill, from reconnaissance to a findings file with confirmed, needs_validation and rejected verdicts, then independent verification and REPORT.md]]
 
+Google DeepMind says its AlphaProof Code agents [formally verified the actual code behind the Signal protocol](https://deepmind.google/blog/introducing-alphaproof-code/), the encryption under Signal and Google Messages, in four weeks instead of the years expert teams usually need. Agents on Gemini Carbon wrote over six million lines of Lean proofs and flagged only one percent for human review, and when the team put two real, long-fixed bugs back in, the system proved both versions insecure.
+
 Harvey's Joey Wang runs Spectre, an internal cloud agent platform where [more than one agent starts every minute](https://www.youtube.com/watch?v=ktbAVYsAxpk&t=3s) and agents have written 10,000 PRs. The agents were fine; everything around them broke. A bad release fired one alert per workspace, a Slack workflow tagged the agent on each, and a normal day's 50 tasks became [about 900 in about four hours](https://www.youtube.com/watch?v=ktbAVYsAxpk&t=486s). The fix was boring: [a repeat alert now joins the investigation that's already open](https://www.youtube.com/watch?v=ktbAVYsAxpk&t=500s).
 
 [[IMG: /workspace/2026-11-10-2-harvey-900-agents.png | Slide from "The Agents Were Fine. Everything Around Them Broke." (AI Engineer, YouTube): one alert, nine hundred agents, 0 of 27 nodes free at the peak]]

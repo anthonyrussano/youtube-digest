@@ -79,7 +79,6 @@
  "format": "roundup",
  "status": "ready",
  "todo": [
-  "Collect only after window_end (fetch, feeds, ainews, X d-files, ./run.sh x), fold in big new items briefly, then copy draft-report.md to articles/2026-11-10.md, run the STYLE.md checklist, ./run.sh render and ./run.sh publish (render could not run on the draft path; a scratch render passed and was deleted).",
   "Leave the Article for the 10:37 post; re-check that header iss042e013697 is still unused before posting.",
   "Seven inline images (above the winning formula's 1-3, per the Nov 3 ask for more diagrams and frames); the poster may drop the Modal diagram or the second Harvey slide if the editor struggles.",
   "Skip-don't-stack: the held 2026-11-09-1710 Article should not take the 10:37 slot; this edition is newer."
@@ -91,6 +90,7 @@
   "Fable 5.2 itself was covered in the 2026-11-09 editions; this edition uses only new angles (the prompting guide, benchmark trendline, Muse Ember pricing comparison, Yonkers demo).",
   "Images rendered on the GPU host (pele, ferroprint) plus 4 video frames via yt-frame; frames are native 1920 px (best format at or under 1080p). A Harvey flow diagram and a Modal sparse-update frame were made but not used.",
   "Last night's 2026-11-09 overnight run left no overnight.json and no logs; no cause found on the box. This run wrote and committed its files by path.",
-  "The subscription list is still the 70-channel starter list; channel coverage is incomplete until the full export is restored."
+  "The subscription list is still the 70-channel starter list; channel coverage is incomplete until the full export is restored.",
+  "6:04 AM run: delta since window_end (about 5.7 h) found 4 videos (3 new: Thetips4you tools list, freeCodeCamp Codex course, IBM distillation explainer; none folded in), feeds 43 of 44 ok (Databricks still refused) with 23 items, AINews 0 issues, X 36 search reads with 5 new qualifiers (all engagement bait, none used). Folded in Google DeepMind's AlphaProof Code (Signal protocol code formally verified) in the website edition and the Article, and Akamai's CNCF post on making a GitOps platform safe for agent PRs in the website edition only."
  ]
 }
