@@ -1,0 +1,3 @@
+roundup
+Classic full roundup per the Winning formula: broad edition with 20+ stories led by Robinhood's agent PR reviewer, no single deep-dive lead.
+caption: AI review agent tip: tell your review agent what your CI scripts already check, so it spends tokens only on judgment calls like unregistered downstream readers. Meanwhile an LLM agent patching Kubernetes hit the same canary trap in 34 of 50 runs...
