@@ -36,3 +36,8 @@ NASA iss042e013697 (Expedition 42 Earth observation from the ISS, blue Earth lim
 
 ## 6:04 AM fold-in
 - Added one short paragraph on Google DeepMind's AlphaProof Code after the Cloudflare image, sourced to the DeepMind blog (four weeks, over six million lines of Lean, one percent flagged for human review, two reintroduced bugs both proven insecure). Title, caption and lead unchanged; x-article dry run passes (27 paragraphs, ~1549 words).
+
+## 9:30 AM algorithm-review rewrite (Anthony approved the x-algorithm recommendations, 2026-11-10)
+- Caption moved off tip-first (the previous post, 2026-11-09, was tip + Meanwhile) to the **number** shape: leads with Harvey's 900 agents in about four hours, then the fix (repeat alerts join the open investigation, t=500s). Ends in `...`, no `$`, no "Mind Blow". Record `"caption_shape": "number"` in state/x_posts.json.
+- Close now: one first-person take (limit what one alert or one person can start; grounded in Harvey's talk), the reply question, a share prompt (send to the teammate who owns the alert-to-agent pipeline), and a follow line. Dropped the old "That's the cycle" sign-off.
+- Dry run re-run: passes, FORMAT roundup, SOURCE article.md.

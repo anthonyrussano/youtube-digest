@@ -1,6 +1,6 @@
 ---
 title: "Harvey hit 900 agents on one bug, Muse Ember costs 80x less than Fable, and Modal cuts RL sync 1000x"
-caption: "Claude Code tip: on a repo your agent owns, add “This codebase is yours” to the system prompt so Fable 5.2 merges duplicate code, then review the diff, not the summary. Meanwhile one alert storm at Harvey spawned 900 agents..."
+caption: "900 agents in about four hours, all chasing one bug. That's what one alert storm did at Harvey, and the fix wasn't a better model: a repeat alert now joins the investigation already open. Cap what one alert can start..."
 edition: "2026-11-10"
 lead_source: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2#say-who-owns-the-code"
 ---
@@ -54,6 +54,10 @@ A few quick ones.
 
 Yuekun Yao and colleagues released [ARLoop](https://x.com/yuekun_yao/status/2119982422259622086), fully open looped transformers with the whole training recipe; they say ARLoop-1.2B beats both Huginn-3.5B and Qwen3.5-2B Base on their benchmarks. OpenAI's report on AI in schools cites a ThinkYoung survey where [79% of students used AI for homework but only 47% were shown how](https://openai.com/index/closing-ai-guidance-gap-education). Kuken Industries told OpenAI its drawing search over 70 years of documents [cut a roughly 60-minute hunt to about 10 minutes](https://www.youtube.com/watch?v=FNTz0CdqL6g&t=136s). Microsoft shipped [Go 1.25.14-2](https://devblogs.microsoft.com/go/go-1-25-14-2-microsoft-build-now-available), a one-off backport of the fix for CVE-2026-111943 to an end-of-life Go that still has other known holes, so upgrade to 1.26 or 1.27. And Simon Willison asked Fable 5.2 Medium to [turn Yonkers into a giant mech](https://simonwillison.net/2026/Nov/10/yonkers-rises/) stomping around New York in three.js, and it worked out that his typo meant "stomps".
 
+My take: Harvey's story is the one to act on this week. Before you add more agents, put a limit on what one alert or one person can start, because at Harvey the agents were fine and the plumbing around them broke.
+
 Your turn: would you give your agent the ownership sentence, Harvey's fair queue, or Cloudflare's six-phase audit first?
 
-That's the cycle. Tell your agent whose code it is, cap what one alert can start, and see you tomorrow.
+If a teammate owns the pipeline that turns alerts into agent tasks, send this to them before their first alert storm.
+
+I post one of these most weekdays: the AI and DevOps news that changes how you build, every claim linked. Follow to get the next one.
