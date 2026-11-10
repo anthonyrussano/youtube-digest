@@ -1,0 +1,3 @@
+roundup
+Classic full roundup per the Winning formula: twelve stories led by Railway's attack report, no single deep-dive lead.
+caption: Could one leaked build credential reach the key that decrypts your customers' secrets? At Railway it did: a partial escape from a shared build machine ended with secrets at risk for up to 100,000 workspaces...
