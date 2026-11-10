@@ -24,6 +24,25 @@ Never write the internal format name ("Mind Blow") anywhere in published text. N
 
 **Second person:** fine in the "why it matters" line and the closing question ("check your cache hit rate"); never marketing-style ("You won't believe ...").
 
+## 1b. Plain English rules (adapted from SimpleEnglish / ASD-STE100)
+
+Adapted from [SimpleEnglish](https://github.com/AminBlg/SimpleEnglish) by AminBlg (MIT), which is based on ASD-STE100 Simplified Technical English (Issue 9; the standard is free at asd-ste100.org). We adopt the parts that make news writing clearer and keep our voice. STE is built for manuals and says itself that it does not fit blog or launch writing, so the cold open, the rapid-fire paragraphs, the contrast devices and the playful sign-off (`STYLE.md`) stay. These rules apply inside that shape:
+
+1. **One idea per sentence.** Keep most sentences at 25 words or fewer and split anything over about 30. One short punch per paragraph is still welcome (section 3). A long quote from a source stays as quoted.
+2. **Active voice, named actor.** "Harvey shipped a fair launch queue", not "a fair launch queue was shipped".
+3. **Simple tenses.** "shipped", not "has shipped"; "had gone through" becomes "went through" when the order is clear.
+4. **Common words.** Use the swaps below; if a word carries no fact, delete it.
+5. **Define a term the first time it appears**, in a clause under ten words: "logical replication, which streams row changes between databases". Don't define product names, standard names (Postgres, S3, HTTP, MCP) or terms our readers use daily (PR, CI, CVE).
+6. **Concrete numbers and actors.** State the fact, not its importance: a number with its unit and comparison beats "significant" or "major".
+7. **No semicolons and no em-dashes in prose.** Write two sentences, or name the relation ("because", "but", "so"). No ", making it ..." or ", allowing ..." tails: start a new sentence.
+8. **Slop and ban list:** section 1's ban list plus the SimpleEnglish slop lexicon (`scripts/slop.tsv`, words named by 8+ of 122 published AI-tell ban lists: delve, pivotal, tapestry, vibrant, crucial, realm, showcase, foster, underscore, furthermore, testament, ...). Write "for example", "that is" and the named items, not e.g., i.e., etc.
+
+**Word swaps (from SimpleEnglish `word-swaps.md`):** leverage/utilize -> use; in order to -> to; prior to -> before; facilitate -> help; functionality -> feature; enables you to / allows you to -> you can; is designed to / aims to -> (say what it does); when it comes to -> for; in the event that -> if; due to the fact that -> because; out of the box -> by default; streamline -> make simpler or faster; plethora/myriad -> many; pivotal/crucial/paramount -> important (or the fact); showcase/underscore/emphasize -> show; foster/empower/bolster -> help, let; enhance -> improve; elevate -> increase; furthermore/moreover -> also; meticulous -> careful; boasts -> has; seamless, robust, powerful, comprehensive, simply, effortlessly -> delete or give the number. "Harness" as a technical noun (agent harness, eval harness) is fine.
+
+**Voice exceptions (kept on purpose):** contractions ("didn't", "it's"); attributed hedges ("he says", "could", "may" when the source hedges); a trailing "if/when" when it reads naturally; rhetorical questions in the cold open and the close; varied verbs for checking. STE's "should/may" ban, "make sure that" wording and numbered-procedure format are for manuals and do not apply here.
+
+**Lint:** `./run.sh plain-lint <EDITION>` runs the vendored SimpleEnglish linter (`scripts/ste_lint.py`) plus our ban list on `reports/<EDITION>.md` (or the draft) and `articles/x/<EDITION>/article.md`. It is **advisory**: REVIEW hits (sentences over 25 words, slop/ban words, -ing tails, perfect tense, em-dashes, semicolons, Latin abbreviations) get fixed when they are real, VOICE hits are only counted, and it exits non-zero only for a hard-rule break ("Mind Blow", "$" + digit in a title or caption).
+
 ## 2. Juxtaposition and contrast
 
 Contrast is the engine of the wonder. Use at least three of these per edition:
@@ -76,6 +95,7 @@ Contrast is the engine of the wonder. Use at least three of these per edition:
 6b. X close: take, reply question, share prompt, follow line; share and follow wording differs from the previous post; no bookmark or "save this" ask.
 7. Images sit right after the paragraph that cites them; link text is the claim, never "here".
 8. Read the cold open and the first sentence of each paragraph aloud in sequence: it should sound like a fast list of surprises.
+9. `./run.sh plain-lint <EDITION>` (section 1b): fix the real REVIEW hits (long sentences, semicolons, em-dashes, slop words, -ing tails, perfect tense); leave quotes and source wording; note the counts in `check.md`.
 
 ## 7. How this guide improves
 

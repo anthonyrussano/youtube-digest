@@ -18,6 +18,7 @@
 #                                  exists; else the get_posts_counts_recent calls to save in data/x_counts/)
 #   ./run.sh x-article [ID] [--format roundup|deep-dive]  X Article HTML -> /tmp/x-article/ID.html: both formats = articles/x/ID/article.md
 #                                  (roundup falls back to reports/ID.md only if article.md is missing; [--dry-run] writes nothing); prints format, title, caption, serve cmd
+#   ./run.sh plain-lint ED [--all]  advisory Plain English lint (scripts/ste_lint.py, MIT SimpleEnglish) of reports/ED.md + articles/x/ED/article.md; exit 2 only on hard rules
 #   ./run.sh x-stats               impressions + replies/reposts/quotes by format, caption_shape and posting hour (state/x_posts.json + state/x_impressions.csv; stdout only)
 #   ./run.sh yt-frame VIDEO_ID SECONDS OUT.png  sharpest still frame near SECONDS of a cited video (remote yt-dlp host,
 #                                  local fallback) -> OUT.png, max 2400 px wide (docs/OVERNIGHT.md 3b)
@@ -66,6 +67,7 @@ print(" ".join(i for i,e in r.items() if e.get("attempts",0)>=2 and rel.get(i,{}
   x-article) shift; if [ $# -eq 0 ] || [[ "$1" == --* ]]; then set -- "$DEF" "$@"; fi; python3 scripts/x_article_html.py "$@" ;;
   yt-frame) shift; ensure_venv; .venv/bin/python scripts/img/yt-frame.py "$@" ;;
   x-stats) python3 scripts/x_stats.py ;;
+  plain-lint) shift; python3 scripts/plain_lint.py "$@" ;;
   x-reset) rm -rf data/x_raw && mkdir -p data/x_raw && echo "cleared data/x_raw" ;;
   publish)
     D=${2:-$DEF}

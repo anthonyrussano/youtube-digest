@@ -42,6 +42,17 @@ On weekdays the morning edition is drafted overnight as `articles/x/<EDITION>/dr
 - Write punchy, plain and wonder-driven. Use short sentences and concrete numbers, with no hype words such as "revolutionary" and no second-person marketing. A light "and here's the wild part" energy is fine, but the facts carry the wonder.
 
 
+## Plain English rules (adapted from SimpleEnglish / ASD-STE100)
+Adapted from [SimpleEnglish](https://github.com/AminBlg/SimpleEnglish) by AminBlg (MIT), which is based on ASD-STE100 Simplified Technical English (Issue 9; the standard is free at asd-ste100.org). We adopt the parts that make news writing clearer and keep our voice. Full rules, word swaps and voice exceptions: `docs/WRITING_GUIDE.md` section 1b. In short, inside this format:
+- One idea per sentence; most sentences 25 words or fewer, split anything over about 30.
+- Active voice with a named actor; simple tenses ("shipped", not "has shipped").
+- Common words (word swaps in the guide); delete words that carry no fact.
+- Define a narrow term in a short clause the first time it appears; never define product or standard names.
+- Concrete numbers with units and actors; state the fact, not its importance.
+- No semicolons, no em-dashes and no ", making ..." tails in prose; no e.g./i.e./etc.; nothing from the slop and ban lists.
+- Kept on purpose: the cold open, rapid-fire items, contractions, attributed hedges and the playful sign-off.
+- Check: `./run.sh plain-lint <EDITION>` (advisory; fix real REVIEW hits).
+
 ## Annotated example (from `articles/2026-10-12.md`)
 
 **Cold open.** Two quick hits, each linked, with no setup. One comes from an X post and one from a video:
@@ -70,11 +81,11 @@ On weekdays the morning edition is drafted overnight as `articles/x/<EDITION>/dr
 5. Nothing from an earlier edition is repeated. Every new transcribed video is linked, with key moments as `&t=<s>s` links (`./run.sh render` enforces this).
 6. Every X item is drawn from `data/x_selected.json` and written like a video item. `grep -niE 'on x\b|bookmark|saves?\b|saved|likes?\b|posted' articles/<date>.md` prints nothing (check any hit by hand).
 7. Every number and claim appears in a transcript or post and is attributed. Dubious claims are flagged, and there is no spam or crypto.
-8. The craft checklist in `docs/WRITING_GUIDE.md` section 6 passes.
+8. The craft checklist in `docs/WRITING_GUIDE.md` section 6 passes, including `./run.sh plain-lint <EDITION>` (advisory Plain English check; fix real REVIEW hits).
 9. After `./run.sh publish`, the report URL returns HTTP 200 (allow about 1–2 minutes for Pages).
 
 ## X share caption
 Applies to both X Article formats (`caption:` in `articles/x/<EDITION>/article.md`; for roundup also line 3 of `articles/x/<EDITION>/format.txt`; see `docs/X_ARTICLE_STYLE.md`). The rules:
-- Lead with the **single most useful, actionable takeaway for developers and DevOps people**: a how-to, a pattern or a tip, preferably about agent or coding tools (Claude Code, Cursor, Codex and the like). Example: `Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...`
-- **Don't lead with spec numbers or model sizes.** Numbers may support the takeaway but never are the hook.
+- Since 2026-11-10 the caption rotates among four shapes (`tip`, `question`, `number`, `contrarian`), never the previous post's shape; see `docs/X_ARTICLE_STYLE.md` "Algorithm-informed rules". The `tip` shape leads with one actionable dev/DevOps takeaway, e.g. `Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...`
+- Write each caption fresh: no sentence reused from an earlier caption or Article.
 - Always end with `...`. Never write "Mind Blow". Avoid `$` followed by a number (write "3 dollars").

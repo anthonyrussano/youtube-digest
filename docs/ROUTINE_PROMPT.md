@@ -80,7 +80,9 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
    overrides STYLE.md "X share caption"). Never mention trends or volumes in the article.
    Keep it tight: 10-14 items that are clearly about AI or DevOps; cut loosely related stories instead of padding.
    Use only facts from the transcripts and posts, and never repeat stories from earlier editions.
-6. Run through the STYLE.md pre-publish checklist and the docs/WRITING_GUIDE.md section 6 craft checklist, then ./run.sh render. Fix any missing-citation or
+6. Run through the STYLE.md pre-publish checklist and the docs/WRITING_GUIDE.md section 6 craft checklist, then ./run.sh render.
+   Then ./run.sh plain-lint <EDITION> (advisory Plain English check, docs/WRITING_GUIDE.md 1b): fix the real REVIEW
+   hits in articles/<EDITION>.md and render again; voice hits are fine. It exits non-zero only for a hard-rule break. Fix any missing-citation or
    reuse error and re-run. If it prints SKIP:, publish nothing.
 7. ./run.sh publish. Wait about 90 s, then confirm
    https://anthonyrussano.github.io/youtube-digest/reports/<EDITION>.html returns HTTP 200 and the index lists it.
@@ -133,7 +135,9 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
    8d. check.md: review research, tighten outline, check clarity, confirm the overlooked angle is real, sourced and
        explained simply; check title, caption (allowed shape, differs from the previous post's caption_shape, ends "..."),
        no "$<number>", no "Mind Blow", no reused sentences, four-part close present; write the chosen
-       caption_shape in check.md; fix article.md if anything fails and record what changed.
+       caption_shape in check.md; run ./run.sh plain-lint <EDITION> and fix the real REVIEW hits (long sentences,
+       semicolons, em-dashes, slop words; quotes stay), noting the counts in check.md; fix article.md if anything
+       fails and record what changed.
    Either way: ./run.sh x-article <EDITION> must print the chosen FORMAT and SOURCE articles/x/<EDITION>/article.md
    (for both formats; "SOURCE: reports/<EDITION>.md" plus a NOTE means article.md is missing: go back to 8c).
    Commit articles/x/<EDITION>/ by that path
