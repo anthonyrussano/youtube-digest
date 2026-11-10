@@ -48,9 +48,9 @@ Contrast is the engine of the wonder. Use at least three of these per edition:
 
 **X Article (`articles/x/<EDITION>/article.md`, classic full roundup by default):**
 - **Title:** three named brands/tools, each with a number, `A, B, and C`, 75-100 characters. Lead with the biggest brand + hardest number. Each clause gets its own verb ("cuts", "ships", "beats").
-- **Caption:** `<Tool> tip:` + one action a dev can do today, 120-250 characters, ending `...`. Best shape so far: tip, then "Meanwhile" + the edition's most surprising fact. Never blank, no `$<digit>`.
+- **Caption:** one of four shapes, rotated so no shape repeats on consecutive posts (`docs/X_ARTICLE_STYLE.md` "Algorithm-informed rules"): `tip` (`<Tool> tip:` + action, then "Meanwhile" + surprise), `question` (a practitioner's question, then one fact), `number` (one striking number, then the takeaway), `contrarian` (an opinion grounded in cited facts, then the evidence). Ends `...`, never blank, no `$<digit>`. Write it fresh: no sentence reused from an earlier caption or Article.
 - **Images:** NASA header; 1-3 inline `[[IMG: ...]]` lines, each on its own line directly after the paragraph that cites it, at least one cited-video frame showing a slide/demo/code (never a talking head); alt names channel and video.
-- **Close:** a reply question offering 2-3 concrete choices from the edition, then the sign-off.
+- **Close (four parts, replaces the sign-off on X):** a one-line first-person take grounded in cited facts ("My take: ..."), a reply question offering 2-3 concrete choices from the edition, a share prompt naming who should get it ("Send this to the teammate who runs your CI."), and a short follow line with a reason ("Follow for the next one."). Rotate the share and follow wording; never invent facts or experiences in the take.
 
 ## 5. Before and after (real past copy)
 
@@ -72,7 +72,8 @@ Contrast is the engine of the wonder. Use at least three of these per edition:
 3. The edition has 3+ contrast devices (big/small, claim/reality, X-but-Y, before/after); no two adjacent items share a topic.
 4. Each "why it matters" line passes the "could end any other item?" test.
 5. Title: three named items with numbers and verbs, 75-100 characters (X); dek uses a contrast (web).
-6. Caption: `<Tool> tip:` + action, ideally "Meanwhile" + surprise, 120-250 chars, ends `...`.
+6. Caption: an allowed shape that differs from the previous post's `caption_shape`, ends `...`, no sentence reused from earlier captions or Articles.
+6b. X close: take, reply question, share prompt, follow line; share and follow wording differs from the previous post; no bookmark or "save this" ask.
 7. Images sit right after the paragraph that cites them; link text is the claim, never "here".
 8. Read the cold open and the first sentence of each paragraph aloud in sequence: it should sound like a fast list of surprises.
 
@@ -98,3 +99,9 @@ Contrast is the engine of the wonder. Use at least three of these per edition:
   - Likes stayed in single digits to low teens, replies ran higher than likes (about 10 vs 6 on average), and bookmarks were near zero: the "Your turn" question closers seem to draw replies, not saves.
   - Only one post had a true ~24h read; later reads are lifetime totals, so compare formats carefully.
   - Proposed tweak: keep tip + Meanwhile as the default caption and keep the reply-bait closing question; test one edition with a save-worthy checklist-style tip to see whether bookmarks move.
+
+- **2026-11-10 (x-algorithm review, approved by Anthony):**
+  - The open-sourced ranking code gives **bookmarks zero weight** (also video watch). Shares (copy link 20, DM 5), replies (5, plus 15 between mutual follows), quotes (5) and follows (4) dominate; likes are about 0.7. The bookmark test above is dropped.
+  - Track **shares (reposts, quotes), replies and follows**, not bookmarks, in every weekly entry; group by caption shape (`caption_shape`) and posting hour.
+  - Captions now rotate among four shapes (tip, question, number, contrarian) and every Article closes with a take, a reply question, a share prompt and a follow line.
+  - Proposed tweak: after 2-3 weeks, compare caption shapes and the post-3 PM slots before keeping the 5:30 PM window.

@@ -11,7 +11,7 @@ No time pressure. **No publishing, no X posting, no messages** (quiet hours 10 P
 2. **Collect** exactly as `docs/ROUTINE_PROMPT.md` steps 1-4 (fetch, judge, feeds, AINews, X trends and searches, `./run.sh x`). YouTube runs on **iphedeiah** (the home GPU host: remote yt-dlp, and the Whisper remote backend with `large-v3-turbo`; README "Remote yt-dlp" and "Whisper fallback").
 3. **Transcribe everything:** `./run.sh transcripts`, then `./run.sh whisper`, then `./run.sh whisper --include-rate-limited <ids>` for **every** selected video still without a transcript and **every** video in `state/retry.json` (read it; do not edit it), not only those with 2+ failed editions. Remote cap is 180 min per video.
 4. **Judge and shortlist** the stories (feeds, AINews, X, videos) as in step 5, then **draft the website edition** per `STYLE.md` and `docs/WRITING_GUIDE.md` (decision below on where it lives). Do **not** run `./run.sh publish`.
-5. **X Article, full four-step process** in `articles/x/<EDITION>/` (`docs/X_ARTICLE_STYLE.md`): `format.txt`, `research.md`, `outline.md`, `article.md`, `check.md`. With the extra time, research goes deeper than a daytime run (full threads, primary docs, what others missed).
+5. **X Article, full four-step process** in `articles/x/<EDITION>/` (`docs/X_ARTICLE_STYLE.md`): `format.txt`, `research.md`, `outline.md`, `article.md`, `check.md`. With the extra time, research goes deeper than a daytime run (full threads, primary docs, what others missed). Apply "Algorithm-informed rules": 10-14 tight AI/DevOps items, a caption shape different from the latest `caption_shape` in `state/x_posts.json` (tip, question, number, contrarian; note the shape in `check.md`), no sentence reused from earlier Articles or captions, and the four-part close (first-person take grounded in cited facts, reply question, share prompt, follow line; share and follow wording different from the previous post).
 6. **Rich inline images** (section 3) at their places in `article.md`.
 7. **Header:** pick a high-resolution public-domain NASA image from https://images.nasa.gov whose id is **not** in any `header` field of `state/x_posts.json`, and save the original/large file to `/workspace/x-header-<EDITION>.jpg`.
 8. **Check:** `./run.sh x-article <EDITION> --dry-run` must print `SOURCE: articles/x/<EDITION>/article.md`; run the `STYLE.md` checklist on the draft report (render cannot run on the draft path; the 6:04 run renders).
@@ -42,7 +42,8 @@ Public text only (it is committed): no host addresses, `data/`/`state/` contents
      "source": "URL the content comes from", "license": "for figures", "numbers_checked": true}
   ],
   "header": {"id": "PIA12345", "description": "short description", "path": "/workspace/x-header-2026-10-20.jpg"},
-  "caption": "Tip-first caption ending in ...",
+  "caption": "Caption in a rotating shape, ending in ...",
+  "caption_shape": "tip|question|number|contrarian",
   "title": "Article title",
   "format": "roundup|deep-dive",
   "status": "ready|partial|failed",
@@ -92,4 +93,4 @@ All four render on **iphedeiah** under `~/Projects/` (repos cloned, images built
 ## 4. Posting at 10:37 (routine B) and timing
 - The 10:37 poster follows the `docs/HANDOFF.md` playbook. After pasting the body, for each `[[IMG: path | alt]]` paragraph in order: put the cursor on that paragraph, delete the marker text, insert the image file from `path` with the Article editor's media button, and set its alt/description to `alt`. Check no `[[IMG` text remains before publishing. A missing file: remove the marker and note it in the report.
 - **Header:** use the prepared `/workspace/x-header-<EDITION>.jpg` (`header` in `overnight.json`). Re-check that its id is still unused in `state/x_posts.json`; if it was used meanwhile, or the file is missing, pick a fresh one per the playbook. Record `header` (id plus description) in `state/x_posts.json` as usual.
-- The **2-hour gap** and **no posts after 9 PM PT** rules (`docs/HANDOFF.md` section 4b) still apply to every post.
+- The timing hard rule (`docs/HANDOFF.md` section 4b: at most 2 per PT day, 4+ hours apart, 8:00 AM-5:30 PM PT) applies to every post. After posting, record `caption_shape` in `state/x_posts.json` and add the "reply to early commenters within about 2 hours" line to the message to Anthony.

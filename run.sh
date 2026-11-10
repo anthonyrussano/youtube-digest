@@ -18,7 +18,7 @@
 #                                  exists; else the get_posts_counts_recent calls to save in data/x_counts/)
 #   ./run.sh x-article [ID] [--format roundup|deep-dive]  X Article HTML -> /tmp/x-article/ID.html: both formats = articles/x/ID/article.md
 #                                  (roundup falls back to reports/ID.md only if article.md is missing; [--dry-run] writes nothing); prints format, title, caption, serve cmd
-#   ./run.sh x-stats               impressions by X Article format (state/x_posts.json "format" + state/x_impressions.csv; stdout only)
+#   ./run.sh x-stats               impressions + replies/reposts/quotes by format, caption_shape and posting hour (state/x_posts.json + state/x_impressions.csv; stdout only)
 #   ./run.sh yt-frame VIDEO_ID SECONDS OUT.png  sharpest still frame near SECONDS of a cited video (remote yt-dlp host,
 #                                  local fallback) -> OUT.png, max 2400 px wide (docs/OVERNIGHT.md 3b)
 #   ./run.sh publish [DATE]        commit only this edition's files by path (reports/DATE.*, articles/DATE.*,

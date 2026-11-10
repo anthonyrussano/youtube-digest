@@ -1,6 +1,6 @@
 # Edition routine prompt (paste into the scheduled Grok Bot routine)
 
-Schedule (America/Los_Angeles): weekdays cron `4 6,12,17 * * 1-5` (6:04 AM, 12:04 PM, 5:04 PM PT; the 6:04 Article is held to 10:37 AM) and weekends cron `4 12,17 * * 0,6` (Saturday and Sunday 12:04 PM and 5:04 PM PT; each Article posts immediately), plus on demand. **Weekdays also run the overnight prep at ~12:30 AM PT** (`docs/OVERNIGHT.md`); when `articles/x/<today>/overnight.json` exists with status ready or partial, the 6:04 AM run follows `docs/OVERNIGHT.md` section 2 instead of starting from scratch. Every Article post keeps a 2-hour gap from the previous one and none posts after 9 PM PT (step 8e timing gate). The same prompt works for every edition; each routine adds a short preface. The full set of routines (weekday and weekend editions, the 10:37 weekday morning X post, the impressions tracker) with their prefaces is in `docs/HANDOFF.md` section 3.
+Schedule (America/Los_Angeles): weekdays cron `4 6,12,17 * * 1-5` (6:04 AM, 12:04 PM, 5:04 PM PT; the 6:04 Article is held to 10:37 AM) and weekends cron `4 12,17 * * 0,6` (Saturday and Sunday 12:04 PM and 5:04 PM PT; each Article posts immediately), plus on demand. **Weekdays also run the overnight prep at ~12:30 AM PT** (`docs/OVERNIGHT.md`); when `articles/x/<today>/overnight.json` exists with status ready or partial, the 6:04 AM run follows `docs/OVERNIGHT.md` section 2 instead of starting from scratch. Article posts: at most 2 per PT day, at least 4 hours apart, only 8:00 AM-5:30 PM PT (step 8e timing gate; the 5:30 PM end is an experiment from 2026-11-10). The same prompt works for every edition; each routine adds a short preface. The full set of routines (weekday and weekend editions, the 10:37 weekday morning X post, the impressions tracker) with their prefaces is in `docs/HANDOFF.md` section 3.
 
 ```
 Run one edition of Anthony's AI & DevOps digest (internal format name "Mind Blow"; never write that phrase in titles,
@@ -75,9 +75,10 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
    data/x_selected.json, the articles in data/feeds_selected.json and the stories in data/ainews_selected.json (link the article or original source URL on the claim;
    write article items exactly like video items, no "according to a blog post" framing). Write X items exactly like video items, with no platform framing or counts.
    TRENDS: favor stories in data/x_trends.json "top" categories (videos in step 2 and X posts alike, given
-   equal quality): lead the cold open with the strongest trending story. The X share caption (STYLE.md "X share caption")
-   leads with the single most useful, actionable takeaway for developers/DevOps (a how-to, pattern or tip,
-   preferably about agent/coding tools like Claude Code, Cursor, Codex), never with spec numbers or model sizes. Never mention trends or volumes in the article.
+   equal quality): lead the cold open with the strongest trending story. The X share caption uses one of the four rotating shapes in docs/X_ARTICLE_STYLE.md "Algorithm-informed
+   rules" (tip, question, number, contrarian; never the previous post's caption_shape in state/x_posts.json; this
+   overrides STYLE.md "X share caption"). Never mention trends or volumes in the article.
+   Keep it tight: 10-14 items that are clearly about AI or DevOps; cut loosely related stories instead of padding.
    Use only facts from the transcripts and posts, and never repeat stories from earlier editions.
 6. Run through the STYLE.md pre-publish checklist and the docs/WRITING_GUIDE.md section 6 craft checklist, then ./run.sh render. Fix any missing-citation or
    reuse error and re-run. If it prints SKIP:, publish nothing.
@@ -86,7 +87,10 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
 8. X ARTICLE FORMAT (every run, weekday and weekend, including 6:04 AM). DEFAULT (since 2026-10-24): the CLASSIC
    FULL ROUNDUP of docs/X_ARTICLE_STYLE.md "Winning formula": article.md = the whole edition (every story its own
    linked paragraph, 10+ paragraphs, 1,000+ words, no ## sections, no bulleted Also list), title = three named
-   items with numbers (<=100 chars), tip-first caption ending "...", 1-3 [[IMG]] lines incl. >=1 cited video frame.
+   items with numbers (<=100 chars), caption in a rotating shape (not the previous post's caption_shape) ending "...",
+   1-3 [[IMG]] lines incl. >=1 cited video frame, and the four-part close: a one-line first-person take grounded
+   in cited facts, a reply question, a share prompt ("send this to the teammate who ...") and a follow line, with
+   share and follow wording different from the previous post. No sentence reused from earlier Articles/captions.
    format.txt line 1 "roundup". The text below (four steps, lead-first roundup, deep-dive) applies only when
    Anthony asks for a deep dive. Older rule, kept for reference: pick "roundup" or "deep-dive" per
    docs/X_ARTICLE_STYLE.md "Selection rule". Deep-dive only if the edition has ONE lead story with a genuinely
@@ -110,8 +114,9 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
    8b. outline.md: one core idea at a time, plain language, jargon dropped or defined at once, why it matters and
        what people are missing. Deep-dive: plus 4-6 "Also this cycle" picks. Roundup: the lead item's angle in
        a few plain points, then the order of the other items (one line each), then the closing question/CTA.
-   8c. article.md (classic roundup too; apply docs/WRITING_GUIDE.md title/caption shapes and ban list): front matter title, caption (one actionable dev/DevOps tip first, ends in "...", no
-       "$<number>", never "Mind Blow"), edition, lead_source. Short direct sentences.
+   8c. article.md (classic roundup too; apply docs/WRITING_GUIDE.md title/caption shapes and ban list): front matter title, caption (rotating shape: tip, question, number or contrarian,
+       not the previous post's; ends in "...", no "$<number>", never "Mind Blow"), edition, lead_source. Ends with
+       the four-part close (take, reply question, share prompt, follow line). Short direct sentences.
        Deep-dive: title names the lead idea (not three stories); hook on the overlooked angle; ~400-800 words for
        the lead; takeaway, then a question or call to action; then "## Also this cycle" with 4-6 linked one-liners.
        Roundup: title leads with the lead item's idea (may tease 1-2 more); opens with the lead item's overlooked
@@ -126,8 +131,9 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
        timestamped video; 1-2 frames per video, credited, for commentary (fair use). Record each in check.md (and
        overnight.json images on overnight runs) as kind "video-frame" with source_url and timestamp.
    8d. check.md: review research, tighten outline, check clarity, confirm the overlooked angle is real, sourced and
-       explained simply; check title, caption (tip-first, "..."), no "$<number>", no "Mind Blow"; fix article.md if
-       anything fails and record what changed.
+       explained simply; check title, caption (allowed shape, differs from the previous post's caption_shape, ends "..."),
+       no "$<number>", no "Mind Blow", no reused sentences, four-part close present; write the chosen
+       caption_shape in check.md; fix article.md if anything fails and record what changed.
    Either way: ./run.sh x-article <EDITION> must print the chosen FORMAT and SOURCE articles/x/<EDITION>/article.md
    (for both formats; "SOURCE: reports/<EDITION>.md" plus a NOTE means article.md is missing: go back to 8c).
    Commit articles/x/<EDITION>/ by that path
@@ -137,10 +143,11 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
    playbook" exactly: localhost http server, copy via right-click menu, paste with real keystrokes, verify the
    body, new NASA Earth-photo header not in state/x_posts.json, the caption (article.md front matter; roundup may fall back to
    format.txt line 3), read the live caption back, append the post to state/x_posts.json WITH
-   "format": "roundup" | "deep-dive".
-   TIMING GATE (check right before posting; docs/HANDOFF.md "Article timing"). HARD RULE (2026-10-24, overrides the
-   2-hour/9 PM items below): at most 2 Articles per PT day, >= 4 h apart, only 8:00 AM-3:00 PM PT; otherwise HOLD
-   for the next valid slot and report it (so a 17:04 run's Article is held for the next day).
+   "format": "roundup" | "deep-dive" and "caption_shape": "tip" | "question" | "number" | "contrarian".
+   TIMING GATE (check right before posting; docs/HANDOFF.md "Article timing"). HARD RULE (2026-11-10, overrides the
+   2-hour/9 PM items below): at most 2 Articles per PT day, >= 4 h apart, only 8:00 AM-5:30 PM PT; otherwise HOLD
+   for the next valid slot and report it. A 17:04 run's Article posts right after publish if that is before
+   5:30 PM PT and >= 4 h after the last post (window experiment); otherwise it is held for the next day.
    - 2-HOUR GAP: read the latest posted_at_utc in state/x_posts.json. If it is less than 2 hours ago, do NOT
      post now. The Article stays committed under articles/x/<EDITION>/; hold it for the next slot that is at least
      2 h after that last post, and put "X Article HELD: <EDITION>, next slot <h:mm AM/PM PT> (last post <h:mm PT>)"
@@ -152,7 +159,11 @@ OVERNIGHT CHECK (weekday 6:04 AM run): if articles/x/<today PT date>/overnight.j
      in state/x_posts.json, the 10:37 routine skips it. Either way the 12:04 run's Article must still be >= 2 h
      after that post (a 10:37 post means no 12:04 Article before 12:37 PM PT).
 9. MESSAGE Anthony (not between 10 PM and 5:30 AM PT): headline, link (X post, else the Pages URL) and one
-   sentence on the top item. Never message anyone else without his confirmation.
+   sentence on the top item. If an Article was posted, add one line suggesting he reply to early commenters within
+   about 2 hours (our own replies don't reach non-followers). 6:04 run: the separate X post ideas message (3-5 ideas,
+   never auto-posted); on MONDAYS it also lists 3-5 AI/DevOps accounts worth engaging with or following (real
+   handles from posts we cited, with links; ideas only, never auto-follow). Never message anyone else without his
+   confirmation.
 Report: EDITION, the window, feeds ok/items/shortlisted/articles cited, AINews issues/items/stories cited (or bridge error), videos found/selected/transcribed (captions vs Whisper)/rate limited, X calls (search + trend reads) and posts qualified (saves vs shares route), top trends,
 the X Article format and why (roundup/deep-dive), its title and lead story, the live URL (or why it was skipped or HELD,
 with the next slot in PT), and any errors.

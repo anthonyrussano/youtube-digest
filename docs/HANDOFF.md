@@ -3,7 +3,7 @@
 This guide is for a Grok Bot on a different account, with none of the original box, memory or routines. Read it, then `README.md` (pipeline spec), `STYLE.md` (website writing spec), `docs/X_ARTICLE_STYLE.md` (the two X Article formats, roundup and deep-dive, and how to pick one) and `docs/ROUTINE_PROMPT.md` (per-edition steps).
 
 ## 1. What this is and the goal
-A pipeline that turns Anthony Russano's YouTube subscriptions, curated X searches and 44 RSS/Atom feeds plus the daily AINews email newsletter into short AI & DevOps "editions" (three per weekday, two per weekend day). Each edition is published to GitHub Pages (https://anthonyrussano.github.io/youtube-digest/) as a rapid-fire roundup **and as an X Article on @russano** in one of two named formats: **roundup** (several stories, led by one researched item) or **deep-dive** (a single-lead piece), chosen per edition (section 4a). Both are written with the same four-step process in `articles/x/<EDITION>/`. The goal is to **maximize impressions on @russano**: good stories, good timing, a concrete hook caption.
+A pipeline that turns Anthony Russano's YouTube subscriptions, curated X searches and 44 RSS/Atom feeds plus the daily AINews email newsletter into short AI & DevOps "editions" (three per weekday, two per weekend day). Each edition is published to GitHub Pages (https://anthonyrussano.github.io/youtube-digest/) as a rapid-fire roundup **and as an X Article on @russano** in one of two named formats: **roundup** (several stories, led by one researched item) or **deep-dive** (a single-lead piece), chosen per edition (section 4a). Both are written with the same four-step process in `articles/x/<EDITION>/`. The goal is to **maximize reach on @russano**: good stories, good timing, a fresh hook caption, and Articles people share, reply to and follow from (the ranking code weighs those far above likes and gives bookmarks nothing; section "Algorithm notes").
 
 Anthony gave **full authority over project decisions** (sources, filters, format, schedule tweaks). Use it, and tell him what you changed.
 
@@ -28,8 +28,10 @@ If the current PT time is the 6:04 AM run, first check articles/x/<today>/overni
 means follow docs/OVERNIGHT.md section 2 (collect only after its window_end, fold big items in briefly, publish,
 report what it flagged); missing or failed means run as normal. Either way DO NOT post the X Article (step 8e);
 the 10:37 routine posts it. On the 12:04 and 17:04 runs, post the X Article right after publish unless the
-step 8e timing gate holds it (< 2 h since the last post in state/x_posts.json, or after 9 PM PT); then report it as HELD
-with the next slot.
+step 8e timing gate holds it (already 2 Articles today, < 4 h since the last post in state/x_posts.json, or outside
+8:00 AM-5:30 PM PT); then report it as HELD with the next slot. MONDAY 6:04 run: the X post ideas message also
+lists 3-5 AI/DevOps accounts worth engaging with or following (real handles from posts we cited, with links; ideas
+only, never auto-follow).
 Read docs/HANDOFF.md first (hard rules, X Article playbook). Quiet hours 10 PM-5:30 AM PT: no messages.
 ```
 ### A2. Weekend digest editions: `4 12,17 * * 0,6`
@@ -37,7 +39,7 @@ Saturday and Sunday, 12:04 PM and 5:04 PM PT. Prompt: the full text in `docs/ROU
 ```
 Weekend edition (Saturday or Sunday, 12:04 or 17:04 PT). Do every step 0-9, including step 8 (pick roundup or
 deep-dive; for BOTH formats write 8a-8d in articles/x/<EDITION>/) and 8e: post the X Article right after publish, subject to
-the step 8e timing gate (2 h since the last post, nothing after 9 PM PT). There is no fixed held slot on
+the step 8e timing gate (at most 2 a day, 4 h since the last post, 8:00 AM-5:30 PM PT). There is no fixed held slot on
 weekends and the 10:37 routine does not run. Weekend material is often thin: apply the skip rule as usual and
 keep the edition short rather than padding it. Read docs/HANDOFF.md first (hard rules, X Article playbook).
 Quiet hours 10 PM-5:30 AM PT: no messages.
@@ -66,23 +68,24 @@ the four steps first (research.md, outline.md, article.md, check.md), then commi
 Inline images: for every [[IMG: /workspace/<file> | alt]] paragraph, replace the marker with that image (editor
 media button, alt text = alt) at that spot; no [[IMG text may remain. Header: the prepared
 /workspace/x-header-<YYYY-MM-DD>.jpg (overnight.json "header") if present and its id is still unused, else a fresh one.
-Timing gate: if the latest posted_at_utc in state/x_posts.json is under 2 h ago, do not post; report it as HELD
-with the next slot >= 2 h after that post. Fresh NASA header, the tip-first caption (article.md front matter;
+Timing gate: if 2 Articles already posted today or the latest posted_at_utc in state/x_posts.json is under 4 h ago,
+do not post; report it as HELD with the next valid slot. Fresh NASA header, the caption (article.md front matter;
 roundup may fall back to format.txt line 3; ends in "..."), read the live caption back, record in
-state/x_posts.json with "format"). Then message Anthony: headline, X link, one sentence on the top
-item. If there is no edition today (skipped) or it is already posted (e.g. Anthony had it posted early), do nothing and send no message.
+state/x_posts.json with "format" and "caption_shape"). Then message Anthony: headline, X link, one sentence on the top
+item, and one line suggesting he reply to early commenters within about 2 hours. If there is no edition today (skipped) or it is already posted (e.g. Anthony had it posted early), do nothing and send no message.
 ```
 ### C. Impressions tracker: `13 9 * * *` (daily)
 ```
 Repo /home/box/youtube-digest. For every post in state/x_posts.json, read its public_metrics with MCP x
 get_posts_by_ids (post.fields=public_metrics,created_at; batches of up to 100 ids, one read). Upsert one row
 per post_id in state/x_impressions.csv (columns: post_id,title,caption,posted_pt,impressions_24h,likes,
-reposts,bookmarks,replies,quotes,measured_at_pt,age_hours_at_measure,note). Note when the age is not ~24 h.
-Then run ./run.sh x-stats (impressions by X Article format, roundup vs deep-dive) and compare by format,
-posting hour and caption type; if a pattern changed, update the "Engagement lessons" in
+reposts,bookmarks,replies,quotes,measured_at_pt,age_hours_at_measure,note; reposts = public_metrics.retweet_count,
+quotes = public_metrics.quote_count). Note when the age is not ~24 h.
+Then run ./run.sh x-stats (impressions and shares/replies by format, caption_shape and posting hour) and compare;
+bookmarks have no ranking weight, so judge posts on reposts, quotes, replies and follows; if a pattern changed, update the "Engagement lessons" in
 docs/HANDOFF.md and commit it (pull --rebase first). Message Anthony only if something notable changed.
 MONDAYS: also append one dated entry to the "Lessons log" in docs/WRITING_GUIDE.md covering the last 7 days
-(aggregates only: counts and averages by title shape, caption shape, posting hour and format; never post ids,
+(aggregates only: counts and averages of impressions, reposts, quotes and replies by title shape, caption shape, posting hour and format; never post ids,
 raw rows or private data) plus a "Proposed tweak" line. Apply low-risk craft tweaks (ban list, examples,
 transitions) to its sections 1-6 in the same commit; anything touching X_ARTICLE_STYLE.md Hard rules or the
 Winning formula is proposal-only and goes in the message to Anthony. Commit only docs/WRITING_GUIDE.md and docs/.
@@ -98,27 +101,29 @@ Respect X limits: 30 reads/min, 1000/day across all routines.
 - **Record it:** every post in `state/x_posts.json` carries `"format": "roundup" | "deep-dive"` (backfilled Oct 17: all editions before `2026-10-17-1644` = roundup, `2026-10-17-1644` = deep-dive). `./run.sh x-stats` breaks impressions down by format.
 - **Four steps, both formats** (roundups included): 1 `research.md` (raw facts from the cited sources + a quick web/X search for what others covered and missed), 2 `outline.md` (one core idea at a time, plain language), 3 `article.md` (hook on the overlooked angle, short sentences, takeaway + reply-inviting question), 4 `check.md` (review, tighten, confirm the overlooked angle is real, sourced and simple; fix the article if anything fails). For a roundup, steps 1-3 center on the lead item and then cover the other stories one short paragraph each.
 - **Model:** the Oct 15 Claude Code single-idea Article (edition `2026-10-15-1705`, https://x.com/russano/status/2110889513455321578, "each agent gets its own repo copy"): one actionable agent-tooling idea, 653 impressions in ~25 h, our best. Worked sample of the new process: `articles/x/2026-10-17-sample/` (built on edition 2026-10-17, never posted).
-- **Comparison:** the baseline is every X Article **posted before `2026-10-17-1644`** (all roundup; last one edition `2026-10-17`, posted 11:00 AM PT). From `2026-10-17-1644` on, both formats run side by side, so compare **by `format`** (roundup vs deep-dive) at ~24 h with `./run.sh x-stats` (impressions, likes, replies, bookmarks), and against the pre-1644 baseline; record the result in section 6.
+- **Comparison:** the baseline is every X Article **posted before `2026-10-17-1644`** (all roundup; last one edition `2026-10-17`, posted 11:00 AM PT). From `2026-10-17-1644` on, both formats run side by side, so compare **by `format`** (roundup vs deep-dive) at ~24 h with `./run.sh x-stats` (impressions, replies, reposts, quotes; bookmarks are logged but have no ranking weight), and against the pre-1644 baseline; record the result in section 6.
 
-## 4b. Article timing (decided Oct 19, 2026 by Anthony and his growth agent)
-- **Hard rule (current, overrides the 2 h gap and 9 PM cutoff below):** at most 2 Article posts per PT day, at least 4 hours apart, only between 8 AM and 3 PM PT. Otherwise hold for the next valid slot and report it.
-- **At least 2 hours between any two Article posts on @russano.** Before posting, read the latest `posted_at_utc` in `state/x_posts.json`. If it is under 2 h ago, don't post now: hold the Article (it stays committed under `articles/x/<EDITION>/`) for the next slot that is 2 h or more after the last post, and say so in the run report (edition, next slot in PT, time of the last post) so the parent can queue it. Why: a second Article within about 30 minutes of another tanked (69 vs 328 impressions, and 35 vs 128).
+## 4b. Article timing (decided Oct 19, 2026; current rule set 2026-11-10 by Anthony)
+- **Hard rule (current, overrides the older 2 h gap and 9 PM cutoff below):** at most 2 Article posts per PT day, at least 4 hours apart, only between **8:00 AM and 5:30 PM PT**. Otherwise hold for the next valid slot and report it. Anthony's "post now" overrides.
+- **Window experiment (from 2026-11-10):** the end moved from 3 PM to 5:30 PM PT because the ranking code has no time-of-day logic and our best Article (about 1,460 impressions) went up at 3:15 PM PT. So a 5:04 PM edition's Article posts right after publish when it is before 5:30 PM PT and 4+ hours after the last post, instead of waiting for the next morning. The impressions review groups results by posting hour; after 2-3 weeks, keep or revert.
+- **Future test (not scheduled):** one separate native post (not an Article) at a different hour; only on Anthony's go-ahead.
+- History: **At least 2 hours between any two Article posts on @russano.** Before posting, read the latest `posted_at_utc` in `state/x_posts.json`. If it is under 2 h ago, don't post now: hold the Article (it stays committed under `articles/x/<EDITION>/`) for the next slot that is 2 h or more after the last post, and say so in the run report (edition, next slot in PT, time of the last post) so the parent can queue it. Why: a second Article within about 30 minutes of another tanked (69 vs 328 impressions, and 35 vs 128).
 - **No Article posts after 9 PM PT.** A late-night on-demand deep dive is queued for the next 12:04 PM PT slot (still at least 2 h after the previous post). The only exception is Anthony explicitly saying "post now". Why: Articles posted after 9 PM PT averaged about 65 impressions, against about 640 for those posted 12-4 PM PT.
 - **Weekday rule:** the 6:04 AM edition's Article posts at 10:37 AM. If Anthony has it posted early on request, the 10:37 routine skips it because it is already in `state/x_posts.json`. The 12:04 run's Article still needs 2 h from whatever posted last (after a 10:37 post, not before 12:37 PM PT).
 
 ## 4. X Article playbook
 The X API **cannot** create Articles, so this is done in the browser, which Anthony signed into @russano himself.
-0. **Timing gate** (section 4b): check the latest `posted_at_utc` in `state/x_posts.json`. Under 2 h ago, or after 9 PM PT, do not post: the Article stays committed under `articles/x/<EDITION>/`, and the run report says HELD with the next slot (PT) so the parent can queue it. Exception: Anthony explicitly says "post now".
+0. **Timing gate** (section 4b): check `state/x_posts.json`. If 2 Articles already posted this PT day, the latest `posted_at_utc` is under 4 h ago, or it is outside 8:00 AM-5:30 PM PT, do not post: the Article stays committed under `articles/x/<EDITION>/`, and the run report says HELD with the next slot (PT) so the parent can queue it. Exception: Anthony explicitly says "post now".
 1. Run `./run.sh x-article <EDITION> [--format roundup|deep-dive]` (`scripts/x_article_html.py`). Default: the format in `articles/x/<EDITION>/format.txt`, else deep-dive if `articles/x/<EDITION>/article.md` exists, else roundup. **Both formats** render `articles/x/<EDITION>/article.md` when it exists (every line its own `<p>`, **bold** kept, `- ` bullets as `•`, `##` labels as bold lines; caption from its front matter, roundup falls back to `format.txt` line 3) and refuse it if the title or caption has `$<number>` or "Mind Blow" or the caption doesn't end in `...`. Only when a roundup has no `article.md` does it fall back to the old rendering of `reports/<EDITION>.md` (one `<p>` per paragraph, dek omitted, `$`-digit guard, prints a NOTE): write the four-step `article.md` instead. `--dry-run` runs the checks and prints the summary without writing HTML. Both drop any line containing "Mind Blow" and print `FORMAT`, `SOURCE`, `TITLE`, `CAPTION` and the `SERVE` command: `python3 -m http.server 8765 --bind 127.0.0.1 -d /tmp/x-article` (file:// is blocked in the browser). Run that in the background.
 2. Open `http://127.0.0.1:8765/<EDITION>.html`, select the body, and **copy with the right-click context menu -> Copy**. Do not trust the existing clipboard: a stale clipboard once pasted yesterday's article.
 3. Go to **https://x.com/compose/articles**, create a new Article, type the title, click into the body and paste with **real keystrokes** (Ctrl+V), not by injecting DOM text.
 4. **Check the body**: first and last paragraphs match this edition, links survived, nothing from an older edition.
 4b. **Inline images** (both formats): each `[[IMG: /workspace/<file> | alt]]` line arrives as its own paragraph. Click into it, delete the marker text, insert that file with the editor's media button at that spot and set the alt text. Before publishing, confirm no `[[IMG` text remains. Images are prepared overnight (`docs/OVERNIGHT.md` section 3).
 5. **Header image**: the prepared `/workspace/x-header-<EDITION>.jpg` from the overnight run (`header` in `articles/x/<EDITION>/overnight.json`) if it exists and its id is still unused; otherwise a random high-resolution public-domain NASA image from https://images.nasa.gov (download the original/large, not a thumbnail) whose id is **not** in any `header` field of `state/x_posts.json`. Upload it as the Article header.
-6. Publish, then add the **caption** to the post (`article.md` front matter; for a roundup it matches `format.txt` line 3). Tip-first applies to both formats: lead with the single most useful, actionable takeaway for developers and DevOps people (a how-to, a pattern or a tip, preferably about agent/coding tools such as Claude Code, Cursor or Codex), ending in `...`. Don't lead with spec numbers or model sizes; numbers may support the takeaway but are not the hook. No "Mind Blow", no `$<number>`. Example: `Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...` (see section 6).
+6. Publish, then add the **caption** to the post (`article.md` front matter; for a roundup it matches `format.txt` line 3). It uses one of the four rotating shapes (`tip`, `question`, `number`, `contrarian`; `docs/X_ARTICLE_STYLE.md` "Algorithm-informed rules"), never the previous post's `caption_shape`, ends in `...`, no "Mind Blow", no `$<number>`. Before posting, confirm the body ends with the four-part close (take, reply question, share prompt, follow line).
 7. **Read the live caption back** (profile timeline or `x.get_posts_by_id`). It was once truncated to `Forml`; if it is cut, fix it.
-8. Append to `state/x_posts.json` `posts`: `edition, posted_at_utc, post_id, article_id, url, article_url, title, caption, caption_note, format` (`roundup` or `deep-dive`, as printed by `x-article`), `header` (NASA id plus short description).
-9. Message Anthony (outside quiet hours): headline, link, one sentence on the top item.
+8. Append to `state/x_posts.json` `posts`: `edition, posted_at_utc, post_id, article_id, url, article_url, title, caption, caption_note, format` (`roundup` or `deep-dive`, as printed by `x-article`), `caption_shape` (`tip` | `question` | `number` | `contrarian`, from `check.md`), `header` (NASA id plus short description).
+9. Message Anthony (outside quiet hours): headline, link, one sentence on the top item, and one line suggesting he reply to early commenters within about 2 hours (the cold-start boost window; our own replies don't reach non-followers, so his engagement is what counts).
 
 ## 5. Hard rules
 - Never use "Mind Blow" in Article titles, bodies or captions (it is only the internal style name).
@@ -129,13 +134,25 @@ The X API **cannot** create Articles, so this is done in the browser, which Anth
 - Anthony has full authority delegated to you over project decisions; act, then report.
 
 ## 6. Engagement lessons (from `state/x_impressions.csv`, `state/x_posts.json`)
+- **Ranking weights (2026-11-10, x-algorithm):** bookmarks have **no weight** in ranking, and neither does video watch. Judge posts on **shares (reposts, quotes), replies and follows**, not bookmarks or likes. Captions rotate shapes and every Article has the four-part close (`docs/X_ARTICLE_STYLE.md`). Sept 2026 Under the Hood report: 0 account or post labels on @russano.
 - **Best (since Oct 15): actionable tip-led captions.** The Oct 15 5:24 PM PT tip hook ("Anthropic's Claude Code tip: each agent gets its own repo copy so three edit without colliding...") got 653 impressions, 5 likes and 3 replies in about 25 hours. The Oct 16 noon numbers-led hook got only 11 impressions in 6 hours. So captions now lead with the most useful developer/DevOps takeaway (how-to, pattern, tip; agent/coding tools preferred), never with spec numbers or model sizes.
-- **Tip-first captions, confirmed (Oct 19):** the 3 tip-led Articles averaged 868 impressions and about 11 replies, against 368 impressions and 0.3 replies for the rest. Keep them for both formats: open with one actionable dev/DevOps tip, end in "...".
+- **Tip-first captions, confirmed (Oct 19):** the 3 tip-led Articles averaged 868 impressions and about 11 replies, against 368 impressions and 0.3 replies for the rest. Since 2026-11-10 tip-first is one of four rotating shapes (slop and duplicate-content risk), not the only one.
 - **Timing (Oct 19):** Articles posted after 9 PM PT averaged about 65 impressions vs about 640 for 12-4 PM PT; a second Article within about 30 minutes of another tanked (69 vs 328, 35 vs 128). Hence the 2-hour gap and the 9 PM cutoff (section 4b).
 - **Inline visuals (Nov 3):** Anthony liked the original Pando architecture diagram in the `2026-11-03` Article and asked for more of that, plus more screenshots/frames. Overnight prep should bias toward custom diagrams from primary sources and extra video frames / page crops (see `docs/OVERNIGHT.md` section 3).
 - **Earlier:** midday/afternoon posts with specific, number-led teaser captions. Tue Oct 13 2:51 PM PT: 321 impressions. Wed Oct 14 12:29 PM PT: 358+. Thu Oct 15 ~12:30 PM PT: ~280 in 2 hours with a real comment.
 - **Worst:** overnight posts (Oct 13 12:19 AM: 27), and missing or truncated captions (Oct 13 7:43 AM no caption: 101; Oct 14 6:26 AM caption "Forml": 32).
 - Hence the weekday 6:04 AM edition's Article is **held until 10:37 AM** (weekend editions run at 12:04 and 5:04 PM and post immediately), and every caption is a concrete hook ending in "...". Keep measuring and revise this section with data.
+
+## Algorithm notes (x-algorithm, 2026-11-10)
+Source: https://github.com/xai-org/x-algorithm (commit `660cd74`, read 2026-11-10). Clone to `/tmp/x-algorithm` to re-check. These are open-sourced defaults; live values may differ.
+- **Score = sum of predicted action probability x weight** (`vm-ranker/params.rs`, applied in `vm-ranker/scoring/value_model.rs`): copy-link share **20**, reply **5** (plus **15** on original posts when viewer and author follow each other), quote **5**, DM share **5**, follow author **4**, share **2.118**, repost **1**, like **0.708**, bookmark **0**, video watch **0**, Grok **0**; report **-234**, mute **-58.8**, not interested **-53.07**, block **-31.2**.
+- **Out-of-network:** posts from accounts the viewer doesn't follow are scaled by **0.75** (`OonWeightFactor`, `vm-ranker/params.rs`).
+- **Author diversity:** each extra post by the same author in one feed decays by **0.5**, floor **0.25** (`AuthorDiversityDecay` / `AuthorDiversityFloor`, `vm-ranker/params.rs`). Hence 4 h spacing.
+- **New-author cold start:** authors with **50,000 or fewer** followers get a boost on original posts under **2 hours** old with fewer than **200** Home views (`home-mixer/scorers/author_cold_start.rs`, params `ColdStart*` in `home-mixer/params/param.rs`).
+- **Risk labels:** `llm_slop_user` (with `SpamHighRecall`, hides posts from non-followers for 7 days) and `llm_slop_post` (`abuse-enforcement-service/service-lib/rules/enforcement_user.yaml`, `enforcement_post.yaml`); a `DUPLICATE_CONTENT` drop rule (`visibility-filtering/rules/tweet_rules.rs`). Templated captions and reused sentences are the risk; hence rotating shapes and fresh wording.
+- **Not in the code:** no link penalty, no caption-length rule, no time-of-day logic.
+- **@russano status:** Anthony's Under the Hood report for Sept 2026 shows 0 account and 0 post labels. Ask him for a newer one now and then (https://x.com/i/jf/under_the_hood).
+- **What we adopted** (`docs/X_ARTICLE_STYLE.md` Hard rules and "Algorithm-informed rules"): shares/replies/follows over bookmarks; four rotating caption shapes recorded as `caption_shape`; a first-person take, share prompt and follow line in every Article; 10-14 tight items; the poster's "reply within 2 hours" nudge to Anthony; Monday account suggestions in the 6:04 ideas message; the 5:30 PM PT window experiment. Not adopted on purpose: video, caption-length rules, link avoidance.
 
 ## 7. Quality bar
 X Articles: `docs/X_ARTICLE_STYLE.md` is the spec for both formats. Deep-dive models: `2026-10-15-1705` (single Claude Code idea), the worked sample `articles/x/2026-10-17-sample/` and the first live one `articles/x/2026-10-17-1644/`. Roundup models: the lead-item structure in `docs/X_ARTICLE_STYLE.md`; for the per-story paragraphs, the gold editions below.
