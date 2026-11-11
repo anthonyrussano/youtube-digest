@@ -1,0 +1,43 @@
+---
+title: "AWS cuts a 99-second scan to 36, Kimi K3.1 runs 2-3x faster, and PowerShell 7.7 swaps GUIDs"
+caption: "PowerShell 7.7 tip: New-Guid now returns time-sortable v7 UUIDs, so use [guid]::NewGuid() wherever a GUID has to stay random. Meanwhile Microsoft Research hid an agent backdoor in a few dormant neurons..."
+edition: "2026-11-10-1707"
+lead_source: "https://x.com/MSFTResearch/status/2120295164379824154"
+---
+Claude can now [open Adobe, Confluence or Box right beside the chat](https://x.com/EricBuess/status/2120250380902695294) instead of only describing them. Meanwhile Microsoft Research showed that [a few dormant neurons can hide a backdoor in an AI agent](https://x.com/MSFTResearch/status/2120295164379824154).
+
+Here is what happened in AI and DevOps this cycle.
+
+Microsoft Research reprogrammed [just a few dormant neurons in an AI agent](https://x.com/MSFTResearch/status/2120295164379824154) and got a backdoor out of it. The agent behaves normally until it sees one specific trigger. Then it does what the attacker planted. The team says the threat is new but the fix is not, so weight files now deserve the same supply-chain checks as any other dependency.
+
+OpenAI explained how [GPT-Live differs from its Realtime voice models](https://www.youtube.com/watch?v=5YXlrzC_RYE). The first voice stack [chained three models](https://www.youtube.com/watch?v=5YXlrzC_RYE&t=19s), speech-to-text, a language model and text-to-speech, and each hop added delay. Realtime merged them but stayed turn-based. GPT-Live [listens and speaks at the same time](https://www.youtube.com/watch?v=5YXlrzC_RYE&t=89s), which OpenAI calls full duplex, so it can tell a "mm-hmm" from a real interruption. Yelp, Fin, Speak and Cognition [already run it](https://www.youtube.com/watch?v=5YXlrzC_RYE&t=193s), for restaurant calls, support, language lessons and voice for Devin.
+
+Moonshot AI's [Kimi K3.1 Pro Highspeed landed on Amazon Bedrock](https://aws.amazon.com/blogs/machine-learning/introducing-kimi-k3-1-pro-on-amazon-bedrock/). It keeps the 3T-class open-weight design and the 1-million-token context of Kimi K3. Moonshot reports 2 to 3 times the output speed of K3.1 Pro. Teams already on K3 switch by changing one model ID, but the model reasons at max effort unless you set reasoning_effort lower.
+
+Microsoft shipped [PowerShell 7.7 as generally available](https://devblogs.microsoft.com/powershell/announcing-powershell-7-7), built on .NET 11. The quiet breaking change: New-Guid now returns version 7 UUIDs, which sort by time, instead of random version 4 ones. Test-Json also stops fetching external schema references unless you ask. Any script that treats a GUID as a random secret needs [guid]::NewGuid() before the upgrade.
+
+Anthropic's trick for Claude Code, in [a secondhand summary](https://x.com/xsmryze/status/2120288615729082674), runs Sonnet, Haiku and Opus 5.5 together. Each model takes only the job it does best. Opus makes the big calls, and the cheaper models handle routine turns. The source is not Anthropic itself, but the pattern is simple to try: route by task, not by habit.
+
+AWS made the [AgentCore Web Search API available](https://aws.amazon.com/blogs/machine-learning/build-a-daily-dependency-watcher-with-langgraph-and-amazon-bedrock-agentcore-web-search/) and built a daily dependency watcher on it with LangGraph. The watcher checks npm, PyPI and container base images in parallel. Three branches finished in 36 seconds against 99 seconds one after another. Queries hit an index that Amazon runs, with no search API key to rotate. The date window and blocklist stay in code, where the model can't change them.
+
+OpenAI's voice team also gave practical rules for GPT-Live delegation, the hand-off of hard work to a backend model. The [GPT-Live prompt should stay short](https://www.youtube.com/watch?v=5YXlrzC_RYE&t=332s) and say only when to delegate. Tools and procedures go in the backend prompt. When the model promises to act but never delegates, a [Decisions trigger can force the hand-off](https://www.youtube.com/watch?v=5YXlrzC_RYE&t=380s). And because voice context gets compacted, OpenAI says to [save key details in your own app](https://www.youtube.com/watch?v=5YXlrzC_RYE&t=512s).
+
+ComfyUI added native support for [MiniMax's H3 Image model](https://x.com/ComfyUI/status/2120249788050624629). It has open weights, needs 6 steps with nothing to tune, and outputs 4096×4096 images natively. One model handles text-to-image and multi-reference editing. That size on a local GPU used to take an upscaler pass.
+
+Meta published a paper on [keeping LLM code judges calibrated](https://x.com/omarsar0/status/2120253922933956644), tested on a coding agent in production. The judges decide whether an agent's code change is good. The catch: their prompts go stale every time the agent changes. If a judge model gates your agent's PRs, it needs its own regression tests.
+
+Red Hat showed more of OpenShift 5. Its assistant now [drops Perses dashboards straight into the chat](https://www.youtube.com/watch?v=o8FQkDogFx4&t=37s) and connects to other tools through an [MCP Server and MCP Gateway with guardrails](https://www.youtube.com/watch?v=o8FQkDogFx4&t=50s). For regulated workloads it pairs [confidential computing with post-quantum encryption](https://www.youtube.com/watch?v=QEJjjM-4r8E&t=55s) against harvest-now, decrypt-later attacks. Red Hat also [splits management logic from the data plane](https://www.youtube.com/watch?v=QEJjjM-4r8E&t=86s) to block lateral movement between tenants on one cluster.
+
+AWS also wrote an [agent evaluation playbook for AgentCore](https://aws.amazon.com/blogs/machine-learning/the-agent-evaluation-playbook-built-in-deepeval-and-autoeval-on-agentcore/). It offers 15 built-in evaluators, plus DeepEval and AutoEval metrics that AWS hosts. The warning is the useful part. A support agent can close every ticket and still leak personal data, so a high completion rate can hide a failure.
+
+The engineer who built Claude Code laid out how he prompts in [a 27-minute talk](https://x.com/0xmollymoon/status/2120298115710230987). His rule: "Stop telling the model what to do. Tell it what done looks like, and let it check itself." The method boils down to three parts: goal, context, checks.
+
+Builders have a busy week. One roundup lists [over 600,000 dollars in hackathon prizes](https://x.com/HackListHQ/status/2120295279937155409) with deadlines this week. Nous Research's Hermes Agent plugin hackathon closes November 11 with a 20,000-dollar pool.
+
+My take: the PowerShell GUID change is the item most likely to bite a team this month, because it breaks nothing loudly.
+
+Which goes on your list first: auditing model weights like dependencies, a test suite for your judge model, or a grep for New-Guid?
+
+Pass this along to the person who maintains your PowerShell build scripts.
+
+I write up the AI and DevOps changes worth acting on a few times a week, each claim linked to its source. Hit follow and the next one lands in your feed.

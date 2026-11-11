@@ -1,0 +1,3 @@
+roundup
+Default classic full roundup; no single lead with enough primary-source depth for a deep dive.
+caption: PowerShell 7.7 tip: New-Guid now returns time-sortable v7 UUIDs, so use [guid]::NewGuid() wherever a GUID has to stay random. Meanwhile Microsoft Research hid an agent backdoor in a few dormant neurons...
