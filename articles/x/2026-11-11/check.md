@@ -28,3 +28,7 @@ NASA iss073e0983131 (Sept. 21, 2025): a partly cloudy Korean Peninsula with sun 
 
 ## Dry run
 `./run.sh x-article 2026-11-11 --dry-run` -> FORMAT: roundup, SOURCE: articles/x/2026-11-11/article.md, 27 paragraphs, ~1512 words.
+
+## 6:04 run update
+- Added one paragraph (lidar Maya site, 48 agents, about 1,200 km², pyramid 8-12 m, INAH no registered site), all from https://pietromiotti.com/latest/maya-site/. Split one 29-word sentence.
+- plain-lint after edit: 0 REVIEW hits on article.md and the website edition. Dry-run: SOURCE articles/x/2026-11-11/article.md. Caption, title and close unchanged; caption_shape stays contrarian.

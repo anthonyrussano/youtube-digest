@@ -67,6 +67,7 @@
   "The DevDay event was in late September; the talk videos are new this window, so the text avoids 'launched today' framing.",
   "Feeds 43 of 44 ok (Databricks connection refused); 2 articles used (OpenAI Control Room via The Register, Tether BotPsy). AINews: 0 issues in the window. X: 36 search reads, 9 posts qualified, none used (list threads, hype, or not enough detail).",
   "Codex Security's 0.81% figure was left out because the two speakers attach it to different metrics; only 'rollback rate under 1%' is used.",
-  "The subscription list is still the 70-channel starter list; channel coverage is incomplete until the full export is restored."
+  "The subscription list is still the 70-channel starter list; channel coverage is incomplete until the full export is restored.",
+  "6:04 run: delta after window_end added 13 feed items, 2 new videos and 36 X search reads. Folded in briefly: the lidar Maya-site story (website and Article), IBM's Binance-heist and Meta just-in-time tests segment and Meta's e-means (website only). The AWS Danske Bank video was rate limited and went to the retry queue."
  ]
 }
