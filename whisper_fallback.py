@@ -230,7 +230,7 @@ def main(a):
     c = cfg()
     want = {"needs Whisper"} | ({"rate limited (retry later)"} if a.include_rate_limited else set())
     todo = [v for v in load() if v.get("transcript_status") in want and (not a.ids or v["id"] in a.ids)]
-    backends = [RemoteBackend(c.get("remote"), a.remote_timeout), LocalCPUBackend()]
+    backends = [RemoteBackend(c.get("remote"), a.remote_timeout)] + ([LocalCPUBackend()] if c.get("local_cpu", True) else [])
     cap = {"remote": a.remote_max_minutes, "local": a.max_minutes}   # GPU host handles much longer videos
     active = []
     for b in backends:
