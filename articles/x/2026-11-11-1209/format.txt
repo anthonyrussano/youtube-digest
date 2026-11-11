@@ -1,0 +1,3 @@
+roundup
+Classic full roundup led by Anthropic's chip story and Google's Decisions API; many strong stories, none deep enough alone for a deep dive.
+caption: AWS tip: when an LLM turns your guardrail into a formal rule, ask a checker the question you care about. One per-refund rule for refunds over 500 let two 300-dollar refunds pay out 600. Meanwhile Anthropic says Claude ported itself to AMD GPUs in three days...
