@@ -1,0 +1,72 @@
+{
+ "edition": "2026-11-11",
+ "window_start": "2026-11-11T01:15:49Z",
+ "window_end": "2026-11-11T08:33:26Z",
+ "files": {
+  "draft_report": "articles/x/2026-11-11/draft-report.md",
+  "article": "articles/x/2026-11-11/article.md",
+  "format": "articles/x/2026-11-11/format.txt",
+  "research": "articles/x/2026-11-11/research.md",
+  "outline": "articles/x/2026-11-11/outline.md",
+  "check": "articles/x/2026-11-11/check.md"
+ },
+ "images": [
+  {
+   "path": "/workspace/2026-11-11-1-codex-security-loop.png",
+   "alt": "Diagram: OpenAI's Codex Security loop as described at DevDay, from security.md threat models and a deep scan by hundreds of agents through dedup (36% duplicates), validation, patch and verify-fix to a PR with a rollback rate under 1%",
+   "kind": "diagram",
+   "source": "https://www.youtube.com/watch?v=gUQN7juxvVI&t=615s",
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-11-11-2-ci-agent-stats.png",
+   "alt": "Slide from \"What Will You Build With Coding Agents That Don't Quit?\" (OpenAI DevDay 2026, YouTube): 100+ PRs per week, 1000+ commits, 600+ Slack messages",
+   "kind": "video-frame",
+   "source": "https://www.youtube.com/watch?v=U1IVZy9FhVQ&t=525s",
+   "source_url": "https://www.youtube.com/watch?v=U1IVZy9FhVQ&t=525s",
+   "timestamp": 525,
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-11-11-3-patchbench.png",
+   "alt": "Slide from \"Codex Security: From Vulnerability to Verified Fix\" (OpenAI DevDay 2026, YouTube): patch benchmark score against cost per case, GPT-6 Astra above GPT-5.6 Sol",
+   "kind": "video-frame",
+   "source": "https://www.youtube.com/watch?v=gUQN7juxvVI&t=984s",
+   "source_url": "https://www.youtube.com/watch?v=gUQN7juxvVI&t=984s",
+   "timestamp": 984,
+   "numbers_checked": true
+  },
+  {
+   "path": "/workspace/2026-11-11-4-zenity-skills.png",
+   "alt": "Slide from \"You Can't Tell What an Agent Skill Will Do by Reading It\" (Zenity, AI Engineer, YouTube): thousands of skills exercised, about 100 removed after review",
+   "kind": "video-frame",
+   "source": "https://www.youtube.com/watch?v=_7P580m4kPY&t=483s",
+   "source_url": "https://www.youtube.com/watch?v=_7P580m4kPY&t=483s",
+   "timestamp": 483,
+   "numbers_checked": true
+  }
+ ],
+ "header": {
+  "id": "iss073e0983131",
+  "description": "Korean Peninsula with sun glint on the Sea of Japan and the Yellow Sea, seen from the ISS on Sept. 21, 2025 (public domain, original 8256x5504)",
+  "path": "/workspace/x-header-2026-11-11.jpg"
+ },
+ "caption": "Hot take: more scanners won't fix your security backlog. OpenAI found 36% of its own findings were duplicates, so Codex Security dedups first and runs an adversarial verify-fix check on its patches. Meanwhile one Codex agent worked on flaky CI for over 1,000 hours...",
+ "caption_shape": "contrarian",
+ "title": "OpenAI's CI agent merged 213+ fixes, Codex Security cut 36% duplicates, and AMD packs 256 cores",
+ "format": "roundup",
+ "status": "ready",
+ "todo": [
+  "Leave the Article for the 10:37 post; re-check that header iss073e0983131 is still unused before posting, and record caption_shape contrarian on the post.",
+  "Four inline images (one above the winning formula's 1-3, per the Nov 3 ask for more diagrams and frames); the poster may drop the PatchBench slide if the editor struggles.",
+  "Skip-don't-stack: the held 2026-11-10-1707 Article should not take the 10:37 slot; this edition is newer."
+ ],
+ "notes": [
+  "GPU host reachable: fetch, captions, all Whisper jobs and image work ran there. The box fallback was not used.",
+  "27 of 28 selected videos transcribed (7 new OpenAI DevDay talks plus 20 from the retry queue). OpenAI's 49-second 'Introducing Businesses in ChatGPT in beta' has no speech (music only) and stays in the retry queue.",
+  "The DevDay event was in late September; the talk videos are new this window, so the text avoids 'launched today' framing.",
+  "Feeds 43 of 44 ok (Databricks connection refused); 2 articles used (OpenAI Control Room via The Register, Tether BotPsy). AINews: 0 issues in the window. X: 36 search reads, 9 posts qualified, none used (list threads, hype, or not enough detail).",
+  "Codex Security's 0.81% figure was left out because the two speakers attach it to different metrics; only 'rollback rate under 1%' is used.",
+  "The subscription list is still the 70-channel starter list; channel coverage is incomplete until the full export is restored."
+ ]
+}

@@ -1,0 +1,3 @@
+roundup
+Classic full roundup led by the Codex Security DevDay talk; many strong stories, none with enough primary-source depth alone for a deep dive.
+caption: Hot take: more scanners won't fix your security backlog. OpenAI found 36% of its own findings were duplicates, so Codex Security dedups first and runs an adversarial verify-fix check on its patches. Meanwhile one Codex agent worked on flaky CI for over 1,000 hours...
