@@ -1,33 +1,77 @@
-// Full-page capture for edition videos. Runs on the render host.
-// node capture.mjs URL OUT.png [maxHeightCssPx]
-// Prints JSON {ok, title, blocked, textLen} on stdout.
+// Full-page and X-post capture for edition videos. Runs on the render host.
+//   node capture.mjs URL OUT.png [maxHeightCssPx]
+//   node capture.mjs --xpost ID OUT.png
+// Prints JSON {ok, title, blocked, textLen, mode} on stdout.
+// Dark mode is on by default (colorScheme + Chromium force-dark). Set EV_DARK=0 to turn it off.
 import { createRequire } from "module";
 const require = createRequire(process.env.EV_NODE_MODULES ? process.env.EV_NODE_MODULES + "/" : import.meta.url);
 const { chromium } = require("playwright-core");
-const [url, out, maxH = "4200"] = process.argv.slice(2);
+
+const DARK = process.env.EV_DARK !== "0" && process.env.EV_DARK !== "false";
 const UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36";
 const BLOCK = /captcha|access denied|just a moment|are you a robot|are you human|request blocked|unusual activity|verify you are human/i;
-const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || "/usr/bin/chromium", headless: true,
-  args: ["--hide-scrollbars", "--mute-audio", "--disable-blink-features=AutomationControlled"] });
-let res = { ok: false };
+const XFAIL = /log in to x|sign in to x|something went wrong|this post (is )?unavailable|doesn’t exist|doesn't exist|has been deleted|try again|this content is not available/i;
+
+const args = ["--hide-scrollbars", "--mute-audio", "--disable-blink-features=AutomationControlled"];
+if (DARK) {
+  args.push("--enable-features=WebContentsForceDark", "--force-dark-mode",
+            "--blink-settings=forceDarkModeEnabled=true");
+}
+
+function flag(name) {
+  const i = process.argv.indexOf(name);
+  return i >= 0 ? { i, val: process.argv[i + 1] } : null;
+}
+
+const browser = await chromium.launch({
+  executablePath: process.env.CHROMIUM || "/usr/bin/chromium",
+  headless: true,
+  args,
+});
+let res = { ok: false, dark: DARK };
 try {
-  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1.3334,
-    userAgent: UA, locale: "en-US", colorScheme: "light" });
+  const xp = flag("--xpost");
+  if (xp) res = await captureXPost(browser, xp.val, process.argv[xp.i + 2]);
+  else {
+    const [url, out, maxH = "4200"] = process.argv.slice(2);
+    res = await capturePage(browser, url, out, maxH);
+  }
+} catch (e) {
+  res = { ok: false, error: String(e).slice(0, 300), dark: DARK };
+}
+await browser.close();
+console.log(JSON.stringify(res));
+
+async function context(browser, viewport, dsf = 1.3334) {
+  return browser.newContext({
+    viewport,
+    deviceScaleFactor: dsf,
+    userAgent: UA,
+    locale: "en-US",
+    colorScheme: DARK ? "dark" : "light",
+  });
+}
+
+async function capturePage(browser, url, out, maxH) {
+  const ctx = await context(browser, { width: 1440, height: 900 });
   const page = await ctx.newPage();
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
   await page.waitForLoadState("networkidle", { timeout: 12000 }).catch(() => {});
-  // trigger lazy images, then back to top
-  for (let y = 0; y < 5000; y += 700) { await page.evaluate(v => window.scrollTo(0, v), y); await page.waitForTimeout(150); }
-  await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(800);
-  // strip overlays: cookie banners, ad-block nags, paywall modals, sticky headers
+  for (let y = 0; y < 5000; y += 700) {
+    await page.evaluate(v => window.scrollTo(0, v), y);
+    await page.waitForTimeout(150);
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(800);
   await page.evaluate(() => {
     for (const el of document.querySelectorAll("body *")) {
       const s = getComputedStyle(el);
-      if ((s.position === "fixed" || s.position === "sticky") ) el.remove();
+      if (s.position === "fixed" || s.position === "sticky") el.remove();
       else if (parseInt(s.zIndex) > 999 && s.position === "absolute") el.remove();
     }
     for (const el of [document.documentElement, document.body]) {
-      el.style.setProperty("overflow", "visible", "important"); el.style.setProperty("filter", "none", "important");
+      el.style.setProperty("overflow", "visible", "important");
+      el.style.setProperty("filter", "none", "important");
       el.style.setProperty("position", "static", "important");
     }
     for (const el of document.querySelectorAll("[class*=blur],[style*=blur]")) el.style.filter = "none";
@@ -36,7 +80,91 @@ try {
   const text = await page.evaluate(() => document.body.innerText || "");
   const h = await page.evaluate(() => document.documentElement.scrollHeight);
   await page.screenshot({ path: out, clip: { x: 0, y: 0, width: 1440, height: Math.min(h, +maxH) } });
-  res = { ok: true, title, textLen: text.length, blocked: BLOCK.test(title + " " + text.slice(0, 3000)) || text.length < 400 };
-} catch (e) { res = { ok: false, error: String(e).slice(0, 300) }; }
-await browser.close();
-console.log(JSON.stringify(res));
+  await ctx.close();
+  return {
+    ok: true, title, textLen: text.length, dark: DARK, mode: "page",
+    blocked: BLOCK.test(title + " " + text.slice(0, 3000)) || text.length < 400,
+  };
+}
+
+async function captureXPost(browser, id, out) {
+  const theme = DARK ? "dark" : "light";
+  const embed = `https://platform.twitter.com/embed/Tweet.html?id=${id}&theme=${theme}&dnt=true&hideThread=true`;
+  const ctx = await context(browser, { width: 1600, height: 1600 }, 2);
+  const page = await ctx.newPage();
+  await page.goto(embed, { waitUntil: "domcontentloaded", timeout: 45000 });
+  await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
+  // Official embed usually paints the tweet in an iframe or as an article.
+  await page.waitForTimeout(1200);
+  for (const frame of page.frames()) {
+    try {
+      await frame.waitForSelector("article, [data-testid='tweet'], .tweet", { timeout: 4000 });
+    } catch {}
+  }
+  await page.waitForTimeout(800);
+  const info = await page.evaluate(() => {
+    const text = document.body ? document.body.innerText || "" : "";
+    const article = document.querySelector("article, [data-testid='tweet']");
+    const iframe = document.querySelector("iframe");
+    return { text, hasArticle: !!article, hasIframe: !!iframe, title: document.title };
+  });
+  let failed = XFAIL.test(info.text) || (info.text.replace(/\s+/g, " ").trim().length < 40 && !info.hasArticle && !info.hasIframe);
+  if (!failed) {
+    // Prefer a tight crop of the tweet card, including an iframe if that's how it rendered.
+    const shot = await screenshotTweet(page);
+    if (shot) {
+      const fs = await import("fs");
+      fs.writeFileSync(out, shot);
+      await ctx.close();
+      return { ok: true, title: info.title, textLen: info.text.length, dark: DARK, mode: "embed" };
+    }
+  }
+  await ctx.close();
+  return { ok: false, error: failed ? "embed did not render" : "no tweet box to crop", title: info.title,
+           textLen: info.text.length, dark: DARK, mode: "embed" };
+}
+
+async function screenshotTweet(page) {
+  // Walk the page and same-origin frames for a tweet-sized box.
+  const targets = [];
+  const handle = await page.$("article, [data-testid='tweet']");
+  if (handle) targets.push(handle);
+  for (const frame of page.frames()) {
+    try {
+      const h = await frame.$("article, [data-testid='tweet'], .EmbeddedTweet, #app, body");
+      if (h) targets.push(h);
+    } catch {}
+  }
+  for (const el of targets) {
+    try {
+      const box = await el.boundingBox();
+      if (!box || box.width < 200 || box.height < 80) continue;
+      const pad = 16;
+      const clip = {
+        x: Math.max(0, box.x - pad),
+        y: Math.max(0, box.y - pad),
+        width: Math.min(1600, box.width + pad * 2),
+        height: Math.min(1600, box.height + pad * 2),
+      };
+      return await page.screenshot({ clip, type: "png" });
+    } catch {}
+  }
+  // Last try: the first iframe's bounding box on the parent page.
+  const iframe = await page.$("iframe");
+  if (iframe) {
+    const box = await iframe.boundingBox();
+    if (box && box.width > 200 && box.height > 80) {
+      const pad = 16;
+      return await page.screenshot({
+        clip: {
+          x: Math.max(0, box.x - pad),
+          y: Math.max(0, box.y - pad),
+          width: Math.min(1600, box.width + pad * 2),
+          height: Math.min(1600, box.height + pad * 2),
+        },
+        type: "png",
+      });
+    }
+  }
+  return null;
+}
