@@ -176,3 +176,11 @@ Since Oct 18, 2026 YouTube answers this box's IP with "Sign in to confirm you're
 **Cost on this box (8 CPU, ~3 GB free, no GPU):** first test (2026-10-14, base.en, 13 videos of 4–42 min): 9–58 s wall time per video (about 40× real time), peak RSS 516–932 MB. The worker transcribes in 10-minute ffmpeg chunks, because a single 36-minute pass reached 1.65 GB.
 
 **Audio track:** many videos carry auto-dubbed tracks (Arabic, German, ...). The format selector picks the lowest-bitrate DASH stream of the *original* track (`wa[format_note*=original][protocol^=http]`, then English, then any). Plain `worstaudio` picked dubs and gave gibberish.
+
+## Edition video (voiceover-ready MP4)
+
+`tools/edition-video/` builds a silent 1080p30 video from one edition: muted clips cut at each cited YouTube
+timestamp, scrolling captures of cited articles and X posts, and the edition page as intro and outro. It also
+writes a teleprompter with segment timecodes. Everything renders on the remote host; see
+`tools/edition-video/README.md`. Quick start: write `/workspace/edition-video/<EDITION>/script.md`, then run
+`tools/edition-video/remote.sh <EDITION>`.
