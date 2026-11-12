@@ -1,21 +1,22 @@
 # Edition video
 
-Turns one published edition into a silent, voiceover-ready 1920x1080 30 fps MP4 (about 5-8
-minutes) plus a teleprompter with segment timecodes and a `post-attribution.md` credits file
-to paste into the video's post. Anthony records his own voiceover over the picture, and films
-the cold open and the sign-off himself.
+Turns one published edition into a voiceover-ready 1920x1080 30 fps MP4 (about 5-8 minutes)
+plus a teleprompter with segment timecodes, a quiet music stem, and a `post-attribution.md`
+credits file to paste into the video's post. Anthony records his own voiceover over the picture.
+The video is voiceover only by default — cold open and sign-off are regular edited segments.
 
-All heavy work (yt-dlp, Chromium captures, ffmpeg) runs on the render host from `config/whisper.json`
-(`remote`), never on the box. The box only edits `script.md`, looks up X posts and handles, and
-copies files over SSH.
+All heavy work (yt-dlp, Chromium captures, ffmpeg, music render) runs on the render host from
+`config/whisper.json` (`remote`), never on the box. The box only edits `script.md`, looks up
+X posts and handles, and copies files over SSH.
 
 ## Rebuild for another edition
 
 1. Write `/workspace/edition-video/<EDITION>/script.md` from `reports/<EDITION>.md` (format below;
-   aim for 700-1,100 narration words, short playful sentences, one beat per item). Keep a Cold open
-   and a Sign-off in the script so they show up in the teleprompter; do not add visuals for them.
-   The video starts at the first story and ends after the last one. The first story's clock is 00:00.0.
-2. Find 3-6 related X posts per story so the segment can show how big the story is. Search with
+   aim for 700-1,100 narration words, short playful sentences, one beat per item, a cold open and
+   a sign-off). The cold open is a teaser montage: one punchy shot or X post for each story it
+   mentions, in that order, plus dark title cards where they help. Never show the GitHub Pages
+   edition page. The outro is a clean dark end card.
+2. Find 3-6 related X posts per newsy story so the segment can show how big it is. Search with
    the x-namespace tools (high-engagement, on-topic posts from credible accounts; skip spam and
    NSFW). Either add `xpost` lines to the script, or write `xposts.json` next to it (see Auto X posts).
    `tools/edition-video/auto_xposts.py queries script.md` prints a suggested search query per segment.
@@ -23,51 +24,79 @@ copies files over SSH.
    write them to `handles.json` (see Credits). Never guess a handle.
 4. Run `tools/edition-video/remote.sh <EDITION>`. It copies the tools to `~/Projects/edition-video/bin/`
    on the host, builds in `~/Projects/edition-video/<EDITION>/`, and copies `final.mp4`,
-   `teleprompter.md`, `timeline.json`, `report.json`, `post-attribution.md` and `attribution.json`
-   back to `/workspace/edition-video/<EDITION>/`.
-5. Check `report.json` for failed sources, substitutions, chosen X post URLs, and any unresolved
-   handles, then hand over the MP4, the teleprompter, and `post-attribution.md`.
+   `teleprompter.md`, `timeline.json`, `report.json`, `post-attribution.md`, `attribution.json`,
+   `music.wav` and `music-license.txt` back to `/workspace/edition-video/<EDITION>/`.
+5. Check `report.json` for failed sources, substitutions, chosen X post URLs, unresolved handles,
+   and the music license, then hand over the MP4, the teleprompter, the music stem, and the credits.
 
 On the host directly: `~/Projects/edition-video/bin/build.sh <EDITION>`. Downloads and captures are
 cached under `cache/` (cache keys include the color theme), so edit the script and re-run to retime
-cheaply. To render one segment only: `build.sh <EDITION> --segment 09`.
+cheaply. To render one segment only: `build.sh <EDITION> --segment 09`. Other useful flags:
+`--no-music`, `--no-dark`, `--on-camera-open-close`, `--include-edition`, `--output name.mp4`.
 
 ## script.md format
 
 ```
 Edition: https://anthonyrussano.github.io/youtube-digest/reports/<EDITION>.html
 ## 01 Cold open
-Camera: self
-Narration: One paragraph that gets read aloud on camera.
+Style: montage
+Narration: One paragraph that teases today's stories, in order.
+Visuals:
+- stat 225,000 | lines of tests
+- yt https://www.youtube.com/watch?v=ID @SECONDS | Lower-third label
+- xpost https://x.com/handle/status/ID | @handle
+- card An airline banned AI agents.
 ## 02 First story
 Narration: One paragraph that gets read aloud.
 Visuals:
 - yt https://www.youtube.com/watch?v=ID @SECONDS | Lower-third label
 - page https://example.com/article | Site name | Fallback card title
-- xpost https://x.com/handle/status/ID | @handle
-- card Big title | small subtitle
+- stat 9% → 59% | coverage on the newer code
 ## 13 Sign-off
-Camera: self
-Narration: Goodbye on camera.
+Style: end
+Narration: The playful goodbye.
+Visuals:
+- endcard That's the cycle. | Trim a skill. Check your spec.
+- endcard See you tomorrow | anthonyrussano.github.io/youtube-digest
 ```
 
-- Each *video* segment lasts `words / 2.5 + 0.7` seconds and is cut into ~3 s shots that cycle
-  through its visuals. On-camera sections are not in the MP4.
-- Segments titled Cold open, Sign-off, or Outro are on camera by default. So is any segment with
-  `Camera: self` (or `Visuals: on camera`). Use `Camera: video` or `--include-open-close` only if
-  you really want those sections in the file.
-- `yt`: downloads only `SECONDS-1 .. SECONDS+14` (<=1080p, no cookies, muted), then punch-in zooms.
-- `page`: headless Chromium capture in dark mode, shown as slow scrolls and punch-ins. Blocked or
-  blank pages become a title card; failed YouTube clips use the thumbnail.
+- Each video segment lasts `words / 2.5 + 0.7` seconds (about 150 words a minute, plus a short
+  breath). Teleprompter timecodes follow that clock, starting at 00:00.0 with the cold open.
+- Cold open / Sign-off / Outro are regular video segments. `Style: montage` (the default for a
+  cold open) plays each visual once, in order, and does not cycle back. `Style: end` is the
+  default for a sign-off: clean centered dark end cards. `Camera: self` or `--on-camera-open-close`
+  is the opt-in if those sections should be left out of the MP4.
+- Inside a segment, cuts are hard. Between segments, a short dip-to-black uses the breath at the
+  end of the line. Stills and cards get a subtle Ken Burns push or pan. Shot kinds are scheduled
+  so the same type does not run more than twice in a row when another type is available. A small
+  chapter label fades on at the start of each story. Lower-thirds name the source or channel.
+  A consistent dark grade, vignette and light grain sit on every shot.
+- `yt`: downloads only `SECONDS-1 .. SECONDS+14` (<=1080p, no cookies, **muted**), then a punch-in
+  or pan. Failed clips fall back to the thumbnail.
+- `page`: headless Chromium capture in dark mode, shown as a slow scroll or punch-in. Blocked or
+  blank pages become a title card.
 - `xpost`: a real dark-mode screenshot of that post. The public embed
   (`https://platform.twitter.com/embed/Tweet.html?id=ID&theme=dark`) is tried first; if it does not
   render logged out, the build falls back to a dark card painted from X's public oEmbed. A `page`
   line that points at an x.com/twitter.com status URL is treated the same way.
-- `card`: a generated headline card (dark theme by default). Use this for paywalled pages; keep
-  these when the live page cannot be captured.
-- `edition`: the GitHub Pages edition page. **Not used** unless you pass `--include-edition`. The
-  edition headline is often about a different story, which is confusing mid-segment.
-- Output has a silent AAC track so editors see an audio lane. No narration text is burned in.
+- `card` / `stat` / `endcard`: generated dark headline, number, or sign-off cards, with consistent
+  typography (Noto Sans, gold accent).
+- `edition`: the GitHub Pages edition page. **Not used** unless you pass `--include-edition`. Never
+  use this in a mid-story or in the cold open — the edition headline is often about a different
+  story and reads as confusing.
+
+## Music
+
+A procedural lofi-synth / chillwave bed is generated on the host by `music.py` (warm low-passed
+pad, electric-piano chords, soft bass, swung drum loop, light crackle). It is an original
+composition with no third-party samples, dedicated to the public domain under **CC0 1.0**, and
+safe for YouTube and X. The mix sits quietly at about **-22 LUFS** (in the -24 to -20 range)
+under where the voiceover will go, with a fade in and fade out. The loop is 16 bars at 80 BPM
+and tiles cleanly for a 5–8 minute video.
+
+`music.wav` (24-bit, 48 kHz stereo) is written next to the MP4 as a stem you can adjust in an
+editor. `music-license.txt` records the source and license. Cited YouTube clips stay muted.
+Turn the bed off with `--no-music` or `EV_NO_MUSIC=1`.
 
 ## Dark mode
 

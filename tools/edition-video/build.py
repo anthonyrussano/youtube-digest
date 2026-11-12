@@ -3,25 +3,28 @@
 
 Runs ON the render host (never on the box). Usage:
     python3 build.py WORKDIR
-        [--segment 09] [--include-edition] [--include-open-close]
-        [--no-dark] [--output final.mp4]
+        [--segment 09] [--include-edition] [--on-camera-open-close]
+        [--no-dark] [--no-music] [--output final.mp4]
 Env: YTDLP, CHROMIUM, JOBS, EV_DARK=0, EV_INCLUDE_EDITION=1,
-     EV_INCLUDE_OPEN_CLOSE=1, EV_SEGMENTS=09, EV_OUTPUT=final.mp4
+     EV_ON_CAMERA_OPEN_CLOSE=1, EV_NO_MUSIC=1, EV_SEGMENTS=09, EV_OUTPUT=final.mp4
 
 script.md format (see tools/edition-video/README.md):
     Edition: <github pages url>
     ## NN Title
     Narration: one paragraph
-    Camera: self                  # optional; also auto for Cold open / Sign-off
+    Style: montage                # optional; default for Cold open (beats in order, no cycle)
+    Camera: self                  # opt-in only; omit that section from the MP4
     Visuals:
     - yt <url> @<seconds> | <label>
     - page <url> | <label> [| fallback title]
     - xpost <url-or-id> | <label>
     - card <title> | <subtitle>
+    - stat <number> | <caption>
+    - endcard <title> | <subtitle>
     - edition | <label>           # skipped unless --include-edition
 
 Outputs: final.mp4, teleprompter.md, timeline.json, report.json,
-         post-attribution.md, attribution.json
+         post-attribution.md, attribution.json, music.wav, music-license.txt
 Optional sidecars in WORKDIR: xposts.json (auto-fill 3-6 posts/segment),
                                handles.json (confirmed X handles for credits).
 """
@@ -39,8 +42,22 @@ CHROMIUM = os.environ.get("CHROMIUM", "chromium")
 JOBS = int(os.environ.get("JOBS", "6"))
 HERE = os.path.dirname(os.path.abspath(__file__))
 NODE_MODULES = os.path.expanduser(os.environ.get("EV_NODE_MODULES", os.path.expanduser("~/Projects/edition-video/node_modules")))
-FONT_B = "/usr/share/fonts/liberation/LiberationSans-Bold.ttf"
-FONT_R = "/usr/share/fonts/liberation/LiberationSans-Regular.ttf"
+def _font(*paths):
+    for pth in paths:
+        if pth and os.path.exists(pth):
+            return pth
+    return paths[-1]
+
+FONT_B = _font("/usr/share/fonts/noto/NotoSans-Bold.ttf",
+               "/usr/share/fonts/liberation/LiberationSans-Bold.ttf",
+               "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf")
+FONT_R = _font("/usr/share/fonts/noto/NotoSans-Regular.ttf",
+               "/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
+               "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf")
+FONT_M = _font("/usr/share/fonts/noto/NotoSans-Medium.ttf",
+               "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf", FONT_R)
+FONT_L = _font("/usr/share/fonts/noto/NotoSans-Light.ttf", FONT_R)
+FONT_K = _font("/usr/share/fonts/noto/NotoSans-Black.ttf", FONT_B)
 UA = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
       "Chrome/142.0.0.0 Safari/537.36")
 ON_CAM_TITLES = re.compile(r"^(cold open|sign-?off|outro)$", re.I)
@@ -95,17 +112,19 @@ def dark_env(env=None):
 
 
 # ---------------------------------------------------------------- parse
-def is_on_camera(title, body, include_open_close):
+def is_on_camera(title, body, on_camera_open_close=False):
+    """On-camera is opt-in. Cold open / sign-off stay in the video unless
+    --on-camera-open-close is set or the segment says Camera: self."""
     if FORCE_VIDEO.search(body or ""):
         return False
     if CAM_RE.search(body or "") or CAM_VIS.search(body or ""):
         return True
-    if include_open_close:
-        return False
-    return bool(ON_CAM_TITLES.match((title or "").strip()))
+    if on_camera_open_close:
+        return bool(ON_CAM_TITLES.match((title or "").strip()))
+    return False
 
 
-def parse(path, include_edition=False, include_open_close=False):
+def parse(path, include_edition=False, on_camera_open_close=False, include_open_close=None):
     txt = open(path).read()
     m = re.search(r"^Edition:\s*(\S+)", txt, re.M)
     edition = m.group(1) if m else None
@@ -117,10 +136,23 @@ def parse(path, include_edition=False, include_open_close=False):
         if not nar_m:
             continue
         nar = nar_m.group(1).strip()
-        on_cam = is_on_camera(title, body, include_open_close)
+        # historical alias: include_open_close meant "put open/close in the video"
+        if include_open_close is not None and include_open_close:
+            on_camera_open_close = False
+        on_cam = is_on_camera(title, body, on_camera_open_close)
         vis = []
         skipped_edition = []
+        style = ""
+        sm = re.search(r"^Style:\s*(\w+)", body, re.I | re.M)
+        if sm:
+            style = sm.group(1).lower()
+        if re.search(r"^Visuals:\s*montage\b", body, re.I | re.M):
+            style = style or "montage"
+        if not style and ON_CAM_TITLES.match((title or "").strip()):
+            style = "montage" if re.search(r"cold open", title, re.I) else "end"
         vpart = body.split("Visuals:", 1)[1] if "Visuals:" in body else ""
+        if vpart.lower().lstrip().startswith("montage"):
+            vpart = re.sub(r"^\s*montage\s*", "", vpart, count=1, flags=re.I)
         if not on_cam:
             for line in vpart.splitlines():
                 line = line.strip()
@@ -160,10 +192,12 @@ def parse(path, include_edition=False, include_open_close=False):
                         vis.append(item)
                     else:
                         skipped_edition.append(item)
-                elif kind == "card":
-                    vis.append({"kind": "card", "title": parts[0], "sub": parts[1] if len(parts) > 1 else "", "label": ""})
+                elif kind in ("card", "endcard", "stat"):
+                    st = "end" if kind == "endcard" or style == "end" else ("stat" if kind == "stat" else "title")
+                    vis.append({"kind": "card", "title": parts[0], "sub": parts[1] if len(parts) > 1 else "",
+                                "label": "", "style": st})
         segs.append({"num": num, "title": title, "narration": nar, "visuals": vis,
-                     "on_camera": on_cam, "skipped_edition": skipped_edition})
+                     "on_camera": on_cam, "skipped_edition": skipped_edition, "style": style})
     return edition, segs
 
 
@@ -448,83 +482,293 @@ def wrap(draw, text, font, maxw):
     return lines + ([cur] if cur else [])
 
 
-def card(title, sub=""):
-    out = C("cache/card", f"{h(title + '|' + sub + '|' + THEME_TAG)}.png")
+
+GOLD = (255, 196, 0)
+INK = (245, 245, 245)
+MUTED = (168, 178, 196)
+HAIR = (255, 196, 0)
+
+def _center(d, text, font, y, fill, width=W):
+    """Draw left-top anchored, horizontally centered text. Returns the ink bbox."""
+    w = d.textlength(text, font=font)
+    x = (width - w) // 2
+    d.text((x, y), text, font=font, fill=fill, anchor="lt")
+    return d.textbbox((x, y), text, font=font, anchor="lt")
+
+
+def _vignette_overlay(im, strength=0.42):
+    """Darken the edges of a card so it sits in the same world as the grade."""
+    import numpy as _np
+    arr = _np.asarray(im, dtype=_np.float32)
+    h, w = arr.shape[:2]
+    ys, xs = _np.ogrid[:h, :w]
+    r = _np.sqrt((xs - w / 2) ** 2 + (ys - h / 2) ** 2) / math.hypot(w / 2, h / 2)
+    f = 1.0 - strength * _np.clip(r - 0.35, 0, None) ** 2
+    arr *= f[..., None]
+    return Image.fromarray(_np.clip(arr, 0, 255).astype("uint8"), "RGB")
+
+
+def card(title, sub="", style="title"):
+    out = C("cache/card", f"{h(title + '|' + sub + '|' + style + '|' + THEME_TAG)}.png")
     if os.path.exists(out):
         return out
     if DARK:
-        top, bot, bar, ft_c, fs_c = (11, 13, 18), (22, 26, 36), (255, 196, 0), (245, 245, 245), (170, 180, 200)
+        top, bot = (10, 12, 16), (20, 24, 32)
+        bar, ft_c, fs_c, kick_c = GOLD, INK, MUTED, GOLD
     else:
-        top, bot, bar, ft_c, fs_c = (244, 246, 250), (226, 230, 238), (30, 90, 200), (18, 20, 28), (70, 80, 100)
+        top, bot = (244, 246, 250), (226, 230, 238)
+        bar, ft_c, fs_c, kick_c = (30, 90, 200), (18, 20, 28), (70, 80, 100), (30, 90, 200)
     im = Image.new("RGB", (W, H), top)
     d = ImageDraw.Draw(im)
     for i in range(H):
-        t = i / max(H - 1, 1)
-        col = tuple(int(top[c] + (bot[c] - top[c]) * t) for c in range(3))
+        u = i / max(H - 1, 1)
+        col = tuple(int(top[c] + (bot[c] - top[c]) * u) for c in range(3))
         d.line([(0, i), (W, i)], fill=col)
-    d.rectangle([(140, 360), (156, 720)], fill=bar)
-    ft, fs = ImageFont.truetype(FONT_B, 92), ImageFont.truetype(FONT_R, 46)
-    lines = wrap(d, title, ft, W - 400)[:4]
-    y = 540 - (len(lines) * 108 + (70 if sub else 0)) // 2
-    for ln in lines:
-        d.text((200, y), ln, font=ft, fill=ft_c); y += 108
-    if sub:
-        d.text((200, y + 20), sub, font=fs, fill=fs_c)
+    style = (style or "title").lower()
+    if style == "end":
+        ft = ImageFont.truetype(FONT_B, 80)
+        fs = ImageFont.truetype(FONT_L, 34)
+        lines = wrap(d, title, ft, W - 360)[:3] or [title]
+        sub_lines = wrap(d, sub, fs, W - 480)[:2] if sub else []
+        line_h, sub_h, gap, rule_gap = 94, 48, 28, 28
+        block_h = len(lines) * line_h + (gap + len(sub_lines) * sub_h if sub_lines else 0)
+        y = (H - block_h) // 2
+        rw = 140
+        d.rectangle([(W - rw) // 2, y - rule_gap - 3, (W + rw) // 2, y - rule_gap], fill=bar)
+        for ln in lines:
+            _center(d, ln, ft, y, ft_c)
+            y += line_h
+        if sub_lines:
+            y += gap - 8
+            for ln in sub_lines:
+                _center(d, ln, fs, y, fs_c)
+                y += sub_h
+    elif style == "stat":
+        fs = ImageFont.truetype(FONT_L, 38)
+        size = 168
+        fn = ImageFont.truetype(FONT_K, size)
+        while d.textlength(title, font=fn) > W - 260 and size > 96:
+            size -= 12
+            fn = ImageFont.truetype(FONT_K, size)
+        sub_lines = wrap(d, sub, fs, W - 360)[:2] if sub else []
+        # Measure first so the block can be vertically centered.
+        dummy = ImageDraw.Draw(Image.new("RGB", (W, H)))
+        tb = dummy.textbbox((0, 0), title, font=fn, anchor="lt")
+        num_h = tb[3] - tb[1]
+        sub_h = 50
+        gap, rule = 22, 3
+        block_h = num_h + ((gap + 16 + len(sub_lines) * sub_h) if sub_lines else 0)
+        y = (H - block_h) // 2
+        bbox = _center(d, title, fn, y, bar if DARK else ft_c)
+        if sub_lines:
+            ry = bbox[3] + gap
+            rw = 88
+            d.rectangle([(W - rw) // 2, ry, (W + rw) // 2, ry + rule], fill=bar)
+            y2 = ry + rule + 16
+            for ln in sub_lines:
+                _center(d, ln, fs, y2, fs_c)
+                y2 += sub_h
+    else:
+        ft, fs = ImageFont.truetype(FONT_B, 84), ImageFont.truetype(FONT_L, 38)
+        lines = wrap(d, title, ft, W - 440)[:4] or [title]
+        sub_lines = wrap(d, sub, fs, W - 480)[:2] if sub else []
+        line_h, sub_h = 100, 50
+        block_h = len(lines) * line_h + (36 + 16 + len(sub_lines) * sub_h if sub_lines else 0)
+        y = (H - block_h) // 2
+        # Gold index bar, sized to the type block.
+        bar_top = y - 16
+        bar_bot = y + block_h + 8
+        d.rectangle([(140, bar_top), (154, bar_bot)], fill=bar)
+        last = None
+        for ln in lines:
+            last = d.textbbox((200, y), ln, font=ft, anchor="lt")
+            d.text((200, y), ln, font=ft, fill=ft_c, anchor="lt")
+            y += line_h
+        if sub_lines:
+            ry = (last[3] if last else y) + 18
+            d.rectangle([(200, ry), (320, ry + 3)], fill=bar)
+            y2 = ry + 16
+            for ln in sub_lines:
+                d.text((200, y2), ln, font=fs, fill=fs_c, anchor="lt")
+                y2 += sub_h
+    im = _vignette_overlay(im, 0.38 if style == "end" else 0.32)
     im.save(out)
     return out
 
 
 # ---------------------------------------------------------------- shots
+def _ff_textfile(name, text):
+    f = C("tmp", name)
+    open(f, "w").write(text)
+    return f
+
+
 def label_filter(label, idx):
     if not label:
         return ""
-    f = C("tmp", f"label_{idx}.txt"); open(f, "w").write(label)
-    return (f",drawtext=fontfile={FONT_B}:textfile={f}:fontsize=36:fontcolor=white:"
-            f"y_align=font:box=1:boxcolor=black@0.62:boxborderw=16:x=72:y=h-140,"
-            f"drawbox=x=48:y=ih-156:w=8:h=74:color=0xFFC400@1:t=fill")
+    f = _ff_textfile(f"label_{idx}.txt", label)
+    # Clean dark pill, gold tick, fades in over the first 0.3 s.
+    return (
+        f",drawbox=x=64:y=ih-128:w=8:h=48:color=0xFFC400@0.95:t=fill"
+        f",drawtext=fontfile={FONT_M}:textfile={f}:fontsize=28:fontcolor=white:"
+        f"y_align=font:box=1:boxcolor=black@0.48:boxborderw=18:"
+        f"x=88:y=h-124:alpha='if(lt(t,0.30),t/0.30,1)'"
+    )
+
+
+def chapter_filter(num, title, idx):
+    if not title:
+        return ""
+    f = _ff_textfile(f"chapter_{idx}.txt", f"{num}    {title}")
+    # Fades in, holds, fades out over the first ~2.2 s of a segment's opening shot.
+    alpha = "if(lt(t,0.22),t/0.22,if(lt(t,1.80),1,if(lt(t,2.25),(2.25-t)/0.45,0)))"
+    return (
+        f",drawtext=fontfile={FONT_M}:textfile={f}:fontsize=26:fontcolor=white@0.92:"
+        f"x=72:y=68:box=1:boxcolor=black@0.45:boxborderw=14:alpha='{alpha}'"
+    )
 
 
 ENC = ["-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", str(FPS),
        "-g", str(FPS * 2), "-profile:v", "high", "-an"]
 
+FINISH = ("eq=contrast=1.05:brightness=-0.016:gamma=0.98:saturation=0.94,"
+          "vignette=angle=PI/5:mode=forward,noise=alls=2:allf=t")
 
-def zoom_expr(frames, z0, z1):
-    return f"zoompan=z='{z0}+({z1}-{z0})*on/{max(frames-1,1)}':d=1:x='iw/2-iw/zoom/2':y='ih/2-ih/zoom/2':s={W}x{H}:fps={FPS}"
+
+def ken_burns(frames, kind, use):
+    """Subtle push, pull, or pan. Varies with how many times this source has been used."""
+    # z0, z1, x0, x1, y0, y1  (x/y are fractions of the leftover pan window)
+    modes = [
+        (1.00, 1.10, 0.50, 0.50, 0.50, 0.50),  # push in, centered
+        (1.12, 1.02, 0.50, 0.50, 0.50, 0.50),  # pull out
+        (1.08, 1.08, 0.28, 0.72, 0.50, 0.50),  # pan right
+        (1.08, 1.08, 0.72, 0.28, 0.50, 0.50),  # pan left
+        (1.06, 1.12, 0.50, 0.50, 0.62, 0.32),  # drift up
+        (1.02, 1.10, 0.35, 0.60, 0.40, 0.60),  # diagonal
+    ]
+    if kind == "card":
+        # Keep typography readable — a gentle 4–6% push, no hard pans.
+        modes = [
+            (1.00, 1.05, 0.50, 0.50, 0.50, 0.50),
+            (1.05, 1.00, 0.50, 0.50, 0.50, 0.50),
+            (1.00, 1.04, 0.50, 0.50, 0.55, 0.42),
+            (1.02, 1.06, 0.48, 0.54, 0.50, 0.50),
+        ]
+    elif kind == "xpost":
+        # Mild push or a short lateral drift; 80px letterbox pad keeps the tweet in frame.
+        modes = [modes[0], modes[2], modes[3], modes[1]]
+    z0, z1, x0, x1, y0, y1 = modes[use % len(modes)]
+    n = max(frames - 1, 1)
+    return (
+        f"zoompan=z='{z0}+({z1}-{z0})*on/{n}':d=1:"
+        f"x='(iw-iw/zoom)*({x0}+({x1}-{x0})*on/{n})':"
+        f"y='(ih-ih/zoom)*({y0}+({y1}-{y0})*on/{n})':"
+        f"s={W}x{H}:fps={FPS}"
+    )
+
+
+def edge_fades(dur, fade_in, fade_out):
+    parts = []
+    if fade_in and fade_in > 0:
+        parts.append(f"fade=t=in:st=0:d={fade_in:.3f}:c=black")
+    if fade_out and fade_out > 0:
+        st = max(dur - fade_out, 0.0)
+        parts.append(f"fade=t=out:st={st:.3f}:d={fade_out:.3f}:c=black")
+    return "," + ",".join(parts) if parts else ""
 
 
 def render_shot(shot):
     i, frames, src, kind, k, label = shot["i"], shot["frames"], shot["src"], shot["kind"], shot["use"], shot["label"]
     out = C("shots", f"{i:03d}.mp4")
     dur = frames / FPS
-    lf = label_filter(label, i)
-    punch = (k % 2 == 0)
+    lf = "" if shot.get("no_label") or kind == "card" else label_filter(label, i)
+    # Pages already have their own chrome; a chapter label collides with site nav.
+    ch = chapter_filter(shot.get("chap_num") or "", shot.get("chap_title") or "", i) if (shot.get("chapter") and kind != "page") else ""
+    fades = edge_fades(dur, shot.get("fade_in") or 0, shot.get("fade_out") or 0)
+    # Cards already have a baked vignette; a second ffmpeg vignette crushes the edges.
+    if kind == "card":
+        finish = (f",eq=contrast=1.03:brightness=-0.006:gamma=1.0:saturation=0.98,"
+                  f"noise=alls=1:allf=t{fades}{ch},format=yuv420p")
+    else:
+        finish = f",{FINISH}{fades}{ch},format=yuv420p"
     if kind == "yt":
         clip_len = YT_AFTER + YT_BEFORE - 0.5
         off = (YT_BEFORE + 3.2 * k) % max(clip_len - dur, 0.5)
-        z = zoom_expr(frames, 1.0, 1.10) if punch else zoom_expr(frames, 1.14, 1.14)
-        vf = f"scale={W*2}:{H*2}:flags=bicubic,{z}{lf},format=yuv420p"
+        z = ken_burns(frames, "yt", k)
+        vf = f"scale={W*2}:{H*2}:flags=bicubic,{z}{lf}{finish}"
         cmd = ["ffmpeg", "-nostdin", "-y", "-loglevel", "error", "-ss", f"{off:.2f}", "-i", src, "-vf", vf,
                "-frames:v", str(frames), *ENC, out]
-    else:  # still image: page capture, x post, or card
+    else:
         im = Image.open(src); ih_ = im.height
-        if kind in ("card", "xpost"):
-            # X posts are already composed on a 1080p canvas; a gentle punch-in is enough.
-            z0, z1 = (1.0, 1.06) if kind == "card" else (1.0, 1.08)
-            vf = f"scale={W*2}:{H*2},{zoom_expr(frames, z0, z1)}{lf},format=yuv420p"
+        if kind in ("card", "xpost") or ih_ <= H + 40:
+            z = ken_burns(frames, kind if kind in ("card", "xpost") else "page", k)
+            vf = f"scale={W*2}:{H*2},{z}{lf}{finish}"
         else:
-            span = 260
+            span = 280
             y0 = (k * 900) % max(ih_ - H - span, 1)
-            if punch or ih_ <= H + 40:
-                vf = f"crop={W}:{H}:0:{min(y0, ih_-H)},scale={W*2}:{H*2},{zoom_expr(frames, 1.0, 1.12)}{lf},format=yuv420p"
-            else:
+            # Slow scroll, then a gentle push on alternate uses, already graded at the end.
+            if k % 2 == 0 and ih_ > H + 80:
                 y1 = min(y0 + span, ih_ - H)
-                vf = f"crop={W}:{H}:0:'{y0}+({y1}-{y0})*t/{dur:.3f}'{lf},format=yuv420p"
+                vf = (f"crop={W}:{H}:0:'{y0}+({y1}-{y0})*t/{dur:.3f}'{lf}{finish}")
+            else:
+                vf = f"crop={W}:{H}:0:{min(y0, ih_-H)},scale={W*2}:{H*2},{ken_burns(frames,'page',k)}{lf}{finish}"
         cmd = ["ffmpeg", "-nostdin", "-y", "-loglevel", "error", "-loop", "1", "-framerate", str(FPS), "-i", src,
                "-vf", vf, "-frames:v", str(frames), *ENC, out]
     r = run(cmd, timeout=900)
     if r.returncode != 0:
-        raise RuntimeError(f"shot {i} failed: {r.stderr[-600:]}")
+        # Retry without grain if this ffmpeg build rejects the noise filter.
+        if "noise" in (r.stderr or "") or r.returncode != 0:
+            vf2 = vf.replace("noise=alls=2:allf=t", "null")
+            if vf2 == vf or "vignette" in (r.stderr or ""):
+                vf2 = vf.replace("," + FINISH, ",eq=contrast=1.05:brightness=-0.016:gamma=0.98:saturation=0.94")
+            cmd[cmd.index("-vf") + 1] = vf2
+            r = run(cmd, timeout=900)
+        if r.returncode != 0:
+            raise RuntimeError(f"shot {i} failed: {r.stderr[-600:]}")
     return out
+
+
+def vis_key(v):
+    return json.dumps({k: v[k] for k in v if not k.startswith("_")}, sort_keys=True)
+
+
+def schedule_shots(vis, n, style, resolved):
+    """Pick n visuals. Montage: one pass in script order, no cycle.
+    Otherwise cycle, but never let the same kind run more than twice in a row
+    when another kind is available (insert a title card if we have to)."""
+    if not vis:
+        return []
+    kinds = []
+    for v in vis:
+        kinds.append(resolved[vis_key(v)][0])
+    if style in ("montage", "end") or n <= len(vis):
+        # Even split, stay in order, do not wrap back to earlier beats.
+        count = min(n, len(vis)) if style in ("montage", "end") else n
+        if style in ("montage", "end"):
+            return [vis[j] for j in range(len(vis))]  # caller splits time across all beats
+    # Regular cycle with a 2-in-a-row cap.
+    used = [0] * len(vis)
+    order, seq_kinds = [], []
+    for j in range(n):
+        last2 = seq_kinds[-2:] if len(seq_kinds) >= 2 else []
+        ranked = sorted(range(len(vis)), key=lambda i: (used[i], i if (j % len(vis)) <= i else i + len(vis)))
+        # prefer the next in the original cycle if it is legal
+        prefer = j % len(vis)
+        ranked = [prefer] + [i for i in ranked if i != prefer]
+        pick = None
+        for i in ranked:
+            knd = kinds[i]
+            if len(last2) == 2 and last2[0] == last2[1] == knd:
+                continue
+            pick = i
+            break
+        if pick is None:
+            pick = ranked[0]
+        used[pick] += 1
+        order.append(vis[pick])
+        seq_kinds.append(kinds[pick])
+    return order
+
 
 
 def tc(sec):
@@ -674,17 +918,16 @@ def write_attribution(segs, handles_path):
         # Cleaner path: add extras to entries and regenerate once.
         for s in attr_segs:
             extras = entities_by_seg.get(s["num"]) or []
-            seen = {(e["handle"].lower(), e.get("post") or "") for e in s["entries"]}
+            seen = {e["handle"].lower() for e in s["entries"]}
             for item in extras:
                 if isinstance(item, str):
                     continue
                 handle = str(item.get("handle") or "").lstrip("@")
                 if not handle:
                     continue
-                key = (handle.lower(), "")
-                if key in seen:
+                if handle.lower() in seen:
                     continue
-                seen.add(key)
+                seen.add(handle.lower())
                 s["entries"].append({"handle": handle, "role": item.get("role") or "related",
                                      "post": None, "entity": item.get("entity")})
         # regenerate markdown from attr_segs
@@ -714,6 +957,7 @@ def write_attribution(segs, handles_path):
 
 
 # ---------------------------------------------------------------- main
+
 def parse_args():
     p = argparse.ArgumentParser(description="Build an edition video on the render host.")
     p.add_argument("workdir")
@@ -721,9 +965,11 @@ def parse_args():
                    help="Only render this segment number (repeatable), e.g. --segment 09")
     p.add_argument("--include-edition", action="store_true",
                    help="Include GitHub Pages edition-page shots (off by default).")
-    p.add_argument("--include-open-close", action="store_true",
-                   help="Render Cold open / Sign-off instead of leaving them on camera.")
+    p.add_argument("--on-camera-open-close", action="store_true",
+                   help="Leave Cold open / Sign-off out of the MP4 so they can be filmed. Off by default.")
     p.add_argument("--no-dark", action="store_true", help="Capture pages and cards in light mode.")
+    p.add_argument("--no-music", action="store_true",
+                   help="Silent AAC bed instead of the procedural chillwave music.")
     p.add_argument("--output", default="final.mp4", help="Output filename inside the workdir.")
     args = p.parse_args()
     env_segs = os.environ.get("EV_SEGMENTS", "")
@@ -731,10 +977,12 @@ def parse_args():
         args.segments.extend([s.strip() for s in re.split(r"[,\s]+", env_segs) if s.strip()])
     if os.environ.get("EV_INCLUDE_EDITION") in {"1", "true", "yes"}:
         args.include_edition = True
-    if os.environ.get("EV_INCLUDE_OPEN_CLOSE") in {"1", "true", "yes"}:
-        args.include_open_close = True
+    if os.environ.get("EV_ON_CAMERA_OPEN_CLOSE") in {"1", "true", "yes"}:
+        args.on_camera_open_close = True
     if os.environ.get("EV_DARK") in {"0", "false", "no"} or os.environ.get("EV_NO_DARK") in {"1", "true"}:
         args.no_dark = True
+    if os.environ.get("EV_NO_MUSIC") in {"1", "true", "yes"}:
+        args.no_music = True
     if os.environ.get("EV_OUTPUT"):
         args.output = os.environ["EV_OUTPUT"]
     return args
@@ -751,10 +999,10 @@ def main():
     for d in ("cache/yt", "cache/page", "cache/card", "shots", "tmp"):
         os.makedirs(C(d), exist_ok=True)
     report = {"sources": {}, "failures": [], "substitutions": [], "xposts": [], "unresolved": [],
-              "dark": DARK, "include_edition": args.include_edition}
+              "dark": DARK, "include_edition": args.include_edition, "music": None}
 
     edition, segs = parse(C("script.md"), include_edition=args.include_edition,
-                          include_open_close=args.include_open_close)
+                          on_camera_open_close=args.on_camera_open_close)
     merge_xposts(segs, C("xposts.json"))
     if args.segments:
         want = {s.lstrip("0") or "0" for s in args.segments} | set(args.segments)
@@ -767,40 +1015,39 @@ def main():
         if s["on_camera"] or s.get("_skip_render"):
             continue
         if not s["visuals"]:
-            # A video segment with no visuals gets a title card so the timeline still has picture.
-            s["visuals"] = [{"kind": "card", "title": s["title"], "sub": "", "label": ""}]
+            style = "end" if (s.get("style") == "end" or re.search(r"sign-?off|outro", s["title"], re.I)) else "title"
+            s["visuals"] = [{"kind": "card", "title": s["title"], "sub": "", "label": "", "style": style}]
         for v in s["visuals"]:
-            key = json.dumps({k: v[k] for k in v if not k.startswith("_")}, sort_keys=True)
+            key = vis_key(v)
             if key in resolved:
-                # keep channel meta if a later copy needs it
                 if v["kind"] == "yt" and not v.get("_channel"):
                     v["_channel"] = yt_channel_meta(v["url"], vid_id(v["url"]))
                 continue
             if v["kind"] == "yt":
-                p = fetch_yt(v); time.sleep(2)
-                if p:
-                    resolved[key] = ("yt", p, v["label"])
+                pth = fetch_yt(v); time.sleep(2)
+                if pth:
+                    resolved[key] = ("yt", pth, v["label"])
                 else:
-                    t = yt_thumb(v)
-                    resolved[key] = ("page", t, v["label"]) if t else ("card", card(v["label"], "YouTube"), "")
-                    report["substitutions"].append({"source": v["url"], "used": "thumbnail" if t else "card"})
+                    th = yt_thumb(v)
+                    resolved[key] = ("page", th, v["label"]) if th else ("card", card(v["label"], "YouTube"), "")
+                    report["substitutions"].append({"source": v["url"], "used": "thumbnail" if th else "card"})
             elif v["kind"] == "xpost":
-                p = fetch_xpost(v)
-                if p:
-                    resolved[key] = ("xpost", p, v["label"])
+                pth = fetch_xpost(v)
+                if pth:
+                    resolved[key] = ("xpost", pth, v["label"])
                 else:
                     resolved[key] = ("card", card(v.get("label") or "X post", v.get("handle") or ""), "")
                     report["substitutions"].append({"source": v.get("url") or v.get("id"), "used": "title card"})
             elif v["kind"] == "page":
-                p = fetch_page(v)
-                if p:
-                    resolved[key] = ("page", p, v["label"])
+                pth = fetch_page(v)
+                if pth:
+                    resolved[key] = ("page", pth, v["label"])
                 else:
-                    resolved[key] = ("card", card(v.get("fallback") or v["label"], v["label"]), "")
+                    resolved[key] = ("card", card(v.get("fallback") or v["label"], v["label"], "title"), "")
                     report["substitutions"].append({"source": v["url"], "used": "title card"})
             else:
-                resolved[key] = ("card", card(v["title"], v["sub"]), v["label"])
-    # timeline — on-camera and filtered segments do not consume video time
+                resolved[key] = ("card", card(v["title"], v.get("sub") or "", v.get("style") or "title"), v.get("label") or "")
+    # timeline
     shots, timeline, t_frames, uses = [], [], 0, {}
     for s in segs:
         words = len(s["narration"].split())
@@ -812,26 +1059,53 @@ def main():
             continue
         s["in_video"] = True
         vis = s["visuals"]
+        style = s.get("style") or ""
         seg_frames = round((words / WPS + PAD) * FPS)
-        n = max(1, round(seg_frames / (SHOT * FPS)))
+        if style in ("montage", "end"):
+            order = schedule_shots(vis, len(vis), style, resolved)
+            n = max(1, len(order))
+        else:
+            n = max(1, round(seg_frames / (SHOT * FPS)))
+            order = schedule_shots(vis, n, style, resolved)
+            n = max(1, len(order))
         base, extra = divmod(seg_frames, n)
         src_kinds = []
-        for v in vis:
-            key = json.dumps({k: v[k] for k in v if not k.startswith("_")}, sort_keys=True)
-            src_kinds.append(resolved[key][0])
+        for v in order:
+            src_kinds.append(resolved[vis_key(v)][0])
         timeline.append({"num": s["num"], "title": s["title"], "start": t_frames / FPS,
                          "duration": seg_frames / FPS, "words": words, "shots": n,
-                         "on_camera": False, "in_video": True, "sources": sorted(set(src_kinds))})
-        for j in range(n):
-            v = vis[j % len(vis)]
-            key = json.dumps({k: v[k] for k in v if not k.startswith("_")}, sort_keys=True)
-            kind, path, label = resolved[key]
+                         "on_camera": False, "in_video": True, "sources": sorted(set(src_kinds)),
+                         "style": style})
+        for j, v in enumerate(order):
+            kind, path, label = resolved[vis_key(v)]
             k = uses.get(path, 0); uses[path] = k + 1
             shots.append({"i": len(shots), "frames": base + (1 if j < extra else 0), "src": path,
-                          "kind": kind, "use": k, "label": label, "seg": s["num"]})
+                          "kind": kind, "use": k, "label": label, "seg": s["num"],
+                          "no_label": (kind == "card" or style == "end")})
         t_frames += seg_frames
     if not shots:
         raise SystemExit("no video segments to render (all on camera, or --segment matched none)")
+    # Dip-to-black between segments (uses the breath at the end of each), longer
+    # fade on the first and last shots of the whole video. Chapter title on the
+    # first picture shot of a regular story.
+    by_seg = {}
+    for sh in shots:
+        by_seg.setdefault(sh["seg"], []).append(sh)
+    video_nums = [s["num"] for s in segs if s.get("in_video")]
+    styles = {s["num"]: (s.get("style") or "", s["title"]) for s in segs}
+    for si, num in enumerate(video_nums):
+        group = by_seg[num]
+        mid = 0.33
+        group[0]["fade_in"] = 0.80 if si == 0 else mid
+        group[-1]["fade_out"] = 1.50 if si == len(video_nums) - 1 else mid
+        st, title = styles[num]
+        if st not in ("montage", "end") and not ON_CAM_TITLES.match(title.strip()):
+            for sh in group:
+                if sh["kind"] != "card":
+                    sh["chapter"] = True
+                    sh["chap_num"] = num
+                    sh["chap_title"] = title
+                    break
     with ThreadPoolExecutor(JOBS) as ex:
         outs = list(ex.map(render_shot, shots))
     with open(C("tmp", "concat.txt"), "w") as f:
@@ -839,16 +1113,35 @@ def main():
             f.write(f"file '{o}'\n")
     total = t_frames / FPS
     out_mp4 = C(args.output)
-    r = run(["ffmpeg", "-nostdin", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", C("tmp", "concat.txt"),
-             "-f", "lavfi", "-t", f"{total:.3f}", "-i", "anullsrc=r=48000:cl=stereo",
-             "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "96k",
-             "-t", f"{total:.3f}", "-movflags", "+faststart", out_mp4], timeout=1800)
+    if not args.no_music:
+        sys.path.insert(0, HERE)
+        from music import render_bed
+        minfo = render_bed(total + 0.4, C("music.wav"), C("music-license.txt"),
+                           fade_in=2.0, fade_out=4.5)
+        report["music"] = minfo
+        concat = ["ffmpeg", "-nostdin", "-y", "-loglevel", "error",
+                  "-f", "concat", "-safe", "0", "-i", C("tmp", "concat.txt"),
+                  "-i", C("music.wav"),
+                  "-map", "0:v", "-map", "1:a",
+                  "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+                  "-t", f"{total:.3f}", "-movflags", "+faststart", out_mp4]
+    else:
+        report["music"] = {"disabled": True}
+        concat = ["ffmpeg", "-nostdin", "-y", "-loglevel", "error",
+                  "-f", "concat", "-safe", "0", "-i", C("tmp", "concat.txt"),
+                  "-f", "lavfi", "-t", f"{total:.3f}", "-i", "anullsrc=r=48000:cl=stereo",
+                  "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "96k",
+                  "-t", f"{total:.3f}", "-movflags", "+faststart", out_mp4]
+    r = run(concat, timeout=1800)
     if r.returncode != 0:
         raise SystemExit(r.stderr[-1500:])
-    # teleprompter — on-camera sections first/last, video clock starts at 00:00.0
+    # teleprompter — video clock starts at 00:00.0, including the cold open.
     tp = [f"# Teleprompter: {os.path.basename(WD)}", "",
-          f"Video {tc(total)} · read at about {int(WPS*60)} words a minute · each video segment ends with a short breath.",
-          "Cold open and sign-off are on camera with no video in this file, unless a segment says otherwise. The first story starts at 00:00.0.", ""]
+          f"Video {tc(total)} · read at about {int(WPS*60)} words a minute · each segment ends with a short breath.",
+          "Voiceover only. A quiet music bed sits under the picture; music.wav is saved next to the video so you can adjust it.",
+          ""]
+    if args.no_music:
+        tp[3] = "Voiceover only. This cut has no music bed."
     for s, tl in zip(segs, timeline):
         if tl.get("on_camera") or not tl.get("in_video"):
             if s["on_camera"]:
@@ -856,14 +1149,12 @@ def main():
                 tp += [f"## [on camera · no video] {s['num']} · {s['title']}", "",
                        f"Film this yourself. About {est} if you read at {int(WPS*60)} words a minute.", "",
                        s["narration"], ""]
-            # skipped-by--segment sections are omitted from the teleprompter
         else:
             tp += [f"## [{tc(tl['start'])}] {s['num']} · {s['title']}", "", s["narration"], ""]
     open(C("teleprompter.md"), "w").write("\n".join(tp))
     json.dump({"total_seconds": total, "segments": timeline, "shots": len(shots), "dark": DARK,
-               "output": args.output}, open(C("timeline.json"), "w"), indent=1)
+               "output": args.output, "music": report.get("music")}, open(C("timeline.json"), "w"), indent=1)
     write_attribution(segs, C("handles.json"))
-    # de-dup xposts list (auto merge + render both append)
     seen, uniq = set(), []
     for xp in report["xposts"]:
         k = (xp.get("id"), xp.get("render") or xp.get("source"))
@@ -877,6 +1168,7 @@ def main():
     report["output"] = args.output
     json.dump(report, open(C("report.json"), "w"), indent=1)
     print(json.dumps(report, indent=1))
+
 
 
 if __name__ == "__main__":

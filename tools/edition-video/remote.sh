@@ -20,7 +20,7 @@ SSH=(ssh -o ControlMaster=auto -o "ControlPath=$HOME/.ssh/cm-grokbot-%r@%h:%p" -
 SCP=(scp -o ControlMaster=auto -o "ControlPath=$HOME/.ssh/cm-grokbot-%r@%h:%p" -o ControlPersist=2h -o ConnectTimeout=15 -o BatchMode=yes -i "$HOME/.ssh/id_ed25519_iphedeiah" -o IdentitiesOnly=yes)
 mkdir -p "$OUT"
 "${SSH[@]}" "mkdir -p ~/Projects/edition-video/bin ~/Projects/edition-video/$ED"
-"${SCP[@]}" -q "$ROOT/tools/edition-video/build.py" "$ROOT/tools/edition-video/build.sh" "$ROOT/tools/edition-video/capture.mjs" "$ROOT/tools/edition-video/attribute.py" "$ROOT/tools/edition-video/auto_xposts.py" "$HOST:Projects/edition-video/bin/"
+"${SCP[@]}" -q "$ROOT/tools/edition-video/build.py" "$ROOT/tools/edition-video/build.sh" "$ROOT/tools/edition-video/capture.mjs" "$ROOT/tools/edition-video/attribute.py" "$ROOT/tools/edition-video/auto_xposts.py" "$ROOT/tools/edition-video/music.py" "$HOST:Projects/edition-video/bin/"
 "${SCP[@]}" -q "$SCRIPT" "$HOST:Projects/edition-video/$ED/script.md"
 # Sidecars live next to the script or in the output folder.
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT")" && pwd)"
@@ -32,7 +32,7 @@ for side in xposts.json handles.json; do
   fi
 done
 "${SSH[@]}" "bash ~/Projects/edition-video/bin/build.sh $ED $*"
-for f in final.mp4 teleprompter.md timeline.json report.json post-attribution.md attribution.json; do
+for f in final.mp4 teleprompter.md timeline.json report.json post-attribution.md attribution.json music.wav music-license.txt; do
   "${SCP[@]}" -q "$HOST:Projects/edition-video/$ED/$f" "$OUT/" 2>/dev/null || true
 done
 # If --output named something else, try to bring that back too (best-effort).

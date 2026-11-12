@@ -10,4 +10,4 @@ WD="${EDITION_VIDEO_ROOT:-$HOME/Projects/edition-video}/$ED"
 ROOTD="${EDITION_VIDEO_ROOT:-$HOME/Projects/edition-video}"
 [ -d "$ROOTD/node_modules/playwright-core" ] || (cd "$ROOTD" && { [ -f package.json ] || npm init -y >/dev/null; } && npm i --silent playwright-core)
 nice -n 10 python3 "$HERE/build.py" "$WD" "$@"
-ls -lh "$WD"/*.mp4 "$WD/teleprompter.md" "$WD/post-attribution.md" 2>/dev/null || ls -lh "$WD"/*.mp4 "$WD/teleprompter.md"
+ls -lh "$WD"/*.mp4 "$WD/teleprompter.md" "$WD/post-attribution.md" "$WD/music.wav" 2>/dev/null || ls -lh "$WD"/*.mp4 "$WD/teleprompter.md"

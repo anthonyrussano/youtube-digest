@@ -33,13 +33,13 @@ def main():
     include_edition = os.environ.get("EV_INCLUDE_EDITION") in {"1", "true", "yes"}
     include_open_close = os.environ.get("EV_INCLUDE_OPEN_CLOSE") in {"1", "true", "yes"}
     edition, segs = ev.parse(ev.C("script.md"), include_edition=include_edition,
-                             include_open_close=include_open_close)
+                             on_camera_open_close=include_open_close)
     ev.merge_xposts(segs, ev.C("xposts.json"))
     # If this is a full delivered video that still included open/close/edition,
     # attribute what the script lists, not the new defaults. Use --as-shot for that.
     as_shot = "--as-shot" in sys.argv or os.environ.get("EV_ATTR_AS_SHOT") in {"1", "true"}
     if as_shot:
-        edition, segs = ev.parse(ev.C("script.md"), include_edition=True, include_open_close=True)
+        edition, segs = ev.parse(ev.C("script.md"), include_edition=True, on_camera_open_close=False)
         ev.merge_xposts(segs, ev.C("xposts.json"))
         for s in segs:
             s["on_camera"] = False
