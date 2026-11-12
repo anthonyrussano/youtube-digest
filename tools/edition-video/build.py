@@ -943,7 +943,15 @@ def write_attribution(segs, handles_path):
             if not s["entries"]:
                 md += ["(no confirmed X accounts for this segment)", ""]
             else:
+                has_post = {e["handle"].lower() for e in s["entries"] if e.get("post")}
+                seen = set()
                 for e in s["entries"]:
+                    key = (e["handle"].lower(), e.get("post") or "")
+                    if key in seen:
+                        continue
+                    if not e.get("post") and e["handle"].lower() in has_post:
+                        continue
+                    seen.add(key)
                     line = f"- @{e['handle']} (https://x.com/{e['handle']})"
                     if e.get("post"):
                         line += f" — {e['post']}"
