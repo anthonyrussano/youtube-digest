@@ -1,0 +1,25 @@
+{
+ "edition": "2026-11-12",
+ "window_start": "2026-11-12T06:46:13Z",
+ "window_end": "2026-11-12T08:37:15Z",
+ "files": {},
+ "images": [],
+ "header": null,
+ "caption": null,
+ "caption_shape": null,
+ "title": null,
+ "format": null,
+ "status": "failed",
+ "todo": [
+  "Run the 6:04 edition as normal (docs/ROUTINE_PROMPT.md, all steps) from window_start: the overnight window was too thin to draft an edition.",
+  "Daily X trend counts were not read overnight (saved reads for the normal run); run ./run.sh trends at 6:04."
+ ],
+ "notes": [
+  "X Article skipped: Anthony paused all X Article writing and posting on Nov 11, 2026. No four-step Article, inline images, NASA header or caption were prepared.",
+  "Thin window: the last edition published at 10:46 PM PT, so the overnight window was under two hours.",
+  "Videos: 1 candidate, a German-language security talk from the retry queue. The GPU host was reachable and ran Whisper large-v3-turbo, which rejected the audio as not English. Nothing transcribed.",
+  "Feeds 43 of 44 ok (Databricks connection refused) with 0 new items. AINews: 0 issues in the window.",
+  "X: 36 search reads, 3 posts qualified (one advocacy campaign), below the 5 needed for an X-only edition.",
+  "Under the skip rule there was nothing to draft, so no draft-report.md was written."
+ ]
+}
