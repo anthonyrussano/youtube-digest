@@ -179,8 +179,8 @@ Since Oct 18, 2026 YouTube answers this box's IP with "Sign in to confirm you're
 
 ## Edition video (voiceover-ready MP4)
 
-`tools/edition-video/` builds a silent 1080p30 video from one edition: muted clips cut at each cited YouTube
-timestamp, scrolling captures of cited articles and X posts, and the edition page as intro and outro. It also
-writes a teleprompter with segment timecodes. Everything renders on the remote host; see
-`tools/edition-video/README.md`. Quick start: write `/workspace/edition-video/<EDITION>/script.md`, then run
-`tools/edition-video/remote.sh <EDITION>`.
+`tools/edition-video/` builds a voiceover-ready 1080p30 video from one published edition: a montage cold open,
+muted YouTube clips, dark article and X post captures, title cards, a quiet CC0 music bed, and a dark end card.
+Anthony records the voiceover himself. The full process, rules, QA checklist and changelog are in
+`docs/EDITION_VIDEO.md`. The short tool reference is `tools/edition-video/README.md`. Quick start: write
+`/workspace/edition-video/<EDITION>/script.md`, then run `tools/edition-video/remote.sh <EDITION>`.

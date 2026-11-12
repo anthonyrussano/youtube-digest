@@ -1,8 +1,10 @@
 // Full-page and X-post capture for edition videos. Runs on the render host.
 //   node capture.mjs URL OUT.png [maxHeightCssPx]
 //   node capture.mjs --xpost ID OUT.png
-// Prints JSON {ok, title, blocked, textLen, mode} on stdout.
-// Dark mode is on by default (colorScheme + Chromium force-dark). Set EV_DARK=0 to turn it off.
+// Prints JSON {ok, title, blocked, textLen, mode, light, mean, headline} on stdout.
+// Dark mode is on by default (colorScheme + Chromium force-dark). Set EV_DARK=0 to
+// turn it off. If a page stays light, build.py inverts the PNG and keeps photos,
+// or frames the article on a dark card.
 import { createRequire } from "module";
 const require = createRequire(process.env.EV_NODE_MODULES ? process.env.EV_NODE_MODULES + "/" : import.meta.url);
 const { chromium } = require("playwright-core");
@@ -52,6 +54,61 @@ async function context(browser, viewport, dsf = 1.3334) {
   });
 }
 
+async function dismissChrome(page) {
+  await page.evaluate(() => {
+    for (const el of document.querySelectorAll("body *")) {
+      const s = getComputedStyle(el);
+      if (s.position === "fixed" || s.position === "sticky") el.remove();
+      else if (parseInt(s.zIndex) > 999 && s.position === "absolute") el.remove();
+    }
+    for (const el of [document.documentElement, document.body]) {
+      el.style.setProperty("overflow", "visible", "important");
+      el.style.setProperty("position", "static", "important");
+    }
+    for (const el of document.querySelectorAll("[class*=blur],[style*=blur]")) el.style.filter = "none";
+  });
+}
+
+async function headlineBox(page) {
+  return page.evaluate(() => {
+    const h = document.querySelector("article h1, main h1, [itemprop='headline'], h1");
+    if (!h) return { y: 0, text: "" };
+    const r = h.getBoundingClientRect();
+    const y = Math.max(0, window.scrollY + r.top - 28);
+    return { y, text: (h.innerText || "").replace(/\s+/g, " ").trim().slice(0, 200) };
+  });
+}
+
+async function lumaOfPng(ctx, shot) {
+  // Measure on a blank page so any page CSS cannot skew the reading.
+  const tmp = await shot;
+  const b64 = tmp.toString("base64");
+  const p2 = await ctx.newPage();
+  try {
+    await p2.setContent("<html><body></body></html>");
+    return await p2.evaluate(async (b64) => {
+      const img = new Image();
+      const loaded = new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
+      img.src = "data:image/png;base64," + b64;
+      await loaded;
+      const c = document.createElement("canvas");
+      c.width = img.width; c.height = img.height;
+      const cx = c.getContext("2d");
+      cx.drawImage(img, 0, 0);
+      const data = cx.getImageData(0, 0, c.width, c.height).data;
+      let sum = 0, n = 0, step = 16 * 4;
+      for (let i = 0; i < data.length; i += step) {
+        sum += (data[i] + data[i + 1] + data[i + 2]) / 3;
+        n++;
+      }
+      const mean = n ? sum / n : 255;
+      return { mean, light: mean > 165 };
+    }, b64);
+  } finally {
+    await p2.close();
+  }
+}
+
 async function capturePage(browser, url, out, maxH) {
   const ctx = await context(browser, { width: 1440, height: 900 });
   const page = await ctx.newPage();
@@ -62,28 +119,32 @@ async function capturePage(browser, url, out, maxH) {
     await page.waitForTimeout(150);
   }
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.waitForTimeout(800);
-  await page.evaluate(() => {
-    for (const el of document.querySelectorAll("body *")) {
-      const s = getComputedStyle(el);
-      if (s.position === "fixed" || s.position === "sticky") el.remove();
-      else if (parseInt(s.zIndex) > 999 && s.position === "absolute") el.remove();
-    }
-    for (const el of [document.documentElement, document.body]) {
-      el.style.setProperty("overflow", "visible", "important");
-      el.style.setProperty("filter", "none", "important");
-      el.style.setProperty("position", "static", "important");
-    }
-    for (const el of document.querySelectorAll("[class*=blur],[style*=blur]")) el.style.filter = "none";
-  });
+  await page.waitForTimeout(600);
+  await dismissChrome(page);
+  await page.waitForTimeout(200);
+
+  const head = await headlineBox(page);
+  const total = await page.evaluate(() => document.documentElement.scrollHeight);
+  const clipY = Math.max(0, Math.min(head.y, Math.max(0, total - 900)));
+  const clipH = Math.max(900, Math.min(total - clipY, +maxH));
+  const clip = { x: 0, y: clipY, width: 1440, height: clipH };
+
+  await page.screenshot({ path: out, fullPage: true, clip, type: "png" });
+  let mean = null, light = false;
+  try {
+    const sample = await lumaOfPng(ctx, page.screenshot({
+      fullPage: true, clip: { ...clip, height: Math.min(clip.height, 500) }, type: "png",
+    }));
+    mean = sample.mean;
+    light = sample.light;
+  } catch {}
   const title = await page.title();
   const text = await page.evaluate(() => document.body.innerText || "");
-  const h = await page.evaluate(() => document.documentElement.scrollHeight);
-  await page.screenshot({ path: out, clip: { x: 0, y: 0, width: 1440, height: Math.min(h, +maxH) } });
   await ctx.close();
   return {
     ok: true, title, textLen: text.length, dark: DARK, mode: "page",
     blocked: BLOCK.test(title + " " + text.slice(0, 3000)) || text.length < 400,
+    inverted: false, light, mean, headline: head.text, headlineY: clipY,
   };
 }
 
@@ -94,7 +155,6 @@ async function captureXPost(browser, id, out) {
   const page = await ctx.newPage();
   await page.goto(embed, { waitUntil: "domcontentloaded", timeout: 45000 });
   await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
-  // Official embed usually paints the tweet in an iframe or as an article.
   await page.waitForTimeout(1200);
   for (const frame of page.frames()) {
     try {
@@ -110,7 +170,6 @@ async function captureXPost(browser, id, out) {
   });
   let failed = XFAIL.test(info.text) || (info.text.replace(/\s+/g, " ").trim().length < 40 && !info.hasArticle && !info.hasIframe);
   if (!failed) {
-    // Prefer a tight crop of the tweet card, including an iframe if that's how it rendered.
     const shot = await screenshotTweet(page);
     if (shot) {
       const fs = await import("fs");
@@ -125,7 +184,6 @@ async function captureXPost(browser, id, out) {
 }
 
 async function screenshotTweet(page) {
-  // Walk the page and same-origin frames for a tweet-sized box.
   const targets = [];
   const handle = await page.$("article, [data-testid='tweet']");
   if (handle) targets.push(handle);
@@ -149,7 +207,6 @@ async function screenshotTweet(page) {
       return await page.screenshot({ clip, type: "png" });
     } catch {}
   }
-  // Last try: the first iframe's bounding box on the parent page.
   const iframe = await page.$("iframe");
   if (iframe) {
     const box = await iframe.boundingBox();

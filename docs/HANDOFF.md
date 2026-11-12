@@ -1,6 +1,6 @@
 # Handoff: running this project as a new Grok Bot
 
-This guide is for a Grok Bot on a different account, with none of the original box, memory or routines. Read it, then `README.md` (pipeline spec), `STYLE.md` (website writing spec), `docs/X_ARTICLE_STYLE.md` (the two X Article formats, roundup and deep-dive, and how to pick one) and `docs/ROUTINE_PROMPT.md` (per-edition steps).
+This guide is for a Grok Bot on a different account, with none of the original box, memory or routines. Read it, then `README.md` (pipeline spec), `STYLE.md` (website writing spec), `docs/X_ARTICLE_STYLE.md` (the two X Article formats, roundup and deep-dive, and how to pick one) and `docs/ROUTINE_PROMPT.md` (per-edition steps). If you are asked to make an edition video, also read `docs/EDITION_VIDEO.md`.
 
 ## 1. What this is and the goal
 A pipeline that turns Anthony Russano's YouTube subscriptions, curated X searches and 44 RSS/Atom feeds plus the daily AINews email newsletter into short AI & DevOps "editions" (three per weekday, two per weekend day). Each edition is published to GitHub Pages (https://anthonyrussano.github.io/youtube-digest/) as a rapid-fire roundup **and as an X Article on @russano** in one of two named formats: **roundup** (several stories, led by one researched item) or **deep-dive** (a single-lead piece), chosen per edition (section 4a). Both are written with the same four-step process in `articles/x/<EDITION>/`. The goal is to **maximize reach on @russano**: good stories, good timing, a fresh hook caption, and Articles people share, reply to and follow from (the ranking code weighs those far above likes and gives bookmarks nothing; section "Algorithm notes").
@@ -111,6 +111,10 @@ Respect X limits: 30 reads/min, 1000/day across all routines.
 - **No Article posts after 9 PM PT.** A late-night on-demand deep dive is queued for the next 12:04 PM PT slot (still at least 2 h after the previous post). The only exception is Anthony explicitly saying "post now". Why: Articles posted after 9 PM PT averaged about 65 impressions, against about 640 for those posted 12-4 PM PT.
 - **Weekday rule:** the 6:04 AM edition's Article posts at 10:37 AM. If Anthony has it posted early on request, the 10:37 routine skips it because it is already in `state/x_posts.json`. The 12:04 run's Article still needs 2 h from whatever posted last (after a 10:37 post, not before 12:37 PM PT).
 
+## 4d. Edition videos
+
+A published edition can also become a voiceover-ready 1080p video (cold open, stories, dark end card, quiet CC0 music bed). Anthony records the voiceover himself. The full process is `docs/EDITION_VIDEO.md`. Short tool reference: `tools/edition-video/README.md`. Write `/workspace/edition-video/<EDITION>/script.md`, then run `tools/edition-video/remote.sh <EDITION>`. Heavy work runs on iphedeiah, never on the box. Do not show the GitHub Pages edition page. Do not write "Mind Blow" in the video or the teleprompter. Do not commit rendered media. Do not overwrite a delivered `final.mp4`.
+
 ## 4. X Article playbook
 The X API **cannot** create Articles, so this is done in the browser, which Anthony signed into @russano himself.
 0. **Timing gate** (section 4b): check `state/x_posts.json`. If 2 Articles already posted this PT day, the latest `posted_at_utc` is under 4 h ago, or it is outside 8:00 AM-5:30 PM PT, do not post: the Article stays committed under `articles/x/<EDITION>/`, and the run report says HELD with the next slot (PT) so the parent can queue it. Exception: Anthony explicitly says "post now".
@@ -126,7 +130,7 @@ The X API **cannot** create Articles, so this is done in the browser, which Anth
 9. Message Anthony (outside quiet hours): headline, link, one sentence on the top item, and one line suggesting he reply to early commenters within about 2 hours (the cold-start boost window; our own replies don't reach non-followers, so his engagement is what counts).
 
 ## 5. Hard rules
-- Never use "Mind Blow" in Article titles, bodies or captions (it is only the internal style name).
+- Never use "Mind Blow" in Article titles, bodies or captions, or in the edition video, teleprompter, video titles or video captions (it is only the internal style name).
 - Quiet hours **10 PM to 5:30 AM PT**: send no messages.
 - After each published edition, message Anthony with the headline, the link and one sentence on the top item.
 - Messaging or emailing anyone other than Anthony needs his explicit confirmation first.

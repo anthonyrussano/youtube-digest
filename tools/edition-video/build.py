@@ -30,7 +30,7 @@ Optional sidecars in WORKDIR: xposts.json (auto-fill 3-6 posts/segment),
 """
 import argparse, hashlib, json, math, os, re, shutil, subprocess, sys, time, urllib.parse, urllib.request
 from concurrent.futures import ThreadPoolExecutor
-from PIL import Image, ImageDraw, ImageFont, ImageStat
+from PIL import Image, ImageDraw, ImageFont, ImageStat, ImageOps, ImageFilter
 
 W, H, FPS = 1920, 1080, 30
 WPS = 2.5            # narration words per second
@@ -71,6 +71,7 @@ FORCE_VIDEO = re.compile(r"^(?:Camera|On camera):\s*(video|include)\s*$", re.I |
 DARK = True
 BG = (11, 13, 18)
 THEME_TAG = "dark"
+PAGE_CAP = "p3"  # bump to recapture pages when crop/dark logic changes
 
 WD = None
 C = None
@@ -443,14 +444,83 @@ def fetch_xpost(v):
     return out
 
 
+
+def invert_preserve_photos(im):
+    """Invert a light page to dark, but keep photos and color logos as they were.
+
+    Headless Chromium does not bake a CSS invert filter into screenshots, so we
+    do the invert on the PNG. High-saturation regions (photos, brand color) are
+    pasted back from the original so they do not look like negatives.
+    """
+    inv = ImageOps.invert(im.convert("RGB"))
+    sat = im.convert("HSV").getchannel("S")
+    mask = sat.point(lambda s: 255 if s > 36 else 0).filter(ImageFilter.MaxFilter(7))
+    out = inv.copy()
+    out.paste(im, mask=mask)
+    return out
+
+def page_luma(im, band_h=None):
+    """Mean and stddev of a top band of a page capture (0-255)."""
+    g = im.convert("L")
+    w, h = g.size
+    band_h = band_h or min(h, max(240, h // 4))
+    band = g.crop((int(w * 0.05), 0, int(w * 0.95), band_h))
+    st = ImageStat.Stat(band)
+    return st.mean[0], st.stddev[0]
+
+
+def page_looks_dark(im):
+    """True when the capture reads as a usable dark page."""
+    m, s = page_luma(im)
+    return m < 115 and s > 10
+
+
+def framed_page(im, title, sub=""):
+    """Dark matte with the headline on top and the page inset below."""
+    canvas = Image.new("RGB", (W, H), BG)
+    d = ImageDraw.Draw(canvas)
+    top, bot = (10, 12, 16), (20, 24, 32)
+    for i in range(H):
+        u = i / max(H - 1, 1)
+        col = tuple(int(top[c] + (bot[c] - top[c]) * u) for c in range(3))
+        d.line([(0, i), (W, i)], fill=col)
+    d.rectangle([(48, 48), (62, 200)], fill=GOLD)
+    ft = ImageFont.truetype(FONT_B, 54)
+    fs = ImageFont.truetype(FONT_L, 28)
+    lines = wrap(d, title or "Article", ft, W - 280)[:3] or [title or "Article"]
+    y = 56
+    for ln in lines:
+        d.text((88, y), ln, font=ft, fill=INK, anchor="lt")
+        y += 64
+    if sub:
+        d.text((88, y + 4), sub, font=fs, fill=MUTED, anchor="lt")
+        y += 40
+    # Cover-crop the top of the page (headline is already at the top) into the inset.
+    top_y = min(max(y + 28, 240), 420)
+    box = (80, top_y, W - 80, H - 48)
+    bw, bh = box[2] - box[0], box[3] - box[1]
+    d.rectangle([box[0] - 2, box[1] - 2, box[2] + 2, box[3] + 2], outline=GOLD, width=2)
+    s = max(bw / max(im.width, 1), bh / max(im.height, 1))
+    nw, nh = max(1, round(im.width * s)), max(1, round(im.height * s))
+    fitted = im.resize((nw, nh), Image.LANCZOS)
+    left = max(0, (nw - bw) // 2)
+    crop = fitted.crop((left, 0, left + bw, min(nh, bh)))
+    if crop.size != (bw, bh):
+        pad = Image.new("RGB", (bw, bh), (8, 10, 14))
+        pad.paste(crop, (0, 0))
+        crop = pad
+    canvas.paste(crop, (box[0], box[1]))
+    return _vignette_overlay(canvas, 0.28)
+
+
 def fetch_page(v):
     url = v["url"]
-    out = C("cache/page", f"{h(url + '|' + THEME_TAG)}.png")
+    out = C("cache/page", f"{h(url + '|' + THEME_TAG + '|' + PAGE_CAP)}.png")
     if os.path.exists(out):
         report["sources"][f"page {url}"] = "cached"
         return out
-    raw = C("tmp", f"{h(url)}_{THEME_TAG}_raw.png")
-    ok = False
+    raw = C("tmp", f"{h(url)}_{THEME_TAG}_{PAGE_CAP}_raw.png")
+    ok, info = False, {}
     try:
         r = run(["node", os.path.join(HERE, "capture.mjs"), url, raw], timeout=150, env=dark_env())
         info = json.loads((r.stdout or "{}").strip().splitlines()[-1] if r.stdout and r.stdout.strip() else "{}")
@@ -462,12 +532,29 @@ def fetch_page(v):
     if not ok:
         return None
     im = Image.open(raw).convert("RGB")
-    im = im.resize((W, round(im.height * W / im.width)), Image.LANCZOS)
+    im = im.resize((W, max(1, round(im.height * W / im.width))), Image.LANCZOS)
     im = trim_bottom(im)
-    if im.height < H:
+    mode = "ok"
+    if DARK and not page_looks_dark(im):
+        flipped = invert_preserve_photos(im)
+        if page_looks_dark(flipped):
+            im = flipped
+            mode = "inverted"
+        else:
+            title = (info.get("headline") or v.get("fallback") or v.get("label") or info.get("title") or "Article")
+            title = re.sub(r"\s*[|\-–—]\s*[^|\-–—]+$", "", title).strip() or title
+            im = framed_page(im, title, v.get("label") or "")
+            mode = "framed"
+    elif im.height < H:
         bg = Image.new("RGB", (W, H), BG); bg.paste(im, (0, 0)); im = bg
     im.save(out)
-    report["sources"][f"page {url}"] = "ok"
+    report["sources"][f"page {url}"] = mode
+    if info:
+        report.setdefault("captures", []).append({
+            "url": url, "mode": mode, "inverted": info.get("inverted"),
+            "light": info.get("light"), "headline": info.get("headline"),
+            "headlineY": info.get("headlineY"), "mean": info.get("mean"),
+        })
     return out
 
 
@@ -603,16 +690,73 @@ def _ff_textfile(name, text):
     return f
 
 
-def label_filter(label, idx):
+def _corner_busy(im, side, box_w=460, box_h=170):
+    """How bright and busy a lower corner is. Higher means a label will fight the picture."""
+    g = im.convert("L")
+    w, h = g.size
+    x0 = 20 if side == "left" else max(0, w - box_w - 20)
+    y0 = max(0, h - box_h - 16)
+    crop = g.crop((x0, y0, min(w, x0 + box_w), min(h, y0 + box_h)))
+    st = ImageStat.Stat(crop)
+    # Bright corners and high-detail corners both fight a label.
+    return st.mean[0] + st.stddev[0] * 0.8
+
+
+def label_side(src, kind, crop_y=0):
+    """Pick the calmer lower corner. Default left. Needs a still (page/xpost) or a video frame."""
+    try:
+        if kind == "yt":
+            probe = C("tmp", f"labelprobe_{h(src)}.png")
+            if not os.path.exists(probe):
+                r = run(["ffmpeg", "-nostdin", "-y", "-loglevel", "error", "-ss", "0.4",
+                         "-i", src, "-frames:v", "1", "-update", "1", probe], timeout=30)
+                if r.returncode != 0 or not os.path.exists(probe):
+                    return "left"
+            im = Image.open(probe).convert("RGB")
+            if im.size != (W, H):
+                im = im.resize((W, H), Image.BILINEAR)
+        else:
+            im = Image.open(src).convert("RGB")
+            if im.height > H + 40:
+                y0 = min(max(crop_y, 0), max(0, im.height - H))
+                im = im.crop((0, y0, min(im.width, W) if im.width >= W else im.width, y0 + min(H, im.height - y0)))
+                if im.size != (W, H):
+                    canvas = Image.new("RGB", (W, H), BG)
+                    canvas.paste(im, (0, 0))
+                    im = canvas
+        left, right = _corner_busy(im, "left"), _corner_busy(im, "right")
+        # Flip only when the left corner is clearly worse (bright or busy) and the right is calmer.
+        if left > 150 and right < left - 25:
+            return "right"
+        return "left"
+    except Exception:
+        return "left"
+
+
+def label_filter(label, idx, side="left"):
     if not label:
         return ""
     f = _ff_textfile(f"label_{idx}.txt", label)
-    # Clean dark pill, gold tick, fades in over the first 0.3 s.
+    # Solid dark plate so the type stays readable on busy slides and light pages.
+    try:
+        font = ImageFont.truetype(FONT_M, 28)
+        tw = int(ImageDraw.Draw(Image.new("RGB", (8, 8))).textlength(label, font=font))
+    except Exception:
+        tw = 16 * len(label)
+    plate_w = min(W - 80, tw + 96)
+    plate_h = 84
+    py = "ih-156"
+    ty = "h-124"
+    alpha = "if(lt(t,0.30),t/0.30,1)"
+    if side == "right":
+        px, tx, tickx = f"w-{plate_w + 40}", f"w-{tw + 80}", f"w-56"
+    else:
+        px, tx, tickx = 40, 96, 56
     return (
-        f",drawbox=x=64:y=ih-128:w=8:h=48:color=0xFFC400@0.95:t=fill"
+        f",drawbox=x={px}:y={py}:w={plate_w}:h={plate_h}:color=black@0.88:t=fill"
+        f",drawbox=x={tickx}:y=ih-128:w=8:h=40:color=0xFFC400@0.95:t=fill"
         f",drawtext=fontfile={FONT_M}:textfile={f}:fontsize=28:fontcolor=white:"
-        f"y_align=font:box=1:boxcolor=black@0.48:boxborderw=18:"
-        f"x=88:y=h-124:alpha='if(lt(t,0.30),t/0.30,1)'"
+        f"y_align=font:x={tx}:y={ty}:alpha='{alpha}'"
     )
 
 
@@ -624,7 +768,7 @@ def chapter_filter(num, title, idx):
     alpha = "if(lt(t,0.22),t/0.22,if(lt(t,1.80),1,if(lt(t,2.25),(2.25-t)/0.45,0)))"
     return (
         f",drawtext=fontfile={FONT_M}:textfile={f}:fontsize=26:fontcolor=white@0.92:"
-        f"x=72:y=68:box=1:boxcolor=black@0.45:boxborderw=14:alpha='{alpha}'"
+        f"x=72:y=68:box=1:boxcolor=black@0.78:boxborderw=16:alpha='{alpha}'"
     )
 
 
@@ -681,7 +825,6 @@ def render_shot(shot):
     i, frames, src, kind, k, label = shot["i"], shot["frames"], shot["src"], shot["kind"], shot["use"], shot["label"]
     out = C("shots", f"{i:03d}.mp4")
     dur = frames / FPS
-    lf = "" if shot.get("no_label") or kind == "card" else label_filter(label, i)
     # Pages already have their own chrome; a chapter label collides with site nav.
     ch = chapter_filter(shot.get("chap_num") or "", shot.get("chap_title") or "", i) if (shot.get("chapter") and kind != "page") else ""
     fades = edge_fades(dur, shot.get("fade_in") or 0, shot.get("fade_out") or 0)
@@ -691,9 +834,13 @@ def render_shot(shot):
                   f"noise=alls=1:allf=t{fades}{ch},format=yuv420p")
     else:
         finish = f",{FINISH}{fades}{ch},format=yuv420p"
+    # Crop start for tall pages: first use stays at the top (now the h1). Later uses scroll.
+    y0 = 0
     if kind == "yt":
         clip_len = YT_AFTER + YT_BEFORE - 0.5
         off = (YT_BEFORE + 3.2 * k) % max(clip_len - dur, 0.5)
+        side = "left" if shot.get("no_label") or not label else label_side(src, "yt")
+        lf = "" if shot.get("no_label") or kind == "card" else label_filter(label, i, side)
         z = ken_burns(frames, "yt", k)
         vf = f"scale={W*2}:{H*2}:flags=bicubic,{z}{lf}{finish}"
         cmd = ["ffmpeg", "-nostdin", "-y", "-loglevel", "error", "-ss", f"{off:.2f}", "-i", src, "-vf", vf,
@@ -701,11 +848,16 @@ def render_shot(shot):
     else:
         im = Image.open(src); ih_ = im.height
         if kind in ("card", "xpost") or ih_ <= H + 40:
+            y0 = 0
+            side = "left" if shot.get("no_label") or kind == "card" or not label else label_side(src, kind, 0)
+            lf = "" if shot.get("no_label") or kind == "card" else label_filter(label, i, side)
             z = ken_burns(frames, kind if kind in ("card", "xpost") else "page", k)
             vf = f"scale={W*2}:{H*2},{z}{lf}{finish}"
         else:
             span = 280
             y0 = (k * 900) % max(ih_ - H - span, 1)
+            side = "left" if shot.get("no_label") or not label else label_side(src, kind, y0)
+            lf = "" if shot.get("no_label") or kind == "card" else label_filter(label, i, side)
             # Slow scroll, then a gentle push on alternate uses, already graded at the end.
             if k % 2 == 0 and ih_ > H + 80:
                 y1 = min(y0 + span, ih_ - H)
@@ -1126,6 +1278,12 @@ def main():
         from music import render_bed
         minfo = render_bed(total + 0.4, C("music.wav"), C("music-license.txt"),
                            fade_in=2.0, fade_out=4.5)
+        mp3 = C("music.mp3")
+        r_mp3 = run(["ffmpeg", "-nostdin", "-y", "-loglevel", "error",
+                     "-i", C("music.wav"), "-c:a", "libmp3lame", "-b:a", "192k", mp3], timeout=120)
+        if r_mp3.returncode == 0 and os.path.exists(mp3):
+            minfo["mp3"] = "music.mp3"
+            minfo["mp3_bitrate"] = "192k"
         report["music"] = minfo
         concat = ["ffmpeg", "-nostdin", "-y", "-loglevel", "error",
                   "-f", "concat", "-safe", "0", "-i", C("tmp", "concat.txt"),

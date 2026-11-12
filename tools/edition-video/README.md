@@ -1,5 +1,8 @@
 # Edition video
 
+The full process, rules, QA checklist and changelog live in
+[`docs/EDITION_VIDEO.md`](../../docs/EDITION_VIDEO.md). This file is the short tool reference.
+
 Turns one published edition into a voiceover-ready 1920x1080 30 fps MP4 (about 5-8 minutes)
 plus a teleprompter with segment timecodes, a quiet music stem, and a `post-attribution.md`
 credits file to paste into the video's post. Anthony records his own voiceover over the picture.
@@ -25,7 +28,7 @@ X posts and handles, and copies files over SSH.
 4. Run `tools/edition-video/remote.sh <EDITION>`. It copies the tools to `~/Projects/edition-video/bin/`
    on the host, builds in `~/Projects/edition-video/<EDITION>/`, and copies `final.mp4`,
    `teleprompter.md`, `timeline.json`, `report.json`, `post-attribution.md`, `attribution.json`,
-   `music.wav` and `music-license.txt` back to `/workspace/edition-video/<EDITION>/`.
+   `music.wav`, `music.mp3` and `music-license.txt` back to `/workspace/edition-video/<EDITION>/`.
 5. Check `report.json` for failed sources, substitutions, chosen X post URLs, unresolved handles,
    and the music license, then hand over the MP4, the teleprompter, the music stem, and the credits.
 
@@ -95,15 +98,17 @@ under where the voiceover will go, with a fade in and fade out. The loop is 16 b
 and tiles cleanly for a 5–8 minute video.
 
 `music.wav` (24-bit, 48 kHz stereo) is written next to the MP4 as a stem you can adjust in an
-editor. `music-license.txt` records the source and license. Cited YouTube clips stay muted.
+editor. `music.mp3` (192 kbps) is the chat-sized copy (attachments must stay under 25 MB).
+`music-license.txt` records the source and license. Cited YouTube clips stay muted.
 Turn the bed off with `--no-music` or `EV_NO_MUSIC=1`.
 
 ## Dark mode
 
 Captures default to dark mode: Playwright `colorScheme: 'dark'`, plus Chromium force-dark
-(`--enable-features=WebContentsForceDark` and `--blink-settings=forceDarkModeEnabled=true`) so
-sites without a native dark theme still come back dark. Headline cards use a dark theme too. Turn
-this off with `--no-dark` on `build.sh` / `remote.sh`, or `EV_DARK=0`.
+(`--enable-features=WebContentsForceDark` and `--blink-settings=forceDarkModeEnabled=true`).
+Article crops start at the headline. If a site is still light, the build inverts the PNG and
+keeps photos, or frames the article on a dark card. Headline cards are dark too. Turn this
+off with `--no-dark` on `build.sh` / `remote.sh`, or `EV_DARK=0`.
 
 ## Auto X posts
 

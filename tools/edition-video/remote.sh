@@ -32,7 +32,7 @@ for side in xposts.json handles.json; do
   fi
 done
 "${SSH[@]}" "bash ~/Projects/edition-video/bin/build.sh $ED $*"
-for f in final.mp4 teleprompter.md timeline.json report.json post-attribution.md attribution.json music.wav music-license.txt; do
+for f in final.mp4 teleprompter.md timeline.json report.json post-attribution.md attribution.json music.wav music.mp3 music-license.txt; do
   "${SCP[@]}" -q "$HOST:Projects/edition-video/$ED/$f" "$OUT/" 2>/dev/null || true
 done
 # If --output named something else, try to bring that back too (best-effort).
