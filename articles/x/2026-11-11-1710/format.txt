@@ -1,0 +1,3 @@
+roundup
+Classic full roundup for a thin evening edition led by Duolingo's agent test pipeline; no single story deep enough for a deep dive.
+caption: 700+ agent-written test PRs merged at Duolingo, and a human approved every one. Coverage on its newer iOS code went from 9% to 59% in eight months. The trick is a hard rule: any PR that touches non-test files gets closed...
